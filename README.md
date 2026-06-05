@@ -133,7 +133,7 @@ Ejemplo: `feature/auth-service`, `feature/match-service`
 
 Este repositorio es exclusivamente el servidor. El cliente WPF vive en:
 
-> [https://github.com/MZSM98/Hangman.Client](https://github.com/MZSM98/Hangman.Client)
+> [https://github.com/MZSM98/Hangman.Client](https://github.com/MZSM98/HangmanGame-Client)
 
 Ambos proyectos deben estar corriendo simultáneamente para que el juego funcione.
 
