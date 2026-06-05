@@ -1,102 +1,89 @@
-# HangmanGame
+# Hangman.Server
 
-Proyecto del juego del ahorcado desarrollado como una solución cliente-servidor usando tecnologías de Microsoft.
+Servidor del juego del Ahorcado desarrollado con WCF y SQL Server, como proyecto final de la materia *Tecnologías para la Construcción de Software* — Ingeniería de Software, UV FEI, FEB–JUL 2026.
 
-Esta solución contiene la base del backend del sistema, organizada en proyectos separados para mantener una estructura limpia entre contratos, servicios, acceso a datos y hospedaje del servicio WCF.
+Expone los servicios WCF que consume la aplicación cliente `Hangman.Client`.
 
-## Tecnologías utilizadas
+## Tecnologías
 
-- C#
-- .NET Framework
-- WCF
+- C# / .NET Framework 4.7.2
+- WCF (Windows Communication Foundation)
+- Entity Framework 6 (Database First)
 - SQL Server
-- Visual Studio
+- Visual Studio 2022
 - Git / GitHub
 
 ## Estructura de la solución
 
 ```text
-HangmanGame
-├── Hangman.ConsoleHost
-├── Hangman.Contracts
-├── Hangman.DataAccess
-└── HangmanGame.Services
-```
-
-### Hangman.ConsoleHost
-
-Proyecto de consola encargado de hospedar los servicios WCF durante el desarrollo y las pruebas.
-
-Contiene:
-
-```text
-App.config
-Program.cs
+Hangman.Server
+├── Hangman.Contracts\       <- Interfaces de servicio, DTOs, Requests, Responses, Enums
+├── Hangman.DataAccess\      <- Contexto EF, modelos generados, repositorios
+├── Hangman.Services\        <- Implementación de los servicios WCF
+└── Hangman.ConsoleHost\     <- Host de consola para levantar los servicios en desarrollo
 ```
 
 ### Hangman.Contracts
 
-Biblioteca de clases donde se definen los contratos compartidos del sistema.
-
-Aquí deben colocarse:
+Biblioteca de clases compartida. Define los contratos del sistema.
 
 ```text
-Interfaces de servicios WCF
-DTOs
-Requests
-Responses
-Enums compartidos
+IAuthService.cs
+IPlayerService.cs
+IMatchService.cs
+IScoreService.cs
+ICatalogService.cs
+DTOs\
+Enums\
+    MatchStatus.cs
+    MovementType.cs
+    AccountStatus.cs
 ```
 
-Este proyecto no debe depender de los demás proyectos de la solución.
+Este proyecto no debe depender de ningún otro proyecto de la solución.
 
 ### Hangman.DataAccess
 
-Biblioteca de clases encargada del acceso a datos.
-
-Aquí deben colocarse:
+Acceso a datos mediante Entity Framework Database First.
 
 ```text
-Conexión a SQL Server
-Repositorios
-Consultas SQL
-Mapeo de datos
+Model\               <- Clases generadas por EF (PLAYER, ACCOUNT, MATCH, etc.)
+Repositories\        <- Consultas y operaciones sobre la BD
+App.config           <- Cadena de conexión (no subir credenciales reales)
 ```
 
-La lógica de validación principal no debe estar en la base de datos, sino en el programa principal o en los servicios correspondientes.
+### Hangman.Services
 
-### HangmanGame.Services
-
-Proyecto donde se implementan los servicios WCF.
-
-Aquí deben colocarse las clases que implementan los contratos definidos en `Hangman.Contracts`.
-
-Ejemplos:
+Implementación de los contratos definidos en `Hangman.Contracts`.
 
 ```text
-AuthService
-PlayerService
-MatchService
-ScoreService
+AuthService.cs       <- CU-01 Registro, CU-02 Login
+PlayerService.cs     <- CU-03 Ver perfil, CU-04 Editar, CU-14 Idioma
+CatalogService.cs    <- CU-15 Categorías y palabras
+MatchService.cs      <- CU-05 Listar, CU-06 Crear, CU-07 Unirse, CU-08 Jugar, CU-09 Abandonar
+ScoreService.cs      <- CU-10 Puntaje global, CU-11 Penalizaciones
+```
+
+### Hangman.ConsoleHost
+
+Proyecto de consola que hospeda los servicios WCF durante desarrollo y pruebas.
+
+```text
+Program.cs           <- Levanta y cierra los ServiceHost
+App.config           <- Configuración de endpoints WCF
 ```
 
 ## Base de datos
 
-El proyecto utiliza SQL Server como sistema gestor de base de datos.
+El sistema gestor de base de datos es SQL Server. La base se llama `HangmanDB`.
 
-La base de datos principal se llama:
-
-```text
-HangmanDB
-```
-
-El script oficial para crear la base de datos se encuentra en:
+El script oficial de creación se encuentra en:
 
 ```text
 HangmanDB_base_original.sql
 ```
 
-Este script crea las tablas principales del sistema:
+Tablas principales:
 
 ```text
 LANGUAGE
@@ -110,76 +97,18 @@ MATCH_GUESS
 SCORE_MOVEMENT
 ```
 
-## Consideraciones del diseño de base de datos
+### Ejecutar el script
 
-La base de datos se mantiene enfocada en la persistencia de datos.
+1. Abrir SQL Server Management Studio
+2. Conectarse al servidor local
+3. Abrir `HangmanDB_base_original.sql`
+4. Ejecutar el script completo
 
-La base se encarga principalmente de:
+> El script elimina y recrea `HangmanDB` desde cero. No ejecutar sobre datos importantes.
 
-```text
-PRIMARY KEY
-FOREIGN KEY
-NOT NULL
-Tamaños máximos de campos
-UNIQUE
-Índices
-DEFAULT simples
-```
+## Configuración de cadena de conexión
 
-Las validaciones principales se realizan desde el programa principal o desde los servicios WCF.
-
-Ejemplos de validaciones que deben manejarse desde la aplicación:
-
-```text
-Formato de correo electrónico
-Nombre vacío
-Fecha de nacimiento válida
-Teléfono correcto
-Estados permitidos
-Reglas del juego
-Tiempo de expiración del token de verificación
-```
-
-## Verificación de correo electrónico
-
-La tabla encargada de la verificación de correo es:
-
-```text
-EMAIL_VERIFICATION
-```
-
-Esta tabla almacena:
-
-```text
-verification_code_hash
-expires_at
-verified_at
-attempts
-is_used
-created_at
-```
-
-El tiempo máximo de uso del token debe ser calculado por el programa principal antes de guardar el registro en la base de datos.
-
-## Ejecución del script de base de datos
-
-1. Abrir SQL Server Management Studio.
-2. Conectarse al servidor local de SQL Server.
-3. Abrir el archivo `HangmanDB_base_original.sql`.
-4. Ejecutar el script completo.
-5. Verificar que se haya creado la base de datos `HangmanDB`.
-
-## Importante
-
-El script elimina la base de datos `HangmanDB` si ya existe y la vuelve a crear desde cero.
-
-No debe ejecutarse sobre una base de datos que contenga información importante.
-
-## Cadena de conexión
-
-No se deben publicar credenciales reales dentro del repositorio.
-
-Cada desarrollador debe configurar su propia cadena de conexión de forma local.
+Cada desarrollador configura su conexión local. No subir credenciales al repositorio.
 
 Ejemplo con autenticación integrada de Windows:
 
@@ -187,27 +116,34 @@ Ejemplo con autenticación integrada de Windows:
 Server=TU_SERVIDOR;Database=HangmanDB;Integrated Security=True;TrustServerCertificate=True;
 ```
 
-Reemplazar `TU_SERVIDOR` por el nombre real de la instancia de SQL Server.
+Copiar `ConnectionStrings.example.config` como `ConnectionStrings.config` y reemplazar `TU_SERVIDOR` con el nombre real de la instancia.
 
-## Archivos que no deben subirse
+## Convención de ramas
 
-No se deben subir archivos generados automáticamente por Visual Studio o por la compilación.
+| Rama | Uso |
+|---|---|
+| `main` | Versiones estables entregadas |
+| `develop` | Integración continua del equipo |
+| `feature/nombre-servicio` | Desarrollo de un servicio específico |
+| `fix/descripcion` | Corrección de errores |
 
-Ejemplos:
+Ejemplo: `feature/auth-service`, `feature/match-service`
 
-```text
-.vs/
-bin/
-obj/
-*.user
-*.suo
-TestResults/
-```
+## Relación con el cliente
 
-Se recomienda usar un archivo `.gitignore` para evitar subir estos archivos.
+Este repositorio es exclusivamente el servidor. El cliente WPF vive en:
 
-## Estado actual
+> [https://github.com/MZSM98/Hangman.Client](https://github.com/MZSM98/Hangman.Client)
 
-La solución contiene la estructura base del backend WCF para el juego del ahorcado.
+Ambos proyectos deben estar corriendo simultáneamente para que el juego funcione.
 
-El desarrollo continuará integrando los servicios, el acceso a datos y posteriormente la aplicación cliente WPF.
+## Equipo
+
+- Jorge Manuel Cobos Castro
+- Marcos Zenón Sánchez Mendizábal
+- Guillermo Velázquez Rosiles
+- Claudio Trujillo Zepeda
+
+**Docente:** Mtro. Ramón Gómez Romero  
+**Materia:** Tecnologías para la Construcción de Software  
+**Periodo:** FEB – JUL 2026
