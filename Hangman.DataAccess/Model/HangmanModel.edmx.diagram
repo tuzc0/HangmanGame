@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="8effade39e244b7680cb3a6ac986a68d" Name="Diagram1">
+        <EntityTypeShape EntityType="HangmanDBModel.ACCOUNT" Width="1.5" PointX="5.25" PointY="6.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="HangmanDBModel.CATEGORY" Width="1.5" PointX="3" PointY="3.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="HangmanDBModel.EMAIL_VERIFICATION" Width="1.5" PointX="7.5" PointY="7.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="HangmanDBModel.LANGUAGE" Width="1.5" PointX="0.75" PointY="6" IsExpanded="true" />
+        <EntityTypeShape EntityType="HangmanDBModel.MATCH" Width="1.5" PointX="7.5" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="HangmanDBModel.MATCH_GUESS" Width="1.5" PointX="9.75" PointY="4.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="HangmanDBModel.PLAYER" Width="1.5" PointX="3" PointY="6.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="HangmanDBModel.SCORE_MOVEMENT" Width="1.5" PointX="12.75" PointY="4.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="HangmanDBModel.WORD" Width="1.5" PointX="5.25" PointY="2.125" IsExpanded="true" />
+        <AssociationConnector Association="HangmanDBModel.FK_ACCOUNT_PLAYER" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_EMAIL_VERIFICATION_ACCOUNT" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_CATEGORY_LANGUAGE" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_WORD_CATEGORY" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_PLAYER_LANGUAGE" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_WORD_LANGUAGE" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_MATCH_GUESS_MATCH" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_MATCH_GUEST_PLAYER" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_MATCH_HOST_PLAYER" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_MATCH_PENALIZED_PLAYER" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_MATCH_WINNER_PLAYER" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_MATCH_WORD" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_SCORE_MOVEMENT_MATCH" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_MATCH_GUESS_PLAYER" ManuallyRouted="false" />
+        <AssociationConnector Association="HangmanDBModel.FK_SCORE_MOVEMENT_PLAYER" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

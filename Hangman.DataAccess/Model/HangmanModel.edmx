@@ -1,0 +1,904 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="HangmanDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="ACCOUNT">
+          <Key>
+            <PropertyRef Name="account_id" />
+          </Key>
+          <Property Name="account_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="player_id" Type="int" Nullable="false" />
+          <Property Name="email" Type="nvarchar" MaxLength="200" Nullable="false" />
+          <Property Name="password_hash" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="is_email_verified" Type="bit" Nullable="false" />
+          <Property Name="email_verified_at" Type="datetime2" Precision="7" />
+          <Property Name="account_status" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="updated_at" Type="datetime2" Precision="7" />
+        </EntityType>
+        <EntityType Name="CATEGORY">
+          <Key>
+            <PropertyRef Name="category_id" />
+          </Key>
+          <Property Name="category_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="80" Nullable="false" />
+          <Property Name="language_code" Type="nvarchar" MaxLength="5" Nullable="false" />
+          <Property Name="is_active" Type="bit" Nullable="false" />
+        </EntityType>
+        <EntityType Name="EMAIL_VERIFICATION">
+          <Key>
+            <PropertyRef Name="email_verification_id" />
+          </Key>
+          <Property Name="email_verification_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="account_id" Type="int" Nullable="false" />
+          <Property Name="verification_code_hash" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="expires_at" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="verified_at" Type="datetime2" Precision="7" />
+          <Property Name="attempts" Type="int" Nullable="false" />
+          <Property Name="is_used" Type="bit" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="LANGUAGE">
+          <Key>
+            <PropertyRef Name="language_code" />
+          </Key>
+          <Property Name="language_code" Type="nvarchar" MaxLength="5" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="MATCH">
+          <Key>
+            <PropertyRef Name="match_id" />
+          </Key>
+          <Property Name="match_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="host_id" Type="int" Nullable="false" />
+          <Property Name="guest_id" Type="int" />
+          <Property Name="word_id" Type="int" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="joined_at" Type="datetime2" Precision="7" />
+          <Property Name="started_at" Type="datetime2" Precision="7" />
+          <Property Name="finished_at" Type="datetime2" Precision="7" />
+          <Property Name="match_status" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="winner_id" Type="int" />
+          <Property Name="penalized_user_id" Type="int" />
+          <Property Name="failed_attempts" Type="int" Nullable="false" />
+          <Property Name="max_attempts" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="MATCH_GUESS">
+          <Key>
+            <PropertyRef Name="guess_id" />
+          </Key>
+          <Property Name="guess_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="match_id" Type="int" Nullable="false" />
+          <Property Name="guessed_by_id" Type="int" Nullable="false" />
+          <Property Name="letter" Type="nvarchar" MaxLength="1" Nullable="false" />
+          <Property Name="is_correct" Type="bit" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PLAYER">
+          <Key>
+            <PropertyRef Name="player_id" />
+          </Key>
+          <Property Name="player_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="full_name" Type="nvarchar" MaxLength="120" Nullable="false" />
+          <Property Name="date_of_birth" Type="date" Nullable="false" />
+          <Property Name="phone" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="creation_date" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="is_active" Type="bit" Nullable="false" />
+          <Property Name="preferred_language_code" Type="nvarchar" MaxLength="5" Nullable="false" />
+        </EntityType>
+        <EntityType Name="SCORE_MOVEMENT">
+          <Key>
+            <PropertyRef Name="score_movement_id" />
+          </Key>
+          <Property Name="score_movement_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="player_id" Type="int" Nullable="false" />
+          <Property Name="match_id" Type="int" Nullable="false" />
+          <Property Name="points" Type="int" Nullable="false" />
+          <Property Name="movement_type" Type="nvarchar" MaxLength="30" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WORD">
+          <Key>
+            <PropertyRef Name="word_id" />
+          </Key>
+          <Property Name="word_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="category_id" Type="int" Nullable="false" />
+          <Property Name="word_text" Type="nvarchar" MaxLength="80" Nullable="false" />
+          <Property Name="description" Type="nvarchar" MaxLength="300" Nullable="false" />
+          <Property Name="language_code" Type="nvarchar" MaxLength="5" Nullable="false" />
+          <Property Name="is_active" Type="bit" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_ACCOUNT_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="ACCOUNT" Type="Self.ACCOUNT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="ACCOUNT">
+              <PropertyRef Name="player_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CATEGORY_LANGUAGE">
+          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
+          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="CATEGORY">
+              <PropertyRef Name="language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_EMAIL_VERIFICATION_ACCOUNT">
+          <End Role="ACCOUNT" Type="Self.ACCOUNT" Multiplicity="1" />
+          <End Role="EMAIL_VERIFICATION" Type="Self.EMAIL_VERIFICATION" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACCOUNT">
+              <PropertyRef Name="account_id" />
+            </Principal>
+            <Dependent Role="EMAIL_VERIFICATION">
+              <PropertyRef Name="account_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_GUESS_MATCH">
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="1" />
+          <End Role="MATCH_GUESS" Type="Self.MATCH_GUESS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="MATCH_GUESS">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_GUESS_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="MATCH_GUESS" Type="Self.MATCH_GUESS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH_GUESS">
+              <PropertyRef Name="guessed_by_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_GUEST_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="guest_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_HOST_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="host_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_PENALIZED_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="penalized_user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_WINNER_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="winner_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_WORD">
+          <End Role="WORD" Type="Self.WORD" Multiplicity="1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WORD">
+              <PropertyRef Name="word_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="word_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PLAYER_LANGUAGE">
+          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="PLAYER">
+              <PropertyRef Name="preferred_language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCORE_MOVEMENT_MATCH">
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="1" />
+          <End Role="SCORE_MOVEMENT" Type="Self.SCORE_MOVEMENT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="SCORE_MOVEMENT">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCORE_MOVEMENT_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="SCORE_MOVEMENT" Type="Self.SCORE_MOVEMENT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="SCORE_MOVEMENT">
+              <PropertyRef Name="player_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WORD_CATEGORY">
+          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="1" />
+          <End Role="WORD" Type="Self.WORD" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CATEGORY">
+              <PropertyRef Name="category_id" />
+            </Principal>
+            <Dependent Role="WORD">
+              <PropertyRef Name="category_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WORD_LANGUAGE">
+          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
+          <End Role="WORD" Type="Self.WORD" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="WORD">
+              <PropertyRef Name="language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="HangmanDBModelStoreContainer">
+          <EntitySet Name="ACCOUNT" EntityType="Self.ACCOUNT" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CATEGORY" EntityType="Self.CATEGORY" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="EMAIL_VERIFICATION" EntityType="Self.EMAIL_VERIFICATION" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LANGUAGE" EntityType="Self.LANGUAGE" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MATCH" EntityType="Self.MATCH" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MATCH_GUESS" EntityType="Self.MATCH_GUESS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PLAYER" EntityType="Self.PLAYER" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="SCORE_MOVEMENT" EntityType="Self.SCORE_MOVEMENT" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WORD" EntityType="Self.WORD" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_ACCOUNT_PLAYER" Association="Self.FK_ACCOUNT_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="ACCOUNT" EntitySet="ACCOUNT" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CATEGORY_LANGUAGE" Association="Self.FK_CATEGORY_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGE" />
+            <End Role="CATEGORY" EntitySet="CATEGORY" />
+          </AssociationSet>
+          <AssociationSet Name="FK_EMAIL_VERIFICATION_ACCOUNT" Association="Self.FK_EMAIL_VERIFICATION_ACCOUNT">
+            <End Role="ACCOUNT" EntitySet="ACCOUNT" />
+            <End Role="EMAIL_VERIFICATION" EntitySet="EMAIL_VERIFICATION" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUESS_MATCH" Association="Self.FK_MATCH_GUESS_MATCH">
+            <End Role="MATCH" EntitySet="MATCH" />
+            <End Role="MATCH_GUESS" EntitySet="MATCH_GUESS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUESS_PLAYER" Association="Self.FK_MATCH_GUESS_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="MATCH_GUESS" EntitySet="MATCH_GUESS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUEST_PLAYER" Association="Self.FK_MATCH_GUEST_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="MATCH" EntitySet="MATCH" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_HOST_PLAYER" Association="Self.FK_MATCH_HOST_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="MATCH" EntitySet="MATCH" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_PENALIZED_PLAYER" Association="Self.FK_MATCH_PENALIZED_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="MATCH" EntitySet="MATCH" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_WINNER_PLAYER" Association="Self.FK_MATCH_WINNER_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="MATCH" EntitySet="MATCH" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_WORD" Association="Self.FK_MATCH_WORD">
+            <End Role="WORD" EntitySet="WORD" />
+            <End Role="MATCH" EntitySet="MATCH" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PLAYER_LANGUAGE" Association="Self.FK_PLAYER_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGE" />
+            <End Role="PLAYER" EntitySet="PLAYER" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCORE_MOVEMENT_MATCH" Association="Self.FK_SCORE_MOVEMENT_MATCH">
+            <End Role="MATCH" EntitySet="MATCH" />
+            <End Role="SCORE_MOVEMENT" EntitySet="SCORE_MOVEMENT" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCORE_MOVEMENT_PLAYER" Association="Self.FK_SCORE_MOVEMENT_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="SCORE_MOVEMENT" EntitySet="SCORE_MOVEMENT" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WORD_CATEGORY" Association="Self.FK_WORD_CATEGORY">
+            <End Role="CATEGORY" EntitySet="CATEGORY" />
+            <End Role="WORD" EntitySet="WORD" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WORD_LANGUAGE" Association="Self.FK_WORD_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGE" />
+            <End Role="WORD" EntitySet="WORD" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="HangmanDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="ACCOUNT">
+          <Key>
+            <PropertyRef Name="account_id" />
+          </Key>
+          <Property Name="account_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="player_id" Type="Int32" Nullable="false" />
+          <Property Name="email" Type="String" MaxLength="200" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="password_hash" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="is_email_verified" Type="Boolean" Nullable="false" />
+          <Property Name="email_verified_at" Type="DateTime" Precision="7" />
+          <Property Name="account_status" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="updated_at" Type="DateTime" Precision="7" />
+          <NavigationProperty Name="PLAYER" Relationship="Self.FK_ACCOUNT_PLAYER" FromRole="ACCOUNT" ToRole="PLAYER" />
+          <NavigationProperty Name="EMAIL_VERIFICATION" Relationship="Self.FK_EMAIL_VERIFICATION_ACCOUNT" FromRole="ACCOUNT" ToRole="EMAIL_VERIFICATION" />
+        </EntityType>
+        <EntityType Name="CATEGORY">
+          <Key>
+            <PropertyRef Name="category_id" />
+          </Key>
+          <Property Name="category_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="name" Type="String" MaxLength="80" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="language_code" Type="String" MaxLength="5" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="is_active" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="LANGUAGE" Relationship="Self.FK_CATEGORY_LANGUAGE" FromRole="CATEGORY" ToRole="LANGUAGE" />
+          <NavigationProperty Name="WORDs" Relationship="Self.FK_WORD_CATEGORY" FromRole="CATEGORY" ToRole="WORD" />
+        </EntityType>
+        <EntityType Name="EMAIL_VERIFICATION">
+          <Key>
+            <PropertyRef Name="email_verification_id" />
+          </Key>
+          <Property Name="email_verification_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="account_id" Type="Int32" Nullable="false" />
+          <Property Name="verification_code_hash" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="expires_at" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="verified_at" Type="DateTime" Precision="7" />
+          <Property Name="attempts" Type="Int32" Nullable="false" />
+          <Property Name="is_used" Type="Boolean" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="ACCOUNT" Relationship="Self.FK_EMAIL_VERIFICATION_ACCOUNT" FromRole="EMAIL_VERIFICATION" ToRole="ACCOUNT" />
+        </EntityType>
+        <EntityType Name="LANGUAGE">
+          <Key>
+            <PropertyRef Name="language_code" />
+          </Key>
+          <Property Name="language_code" Type="String" MaxLength="5" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="CATEGORies" Relationship="Self.FK_CATEGORY_LANGUAGE" FromRole="LANGUAGE" ToRole="CATEGORY" />
+          <NavigationProperty Name="PLAYERs" Relationship="Self.FK_PLAYER_LANGUAGE" FromRole="LANGUAGE" ToRole="PLAYER" />
+          <NavigationProperty Name="WORDs" Relationship="Self.FK_WORD_LANGUAGE" FromRole="LANGUAGE" ToRole="WORD" />
+        </EntityType>
+        <EntityType Name="MATCH">
+          <Key>
+            <PropertyRef Name="match_id" />
+          </Key>
+          <Property Name="match_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="host_id" Type="Int32" Nullable="false" />
+          <Property Name="guest_id" Type="Int32" />
+          <Property Name="word_id" Type="Int32" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="joined_at" Type="DateTime" Precision="7" />
+          <Property Name="started_at" Type="DateTime" Precision="7" />
+          <Property Name="finished_at" Type="DateTime" Precision="7" />
+          <Property Name="match_status" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="winner_id" Type="Int32" />
+          <Property Name="penalized_user_id" Type="Int32" />
+          <Property Name="failed_attempts" Type="Int32" Nullable="false" />
+          <Property Name="max_attempts" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="MATCH_GUESS" Relationship="Self.FK_MATCH_GUESS_MATCH" FromRole="MATCH" ToRole="MATCH_GUESS" />
+          <NavigationProperty Name="PLAYER" Relationship="Self.FK_MATCH_GUEST_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
+          <NavigationProperty Name="PLAYER1" Relationship="Self.FK_MATCH_HOST_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
+          <NavigationProperty Name="PLAYER2" Relationship="Self.FK_MATCH_PENALIZED_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
+          <NavigationProperty Name="PLAYER3" Relationship="Self.FK_MATCH_WINNER_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
+          <NavigationProperty Name="WORD" Relationship="Self.FK_MATCH_WORD" FromRole="MATCH" ToRole="WORD" />
+          <NavigationProperty Name="SCORE_MOVEMENT" Relationship="Self.FK_SCORE_MOVEMENT_MATCH" FromRole="MATCH" ToRole="SCORE_MOVEMENT" />
+        </EntityType>
+        <EntityType Name="MATCH_GUESS">
+          <Key>
+            <PropertyRef Name="guess_id" />
+          </Key>
+          <Property Name="guess_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="match_id" Type="Int32" Nullable="false" />
+          <Property Name="guessed_by_id" Type="Int32" Nullable="false" />
+          <Property Name="letter" Type="String" MaxLength="1" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="is_correct" Type="Boolean" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="MATCH" Relationship="Self.FK_MATCH_GUESS_MATCH" FromRole="MATCH_GUESS" ToRole="MATCH" />
+          <NavigationProperty Name="PLAYER" Relationship="Self.FK_MATCH_GUESS_PLAYER" FromRole="MATCH_GUESS" ToRole="PLAYER" />
+        </EntityType>
+        <EntityType Name="PLAYER">
+          <Key>
+            <PropertyRef Name="player_id" />
+          </Key>
+          <Property Name="player_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="full_name" Type="String" MaxLength="120" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="date_of_birth" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="phone" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="creation_date" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="is_active" Type="Boolean" Nullable="false" />
+          <Property Name="preferred_language_code" Type="String" MaxLength="5" FixedLength="false" Unicode="true" Nullable="false" />
+          <NavigationProperty Name="ACCOUNTs" Relationship="Self.FK_ACCOUNT_PLAYER" FromRole="PLAYER" ToRole="ACCOUNT" />
+          <NavigationProperty Name="LANGUAGE" Relationship="Self.FK_PLAYER_LANGUAGE" FromRole="PLAYER" ToRole="LANGUAGE" />
+          <NavigationProperty Name="MATCHes" Relationship="Self.FK_MATCH_GUEST_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
+          <NavigationProperty Name="MATCHes1" Relationship="Self.FK_MATCH_HOST_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
+          <NavigationProperty Name="MATCHes2" Relationship="Self.FK_MATCH_PENALIZED_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
+          <NavigationProperty Name="MATCHes3" Relationship="Self.FK_MATCH_WINNER_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
+          <NavigationProperty Name="MATCH_GUESS" Relationship="Self.FK_MATCH_GUESS_PLAYER" FromRole="PLAYER" ToRole="MATCH_GUESS" />
+          <NavigationProperty Name="SCORE_MOVEMENT" Relationship="Self.FK_SCORE_MOVEMENT_PLAYER" FromRole="PLAYER" ToRole="SCORE_MOVEMENT" />
+        </EntityType>
+        <EntityType Name="SCORE_MOVEMENT">
+          <Key>
+            <PropertyRef Name="score_movement_id" />
+          </Key>
+          <Property Name="score_movement_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="player_id" Type="Int32" Nullable="false" />
+          <Property Name="match_id" Type="Int32" Nullable="false" />
+          <Property Name="points" Type="Int32" Nullable="false" />
+          <Property Name="movement_type" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="MATCH" Relationship="Self.FK_SCORE_MOVEMENT_MATCH" FromRole="SCORE_MOVEMENT" ToRole="MATCH" />
+          <NavigationProperty Name="PLAYER" Relationship="Self.FK_SCORE_MOVEMENT_PLAYER" FromRole="SCORE_MOVEMENT" ToRole="PLAYER" />
+        </EntityType>
+        <EntityType Name="WORD">
+          <Key>
+            <PropertyRef Name="word_id" />
+          </Key>
+          <Property Name="word_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="category_id" Type="Int32" Nullable="false" />
+          <Property Name="word_text" Type="String" MaxLength="80" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="description" Type="String" MaxLength="300" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="language_code" Type="String" MaxLength="5" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="is_active" Type="Boolean" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="CATEGORY" Relationship="Self.FK_WORD_CATEGORY" FromRole="WORD" ToRole="CATEGORY" />
+          <NavigationProperty Name="LANGUAGE" Relationship="Self.FK_WORD_LANGUAGE" FromRole="WORD" ToRole="LANGUAGE" />
+          <NavigationProperty Name="MATCHes" Relationship="Self.FK_MATCH_WORD" FromRole="WORD" ToRole="MATCH" />
+        </EntityType>
+        <Association Name="FK_ACCOUNT_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="ACCOUNT" Type="Self.ACCOUNT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="ACCOUNT">
+              <PropertyRef Name="player_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_EMAIL_VERIFICATION_ACCOUNT">
+          <End Role="ACCOUNT" Type="Self.ACCOUNT" Multiplicity="1" />
+          <End Role="EMAIL_VERIFICATION" Type="Self.EMAIL_VERIFICATION" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACCOUNT">
+              <PropertyRef Name="account_id" />
+            </Principal>
+            <Dependent Role="EMAIL_VERIFICATION">
+              <PropertyRef Name="account_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CATEGORY_LANGUAGE">
+          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
+          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="CATEGORY">
+              <PropertyRef Name="language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WORD_CATEGORY">
+          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="1" />
+          <End Role="WORD" Type="Self.WORD" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CATEGORY">
+              <PropertyRef Name="category_id" />
+            </Principal>
+            <Dependent Role="WORD">
+              <PropertyRef Name="category_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_PLAYER_LANGUAGE">
+          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="PLAYER">
+              <PropertyRef Name="preferred_language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WORD_LANGUAGE">
+          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
+          <End Role="WORD" Type="Self.WORD" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="WORD">
+              <PropertyRef Name="language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_GUESS_MATCH">
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="1" />
+          <End Role="MATCH_GUESS" Type="Self.MATCH_GUESS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="MATCH_GUESS">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_GUEST_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="guest_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_HOST_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="host_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_PENALIZED_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="penalized_user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_WINNER_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="winner_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_WORD">
+          <End Role="WORD" Type="Self.WORD" Multiplicity="1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WORD">
+              <PropertyRef Name="word_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="word_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCORE_MOVEMENT_MATCH">
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="1" />
+          <End Role="SCORE_MOVEMENT" Type="Self.SCORE_MOVEMENT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="SCORE_MOVEMENT">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_GUESS_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="MATCH_GUESS" Type="Self.MATCH_GUESS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH_GUESS">
+              <PropertyRef Name="guessed_by_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCORE_MOVEMENT_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="SCORE_MOVEMENT" Type="Self.SCORE_MOVEMENT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="SCORE_MOVEMENT">
+              <PropertyRef Name="player_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="HangmanDBEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="ACCOUNTs" EntityType="Self.ACCOUNT" />
+          <EntitySet Name="CATEGORies" EntityType="Self.CATEGORY" />
+          <EntitySet Name="EMAIL_VERIFICATION" EntityType="Self.EMAIL_VERIFICATION" />
+          <EntitySet Name="LANGUAGEs" EntityType="Self.LANGUAGE" />
+          <EntitySet Name="MATCHes" EntityType="Self.MATCH" />
+          <EntitySet Name="MATCH_GUESS" EntityType="Self.MATCH_GUESS" />
+          <EntitySet Name="PLAYERs" EntityType="Self.PLAYER" />
+          <EntitySet Name="SCORE_MOVEMENT" EntityType="Self.SCORE_MOVEMENT" />
+          <EntitySet Name="WORDs" EntityType="Self.WORD" />
+          <AssociationSet Name="FK_ACCOUNT_PLAYER" Association="Self.FK_ACCOUNT_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="ACCOUNT" EntitySet="ACCOUNTs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_EMAIL_VERIFICATION_ACCOUNT" Association="Self.FK_EMAIL_VERIFICATION_ACCOUNT">
+            <End Role="ACCOUNT" EntitySet="ACCOUNTs" />
+            <End Role="EMAIL_VERIFICATION" EntitySet="EMAIL_VERIFICATION" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CATEGORY_LANGUAGE" Association="Self.FK_CATEGORY_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
+            <End Role="CATEGORY" EntitySet="CATEGORies" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WORD_CATEGORY" Association="Self.FK_WORD_CATEGORY">
+            <End Role="CATEGORY" EntitySet="CATEGORies" />
+            <End Role="WORD" EntitySet="WORDs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_PLAYER_LANGUAGE" Association="Self.FK_PLAYER_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WORD_LANGUAGE" Association="Self.FK_WORD_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
+            <End Role="WORD" EntitySet="WORDs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUESS_MATCH" Association="Self.FK_MATCH_GUESS_MATCH">
+            <End Role="MATCH" EntitySet="MATCHes" />
+            <End Role="MATCH_GUESS" EntitySet="MATCH_GUESS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUEST_PLAYER" Association="Self.FK_MATCH_GUEST_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_HOST_PLAYER" Association="Self.FK_MATCH_HOST_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_PENALIZED_PLAYER" Association="Self.FK_MATCH_PENALIZED_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_WINNER_PLAYER" Association="Self.FK_MATCH_WINNER_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_WORD" Association="Self.FK_MATCH_WORD">
+            <End Role="WORD" EntitySet="WORDs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCORE_MOVEMENT_MATCH" Association="Self.FK_SCORE_MOVEMENT_MATCH">
+            <End Role="MATCH" EntitySet="MATCHes" />
+            <End Role="SCORE_MOVEMENT" EntitySet="SCORE_MOVEMENT" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUESS_PLAYER" Association="Self.FK_MATCH_GUESS_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH_GUESS" EntitySet="MATCH_GUESS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCORE_MOVEMENT_PLAYER" Association="Self.FK_SCORE_MOVEMENT_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="SCORE_MOVEMENT" EntitySet="SCORE_MOVEMENT" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="HangmanDBModelStoreContainer" CdmEntityContainer="HangmanDBEntities">
+          <EntitySetMapping Name="ACCOUNTs">
+            <EntityTypeMapping TypeName="HangmanDBModel.ACCOUNT">
+              <MappingFragment StoreEntitySet="ACCOUNT">
+                <ScalarProperty Name="account_id" ColumnName="account_id" />
+                <ScalarProperty Name="player_id" ColumnName="player_id" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="password_hash" ColumnName="password_hash" />
+                <ScalarProperty Name="is_email_verified" ColumnName="is_email_verified" />
+                <ScalarProperty Name="email_verified_at" ColumnName="email_verified_at" />
+                <ScalarProperty Name="account_status" ColumnName="account_status" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="updated_at" ColumnName="updated_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CATEGORies">
+            <EntityTypeMapping TypeName="HangmanDBModel.CATEGORY">
+              <MappingFragment StoreEntitySet="CATEGORY">
+                <ScalarProperty Name="category_id" ColumnName="category_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="language_code" ColumnName="language_code" />
+                <ScalarProperty Name="is_active" ColumnName="is_active" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="EMAIL_VERIFICATION">
+            <EntityTypeMapping TypeName="HangmanDBModel.EMAIL_VERIFICATION">
+              <MappingFragment StoreEntitySet="EMAIL_VERIFICATION">
+                <ScalarProperty Name="email_verification_id" ColumnName="email_verification_id" />
+                <ScalarProperty Name="account_id" ColumnName="account_id" />
+                <ScalarProperty Name="verification_code_hash" ColumnName="verification_code_hash" />
+                <ScalarProperty Name="expires_at" ColumnName="expires_at" />
+                <ScalarProperty Name="verified_at" ColumnName="verified_at" />
+                <ScalarProperty Name="attempts" ColumnName="attempts" />
+                <ScalarProperty Name="is_used" ColumnName="is_used" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LANGUAGEs">
+            <EntityTypeMapping TypeName="HangmanDBModel.LANGUAGE">
+              <MappingFragment StoreEntitySet="LANGUAGE">
+                <ScalarProperty Name="language_code" ColumnName="language_code" />
+                <ScalarProperty Name="name" ColumnName="name" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MATCHes">
+            <EntityTypeMapping TypeName="HangmanDBModel.MATCH">
+              <MappingFragment StoreEntitySet="MATCH">
+                <ScalarProperty Name="match_id" ColumnName="match_id" />
+                <ScalarProperty Name="host_id" ColumnName="host_id" />
+                <ScalarProperty Name="guest_id" ColumnName="guest_id" />
+                <ScalarProperty Name="word_id" ColumnName="word_id" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="joined_at" ColumnName="joined_at" />
+                <ScalarProperty Name="started_at" ColumnName="started_at" />
+                <ScalarProperty Name="finished_at" ColumnName="finished_at" />
+                <ScalarProperty Name="match_status" ColumnName="match_status" />
+                <ScalarProperty Name="winner_id" ColumnName="winner_id" />
+                <ScalarProperty Name="penalized_user_id" ColumnName="penalized_user_id" />
+                <ScalarProperty Name="failed_attempts" ColumnName="failed_attempts" />
+                <ScalarProperty Name="max_attempts" ColumnName="max_attempts" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MATCH_GUESS">
+            <EntityTypeMapping TypeName="HangmanDBModel.MATCH_GUESS">
+              <MappingFragment StoreEntitySet="MATCH_GUESS">
+                <ScalarProperty Name="guess_id" ColumnName="guess_id" />
+                <ScalarProperty Name="match_id" ColumnName="match_id" />
+                <ScalarProperty Name="guessed_by_id" ColumnName="guessed_by_id" />
+                <ScalarProperty Name="letter" ColumnName="letter" />
+                <ScalarProperty Name="is_correct" ColumnName="is_correct" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PLAYERs">
+            <EntityTypeMapping TypeName="HangmanDBModel.PLAYER">
+              <MappingFragment StoreEntitySet="PLAYER">
+                <ScalarProperty Name="player_id" ColumnName="player_id" />
+                <ScalarProperty Name="full_name" ColumnName="full_name" />
+                <ScalarProperty Name="date_of_birth" ColumnName="date_of_birth" />
+                <ScalarProperty Name="phone" ColumnName="phone" />
+                <ScalarProperty Name="creation_date" ColumnName="creation_date" />
+                <ScalarProperty Name="is_active" ColumnName="is_active" />
+                <ScalarProperty Name="preferred_language_code" ColumnName="preferred_language_code" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="SCORE_MOVEMENT">
+            <EntityTypeMapping TypeName="HangmanDBModel.SCORE_MOVEMENT">
+              <MappingFragment StoreEntitySet="SCORE_MOVEMENT">
+                <ScalarProperty Name="score_movement_id" ColumnName="score_movement_id" />
+                <ScalarProperty Name="player_id" ColumnName="player_id" />
+                <ScalarProperty Name="match_id" ColumnName="match_id" />
+                <ScalarProperty Name="points" ColumnName="points" />
+                <ScalarProperty Name="movement_type" ColumnName="movement_type" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WORDs">
+            <EntityTypeMapping TypeName="HangmanDBModel.WORD">
+              <MappingFragment StoreEntitySet="WORD">
+                <ScalarProperty Name="word_id" ColumnName="word_id" />
+                <ScalarProperty Name="category_id" ColumnName="category_id" />
+                <ScalarProperty Name="word_text" ColumnName="word_text" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="language_code" ColumnName="language_code" />
+                <ScalarProperty Name="is_active" ColumnName="is_active" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

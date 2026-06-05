@@ -482,3 +482,10 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Local database configuration
+**/ConnectionStrings.local.config
+**/*.local.config
+
+# Keep example connection files in repository
+!**/ConnectionStrings.example.config
