@@ -119,6 +119,7 @@
     <Compile Include="Transporters\CreateAccountTransporter.cs" />
     <Compile Include="Transporters\CreateEmailVerificationTransporter.cs" />
     <Compile Include="Transporters\CreateMatchTransporter.cs" />
+    <Compile Include="Transporters\CreatePendingAccountTransporter.cs" />
     <Compile Include="Transporters\CreatePlayerTransporter.cs" />
     <Compile Include="Transporters\CreateScoreMovementTransporter.cs" />
     <Compile Include="Transporters\EmailVerificationTokenTransporter.cs" />

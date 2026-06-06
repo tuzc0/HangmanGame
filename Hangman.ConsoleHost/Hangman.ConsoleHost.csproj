@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="AppSettings.example.config" />
+    <None Include="AppSettings.local.config" />
     <None Include="ConnectionStrings.example.config" />
     <None Include="ConnectionStrings.local.config" />
   </ItemGroup>
@@ -63,6 +65,10 @@
     <ProjectReference Include="..\Hangman.DataAccess\Hangman.DataAccess.csproj">
       <Project>{bd7e280f-2c2f-4373-8d8a-f6fe997d802b}</Project>
       <Name>Hangman.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Hangman.Infrastructure\Hangman.Infrastructure.csproj">
+      <Project>{75523498-9772-4a94-b1b8-1ab39a42c838}</Project>
+      <Name>Hangman.Infrastructure</Name>
     </ProjectReference>
     <ProjectReference Include="..\HangmanGame.Services\HangmanGame.Services.csproj">
       <Project>{d91b4b22-716b-42cc-9c1c-bbf5dcfc0f47}</Project>

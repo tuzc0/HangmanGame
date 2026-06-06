@@ -102,6 +102,50 @@ namespace Hangman.DataAccess.Repositories
             context.ACCOUNTs.Add(entity);
         }
 
+        public void AddPendingAccount(CreatePendingAccountTransporter registration)
+        {
+            if (registration == null)
+            {
+                throw new ArgumentNullException(nameof(registration));
+            }
+
+            PLAYER playerEntity = new PLAYER
+            {
+                full_name = registration.FullName,
+                date_of_birth = registration.DateOfBirth,
+                phone = registration.Phone,
+                creation_date = DateTime.UtcNow,
+                is_active = registration.IsPlayerActive,
+                preferred_language_code = registration.PreferredLanguageCode
+            };
+
+            ACCOUNT accountEntity = new ACCOUNT
+            {
+                PLAYER = playerEntity,
+                email = registration.Email,
+                password_hash = registration.PasswordHash,
+                is_email_verified = registration.IsEmailVerified,
+                email_verified_at = registration.EmailVerifiedAt,
+                account_status = registration.AccountStatus,
+                created_at = DateTime.UtcNow,
+                updated_at = null
+            };
+
+            EMAIL_VERIFICATION emailVerificationEntity = new EMAIL_VERIFICATION
+            {
+                ACCOUNT = accountEntity,
+                verification_code_hash = registration.VerificationCodeHash,
+                expires_at = registration.ExpiresAt,
+                verified_at = null,
+                attempts = Constants.EmailVerificationDefaults.InitialAttempts,
+                is_used = Constants.EmailVerificationDefaults.InitialIsUsed,
+                created_at = DateTime.Now
+            };
+
+            context.ACCOUNTs.Add(accountEntity);
+            context.EMAIL_VERIFICATION.Add(emailVerificationEntity);
+        }
+
         public async Task<bool> MarkEmailAsVerifiedAsync(MarkEmailAsVerifiedTransporter verification)
         {
             if (verification == null)

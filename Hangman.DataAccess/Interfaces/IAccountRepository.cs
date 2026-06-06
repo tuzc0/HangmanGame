@@ -17,6 +17,8 @@ namespace Hangman.DataAccess.Interfaces
 
         void Add(CreateAccountTransporter account);
 
+        void AddPendingAccount(CreatePendingAccountTransporter registration);
+
         Task<bool> MarkEmailAsVerifiedAsync(MarkEmailAsVerifiedTransporter verification);
 
         Task<bool> UpdatePasswordHashAsync(int accountId, string passwordHash);
