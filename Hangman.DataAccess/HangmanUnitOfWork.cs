@@ -12,6 +12,16 @@ namespace Hangman.DataAccess
 
         private IAccountRepository accountRepository;
 
+        private IEmailVerificationRepository emailVerificationRepository;
+
+        private IPlayerRepository playerRepository;
+
+        private IScoreMovementRepository scoreMovementRepository;
+
+        private IWordRepository wordRepository;
+
+        private IMatchRepository matchRepository;
+
         private bool disposed;
 
         public HangmanUnitOfWork(HangmanDBEntities context)
@@ -32,6 +42,71 @@ namespace Hangman.DataAccess
                 }
 
                 return accountRepository;
+            }
+        }
+
+        public IEmailVerificationRepository EmailVerifications
+        {
+            get
+            {
+                if (emailVerificationRepository == null)
+                {
+                    emailVerificationRepository = new EmailVerificationRepository(context);
+                }
+
+                return emailVerificationRepository;
+            }
+        }
+
+        public IPlayerRepository Players
+        {
+            get
+            {
+                if (playerRepository == null)
+                {
+                    playerRepository = new PlayerRepository(context);
+                }
+
+                return playerRepository;
+            }
+        }
+
+        public IScoreMovementRepository ScoreMovements
+        {
+            get
+            {
+                if (scoreMovementRepository == null)
+                {
+                    scoreMovementRepository = new ScoreMovementRepository(context);
+                }
+
+                return scoreMovementRepository;
+            }
+        }
+
+        public IWordRepository Words
+        {
+            get
+            {
+                if (wordRepository == null)
+                {
+                    wordRepository = new WordRepository(context);
+                }
+
+                return wordRepository;
+            }
+        }
+
+        public IMatchRepository Matches
+        {
+            get
+            {
+                if (matchRepository == null)
+                {
+                    matchRepository = new MatchRepository(context);
+                }
+
+                return matchRepository;
             }
         }
 

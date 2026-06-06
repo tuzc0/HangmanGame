@@ -7,6 +7,16 @@ namespace Hangman.DataAccess.Interfaces
     {
         IAccountRepository Accounts { get; }
 
+        IEmailVerificationRepository EmailVerifications { get; }
+
+        IPlayerRepository Players { get; }
+
+        IScoreMovementRepository ScoreMovements { get; }
+
+        IWordRepository Words { get; }
+
+        IMatchRepository Matches { get; }
+
         Task<int> CommitAsync();
     }
 }

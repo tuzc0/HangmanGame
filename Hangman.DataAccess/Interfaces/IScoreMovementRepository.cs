@@ -1,12 +1,23 @@
-﻿using System;
+﻿using Hangman.DataAccess.Transporters;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Hangman.DataAccess.Interfaces
 {
-    internal class IScoreMovementRepository
+    public interface IScoreMovementRepository
     {
+        Task<ScoreMovementTransporter> GetByIdAsync(int scoreMovementId);
+
+        Task<List<ScoreMovementTransporter>> GetByPlayerIdAsync(int playerId);
+
+        Task<List<ScoreMovementTransporter>> GetByMatchIdAsync(int matchId);
+
+        Task<List<ScoreMovementTransporter>> GetByPlayerIdAndMovementTypeAsync(
+            int playerId,
+            string movementType);
+
+        Task<int> GetTotalScoreByPlayerIdAsync(int playerId);
+
+        void Add(CreateScoreMovementTransporter scoreMovement);
     }
 }
