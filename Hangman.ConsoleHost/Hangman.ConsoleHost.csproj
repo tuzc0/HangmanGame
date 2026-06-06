@@ -48,6 +48,26 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="ConnectionStrings.example.config" />
+    <None Include="ConnectionStrings.local.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Hangman.Business\Hangman.Business.csproj">
+      <Project>{6d93a55e-8e3a-41fa-9c75-05a184301673}</Project>
+      <Name>Hangman.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Hangman.Contracts\Hangman.Contracts.csproj">
+      <Project>{93557a29-2cee-4d35-9edb-2ef076d895f7}</Project>
+      <Name>Hangman.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Hangman.DataAccess\Hangman.DataAccess.csproj">
+      <Project>{bd7e280f-2c2f-4373-8d8a-f6fe997d802b}</Project>
+      <Name>Hangman.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\HangmanGame.Services\HangmanGame.Services.csproj">
+      <Project>{d91b4b22-716b-42cc-9c1c-bbf5dcfc0f47}</Project>
+      <Name>HangmanGame.Services</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
