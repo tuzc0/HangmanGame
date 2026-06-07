@@ -289,7 +289,7 @@ namespace Hangman.Business.Services
 
         private static RegisterResponse BuildRegisterResponse(
             bool success,
-            AuthMessageCode messageCode,
+            Enum messageCode,
             int accountId,
             int playerId,
             bool requiresEmailVerification,
@@ -308,7 +308,7 @@ namespace Hangman.Business.Services
 
         private static LoginResponse BuildLoginResponse(
             bool success,
-            AuthMessageCode messageCode,
+            Enum messageCode,
             AuthenticatedPlayerDto player)
         {
             return new LoginResponse
@@ -321,7 +321,7 @@ namespace Hangman.Business.Services
 
         private static ResendVerificationEmailResponse BuildResendVerificationEmailResponse(
             bool success,
-            AuthMessageCode messageCode,
+            Enum messageCode,
             bool verificationEmailSent)
         {
             return new ResendVerificationEmailResponse

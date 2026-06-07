@@ -51,6 +51,14 @@
     <Compile Include="Auth\ResendVerificationEmailRequest.cs" />
     <Compile Include="Auth\ResendVerificationEmailResponse.cs" />
     <Compile Include="Contracts\IAuthService.cs" />
+    <Compile Include="Contracts\IProfileService.cs" />
+    <Compile Include="Profile\DeleteProfileRequest.cs" />
+    <Compile Include="Profile\DeleteProfileResponse.cs" />
+    <Compile Include="Profile\GetProfileRequest.cs" />
+    <Compile Include="Profile\GetProfileResponse.cs" />
+    <Compile Include="Profile\ProfileDto.cs" />
+    <Compile Include="Profile\UpdateProfileRequest.cs" />
+    <Compile Include="Profile\UpdateProfileResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

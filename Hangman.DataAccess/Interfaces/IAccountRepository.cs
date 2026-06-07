@@ -22,5 +22,7 @@ namespace Hangman.DataAccess.Interfaces
         Task<bool> MarkEmailAsVerifiedAsync(MarkEmailAsVerifiedTransporter verification);
 
         Task<bool> UpdatePasswordHashAsync(int accountId, string passwordHash);
+
+        Task<bool> UpdateStatusAsync(int accountId, string newStatus);
     }
 }

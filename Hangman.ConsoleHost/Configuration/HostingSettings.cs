@@ -6,6 +6,8 @@
 
         public string AuthServicePath { get; set; }
 
+        public string ProfileServicePath { get; set; }
+
         public long MaxReceivedMessageSize { get; set; }
 
         public int OpenTimeoutSeconds { get; set; }
