@@ -16,5 +16,11 @@ namespace Hangman.Contracts.Contracts
         [OperationContract]
         Task<ResendVerificationEmailResponse> ResendVerificationEmailAsync(
             ResendVerificationEmailRequest request);
+
+        [OperationContract]
+        Task<RequestPasswordResetResponse> RequestPasswordResetAsync(RequestPasswordResetRequest request);
+
+        [OperationContract]
+        Task<ResetPasswordResponse> ResetPasswordAsync(ResetPasswordRequest request);
     }
 }

@@ -53,6 +53,7 @@
     <Compile Include="Email\EmailSendResult.cs" />
     <Compile Include="Email\EmailSendStatus.cs" />
     <Compile Include="Email\IEmailSender.cs" />
+    <Compile Include="Email\PasswordResetEmailRequest.cs" />
     <Compile Include="Email\VerificationEmailRequest.cs" />
     <Compile Include="Factories\IUnitOfWorkFactory.cs" />
     <Compile Include="Factories\UnitOfWorkFactory.cs" />

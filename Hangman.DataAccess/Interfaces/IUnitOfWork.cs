@@ -7,6 +7,8 @@ namespace Hangman.DataAccess.Interfaces
     {
         IAccountRepository Accounts { get; }
 
+        IPasswordResetTokenRepository PasswordResetTokens { get; }
+
         IEmailVerificationRepository EmailVerifications { get; }
 
         IPlayerRepository Players { get; }

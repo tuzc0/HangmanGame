@@ -18,6 +18,7 @@ namespace Hangman.DataAccess.Model
         public ACCOUNT()
         {
             this.EMAIL_VERIFICATION = new HashSet<EMAIL_VERIFICATION>();
+            this.PASSWORD_RESET_TOKEN = new HashSet<PASSWORD_RESET_TOKEN>();
         }
     
         public int account_id { get; set; }
@@ -33,5 +34,7 @@ namespace Hangman.DataAccess.Model
         public virtual PLAYER PLAYER { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<EMAIL_VERIFICATION> EMAIL_VERIFICATION { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<PASSWORD_RESET_TOKEN> PASSWORD_RESET_TOKEN { get; set; }
     }
 }

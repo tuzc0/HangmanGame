@@ -17,11 +17,13 @@ namespace Hangman.Infrastructure.Email
 
         private readonly SmtpSettingsProvider smtpSettingsProvider;
         private readonly VerificationCodeEmailBuilder verificationCodeEmailBuilder;
+        private readonly PasswordResetEmailBuilder passwordResetEmailBuilder;
 
         public SmtpEmailSender()
         {
             smtpSettingsProvider = new SmtpSettingsProvider();
             verificationCodeEmailBuilder = new VerificationCodeEmailBuilder();
+            passwordResetEmailBuilder = new PasswordResetEmailBuilder();
         }
 
         public async Task<EmailSendResult> SendVerificationCodeAsync(VerificationEmailRequest request)
@@ -31,15 +33,6 @@ namespace Hangman.Infrastructure.Email
                 Log.Warn("Verification email was not sent. Reason: recipient email is invalid.");
 
                 return EmailSendResult.PermanentFailure(EmailErrorCode.RecipientInvalid, null);
-            }
-
-            SmtpSettings settings = smtpSettingsProvider.GetSettings();
-
-            if (!settings.TryValidate())
-            {
-                Log.Error("Verification email was not sent. Reason: SMTP configuration is missing or invalid.");
-
-                return EmailSendResult.PermanentFailure(EmailErrorCode.SmtpConfigurationMissing, null);
             }
 
             VerificationCodeEmailContext context = new VerificationCodeEmailContext
@@ -52,6 +45,47 @@ namespace Hangman.Infrastructure.Email
             };
 
             EmailMessage emailMessage = verificationCodeEmailBuilder.Build(context);
+
+            return await SendEmailMessageAsync(emailMessage, "Verification", request.RecipientEmail);
+        }
+
+        public async Task<EmailSendResult> SendPasswordResetCodeAsync(PasswordResetEmailRequest request)
+        {
+            if (request == null || !EmailValidation.IsValidEmail(request.RecipientEmail))
+            {
+                Log.Warn("Password reset email was not sent. Reason: recipient email is invalid.");
+
+                return EmailSendResult.PermanentFailure(EmailErrorCode.RecipientInvalid, null);
+            }
+
+            PasswordResetEmailContext context = new PasswordResetEmailContext
+            {
+                RecipientEmail = request.RecipientEmail,
+                RecipientName = request.RecipientName,
+                ResetCode = request.ResetCode,
+                ExpirationMinutes = request.ExpirationMinutes,
+                LanguageCode = request.LanguageCode
+            };
+
+            EmailMessage emailMessage = passwordResetEmailBuilder.Build(context);
+
+            return await SendEmailMessageAsync(emailMessage, "PasswordReset", request.RecipientEmail);
+        }
+
+        private async Task<EmailSendResult> SendEmailMessageAsync(
+            EmailMessage emailMessage,
+            string emailType,
+            string recipientEmail)
+        {
+            SmtpSettings settings = smtpSettingsProvider.GetSettings();
+
+            if (!settings.TryValidate())
+            {
+                Log.ErrorFormat("{0} email was not sent. Reason: SMTP configuration is missing or invalid.",
+                    emailType);
+
+                return EmailSendResult.PermanentFailure(EmailErrorCode.SmtpConfigurationMissing, null);
+            }
 
             try
             {
@@ -67,14 +101,15 @@ namespace Hangman.Infrastructure.Email
             {
                 EmailSendResult result = SmtpExceptionMapper.Map(exception);
 
-                LogSmtpFailure(result, request.RecipientEmail, exception);
+                LogSmtpFailure(result, recipientEmail, emailType, exception);
 
                 return result;
             }
             catch (Exception exception)
             {
-                Log.ErrorFormat("Verification email failed with unexpected error. Recipient: {0}",
-                    MaskEmail(request.RecipientEmail),
+                Log.ErrorFormat("{0} email failed with unexpected error. Recipient: {1}",
+                    emailType,
+                    MaskEmail(recipientEmail),
                     exception);
 
                 return EmailSendResult.PermanentFailure(EmailErrorCode.SmtpUnknown, exception);
@@ -114,10 +149,12 @@ namespace Hangman.Infrastructure.Email
         private static void LogSmtpFailure(
             EmailSendResult result,
             string recipientEmail,
+            string emailType,
             SmtpException exception)
         {
             string logMessage = string.Format(
-                "Verification email failed. Status: {0}. ErrorCode: {1}. Recipient: {2}. SmtpStatusCode: {3}",
+                "{0} email failed. Status: {1}. ErrorCode: {2}. Recipient: {3}. SmtpStatusCode: {4}",
+                emailType,
                 result.Status,
                 result.ErrorCode,
                 MaskEmail(recipientEmail),

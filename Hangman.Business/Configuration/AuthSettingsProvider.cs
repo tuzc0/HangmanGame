@@ -9,6 +9,7 @@ namespace Hangman.Business.Configuration
         private const int DefaultPasswordSaltSize = 16;
         private const int DefaultPasswordHashSize = 32;
         private const int DefaultPasswordIterations = 10000;
+        private const int DefaultPasswordResetExpirationMinutes = 15;
         private const int DefaultVerificationCodeLength = 6;
         private const int DefaultVerificationCodeLimit = 1000000;
         private const int DefaultEmailVerificationExpirationMinutes = 15;
@@ -24,6 +25,7 @@ namespace Hangman.Business.Configuration
                 PasswordSaltSize = GetInt("Auth.PasswordSaltSize", "HANGMAN_AUTH_PASSWORD_SALT_SIZE", DefaultPasswordSaltSize),
                 PasswordHashSize = GetInt("Auth.PasswordHashSize", "HANGMAN_AUTH_PASSWORD_HASH_SIZE", DefaultPasswordHashSize),
                 PasswordIterations = GetInt("Auth.PasswordIterations", "HANGMAN_AUTH_PASSWORD_ITERATIONS", DefaultPasswordIterations),
+                PasswordResetExpirationMinutes = GetInt("Auth.PasswordResetExpirationMinutes", "HANGMAN_AUTH_PASSWORD_RESET_EXPIRATION_MINUTES", DefaultPasswordResetExpirationMinutes),
                 VerificationCodeLength = GetInt("Auth.VerificationCodeLength", "HANGMAN_AUTH_VERIFICATION_CODE_LENGTH", DefaultVerificationCodeLength),
                 VerificationCodeLimit = GetInt("Auth.VerificationCodeLimit", "HANGMAN_AUTH_VERIFICATION_CODE_LIMIT", DefaultVerificationCodeLimit),
                 EmailVerificationExpirationMinutes = GetInt("Auth.EmailVerificationExpirationMinutes", "HANGMAN_AUTH_EMAIL_VERIFICATION_EXPIRATION_MINUTES", DefaultEmailVerificationExpirationMinutes),

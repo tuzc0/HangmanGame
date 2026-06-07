@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="HangmanDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="HangmanDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="ACCOUNT">
           <Key>
             <PropertyRef Name="account_id" />
@@ -75,6 +75,19 @@
           <Property Name="guessed_by_id" Type="int" Nullable="false" />
           <Property Name="letter" Type="nvarchar" MaxLength="1" Nullable="false" />
           <Property Name="is_correct" Type="bit" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="PASSWORD_RESET_TOKEN">
+          <Key>
+            <PropertyRef Name="password_reset_token_id" />
+          </Key>
+          <Property Name="password_reset_token_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="account_id" Type="int" Nullable="false" />
+          <Property Name="reset_code_hash" Type="nvarchar" MaxLength="255" Nullable="false" />
+          <Property Name="expires_at" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="used_at" Type="datetime2" Precision="7" />
+          <Property Name="attempts" Type="int" Nullable="false" />
+          <Property Name="is_used" Type="bit" Nullable="false" />
           <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
         </EntityType>
         <EntityType Name="PLAYER">
@@ -232,6 +245,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_PASSWORD_RESET_TOKEN_ACCOUNT">
+          <End Role="ACCOUNT" Type="Self.ACCOUNT" Multiplicity="1" />
+          <End Role="PASSWORD_RESET_TOKEN" Type="Self.PASSWORD_RESET_TOKEN" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACCOUNT">
+              <PropertyRef Name="account_id" />
+            </Principal>
+            <Dependent Role="PASSWORD_RESET_TOKEN">
+              <PropertyRef Name="account_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PLAYER_LANGUAGE">
           <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
           <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="*" />
@@ -299,6 +324,7 @@
           <EntitySet Name="LANGUAGE" EntityType="Self.LANGUAGE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MATCH" EntityType="Self.MATCH" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MATCH_GUESS" EntityType="Self.MATCH_GUESS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="PASSWORD_RESET_TOKEN" EntityType="Self.PASSWORD_RESET_TOKEN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAYER" EntityType="Self.PLAYER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCORE_MOVEMENT" EntityType="Self.SCORE_MOVEMENT" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WORD" EntityType="Self.WORD" Schema="dbo" store:Type="Tables" />
@@ -342,6 +368,10 @@
             <End Role="WORD" EntitySet="WORD" />
             <End Role="MATCH" EntitySet="MATCH" />
           </AssociationSet>
+          <AssociationSet Name="FK_PASSWORD_RESET_TOKEN_ACCOUNT" Association="Self.FK_PASSWORD_RESET_TOKEN_ACCOUNT">
+            <End Role="ACCOUNT" EntitySet="ACCOUNT" />
+            <End Role="PASSWORD_RESET_TOKEN" EntitySet="PASSWORD_RESET_TOKEN" />
+          </AssociationSet>
           <AssociationSet Name="FK_PLAYER_LANGUAGE" Association="Self.FK_PLAYER_LANGUAGE">
             <End Role="LANGUAGE" EntitySet="LANGUAGE" />
             <End Role="PLAYER" EntitySet="PLAYER" />
@@ -363,8 +393,7 @@
             <End Role="WORD" EntitySet="WORD" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="HangmanDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -383,6 +412,7 @@
           <Property Name="updated_at" Type="DateTime" Precision="7" />
           <NavigationProperty Name="PLAYER" Relationship="Self.FK_ACCOUNT_PLAYER" FromRole="ACCOUNT" ToRole="PLAYER" />
           <NavigationProperty Name="EMAIL_VERIFICATION" Relationship="Self.FK_EMAIL_VERIFICATION_ACCOUNT" FromRole="ACCOUNT" ToRole="EMAIL_VERIFICATION" />
+          <NavigationProperty Name="PASSWORD_RESET_TOKEN" Relationship="HangmanDBModel.FK_PASSWORD_RESET_TOKEN_ACCOUNT" FromRole="ACCOUNT" ToRole="PASSWORD_RESET_TOKEN" />
         </EntityType>
         <EntityType Name="CATEGORY">
           <Key>
@@ -755,7 +785,38 @@
             <End Role="PLAYER" EntitySet="PLAYERs" />
             <End Role="SCORE_MOVEMENT" EntitySet="SCORE_MOVEMENT" />
           </AssociationSet>
+          <EntitySet Name="PASSWORD_RESET_TOKEN" EntityType="HangmanDBModel.PASSWORD_RESET_TOKEN" />
+          <AssociationSet Name="FK_PASSWORD_RESET_TOKEN_ACCOUNT" Association="HangmanDBModel.FK_PASSWORD_RESET_TOKEN_ACCOUNT">
+            <End Role="ACCOUNT" EntitySet="ACCOUNTs" />
+            <End Role="PASSWORD_RESET_TOKEN" EntitySet="PASSWORD_RESET_TOKEN" />
+          </AssociationSet>
         </EntityContainer>
+        <EntityType Name="PASSWORD_RESET_TOKEN">
+          <Key>
+            <PropertyRef Name="password_reset_token_id" />
+          </Key>
+          <Property Name="password_reset_token_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="account_id" Type="Int32" Nullable="false" />
+          <Property Name="reset_code_hash" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="expires_at" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="used_at" Type="DateTime" Precision="7" />
+          <Property Name="attempts" Type="Int32" Nullable="false" />
+          <Property Name="is_used" Type="Boolean" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="ACCOUNT" Relationship="HangmanDBModel.FK_PASSWORD_RESET_TOKEN_ACCOUNT" FromRole="PASSWORD_RESET_TOKEN" ToRole="ACCOUNT" />
+        </EntityType>
+        <Association Name="FK_PASSWORD_RESET_TOKEN_ACCOUNT">
+          <End Type="HangmanDBModel.ACCOUNT" Role="ACCOUNT" Multiplicity="1" />
+          <End Type="HangmanDBModel.PASSWORD_RESET_TOKEN" Role="PASSWORD_RESET_TOKEN" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACCOUNT">
+              <PropertyRef Name="account_id" />
+            </Principal>
+            <Dependent Role="PASSWORD_RESET_TOKEN">
+              <PropertyRef Name="account_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -875,6 +936,20 @@
                 <ScalarProperty Name="language_code" ColumnName="language_code" />
                 <ScalarProperty Name="is_active" ColumnName="is_active" />
                 <ScalarProperty Name="created_at" ColumnName="created_at" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="PASSWORD_RESET_TOKEN">
+            <EntityTypeMapping TypeName="HangmanDBModel.PASSWORD_RESET_TOKEN">
+              <MappingFragment StoreEntitySet="PASSWORD_RESET_TOKEN">
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="is_used" ColumnName="is_used" />
+                <ScalarProperty Name="attempts" ColumnName="attempts" />
+                <ScalarProperty Name="used_at" ColumnName="used_at" />
+                <ScalarProperty Name="expires_at" ColumnName="expires_at" />
+                <ScalarProperty Name="reset_code_hash" ColumnName="reset_code_hash" />
+                <ScalarProperty Name="account_id" ColumnName="account_id" />
+                <ScalarProperty Name="password_reset_token_id" ColumnName="password_reset_token_id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

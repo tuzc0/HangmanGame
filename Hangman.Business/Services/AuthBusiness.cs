@@ -287,6 +287,163 @@ namespace Hangman.Business.Services
             }
         }
 
+        public async Task<RequestPasswordResetResponse> RequestPasswordResetAsync(
+    RequestPasswordResetRequest request)
+        {
+            ValidationResult validationResult = AuthValidator.ValidateRequestPasswordReset(request);
+
+            if (!validationResult.IsValid)
+            {
+                return BuildRequestPasswordResetResponse(false, validationResult.MessageCode);
+            }
+
+            AuthSettings settings = authSettingsProvider.GetSettings();
+            string email = NormalizeEmail(request.Email);
+
+            using (var unitOfWork = unitOfWorkFactory.Create())
+            {
+                AccountTransporter account = await unitOfWork.Accounts.GetByEmailAsync(email);
+
+                if (account == null)
+                {
+                    return BuildRequestPasswordResetResponse(
+                        true,
+                        AuthMessageCode.PasswordResetRequestProcessed);
+                }
+
+                if (!IsAccountAvailableForPasswordReset(account))
+                {
+                    return BuildRequestPasswordResetResponse(
+                        true,
+                        AuthMessageCode.PasswordResetRequestProcessed);
+                }
+
+                PlayerTransporter player = await unitOfWork.Players.GetByIdAsync(account.PlayerId);
+
+                if (player == null || !player.IsActive)
+                {
+                    return BuildRequestPasswordResetResponse(
+                        true,
+                        AuthMessageCode.PasswordResetRequestProcessed);
+                }
+
+                string resetCode = VerificationCodeGenerator.GenerateCode(settings);
+                string resetCodeHash = PasswordHasher.HashPassword(resetCode, settings);
+
+                await unitOfWork.PasswordResetTokens.InvalidateUnusedByAccountIdAsync(account.AccountId);
+
+                unitOfWork.PasswordResetTokens.Add(
+                    new CreatePasswordResetTokenTransporter
+                    {
+                        AccountId = account.AccountId,
+                        ResetCodeHash = resetCodeHash,
+                        ExpiresAt = DateTime.UtcNow.AddMinutes(settings.PasswordResetExpirationMinutes)
+                    });
+
+                await unitOfWork.CommitAsync();
+
+                EmailSendResult emailSendResult = await emailSender.SendPasswordResetCodeAsync(
+                    new PasswordResetEmailRequest
+                    {
+                        RecipientEmail = account.Email,
+                        RecipientName = player.FullName,
+                        ResetCode = resetCode,
+                        ExpirationMinutes = settings.PasswordResetExpirationMinutes,
+                        LanguageCode = player.PreferredLanguageCode
+                    });
+
+                if (!emailSendResult.IsSuccess)
+                {
+                    return BuildRequestPasswordResetResponse(
+                        true,
+                        AuthMessageCode.PasswordResetEmailFailed);
+                }
+
+                return BuildRequestPasswordResetResponse(
+                    true,
+                    AuthMessageCode.PasswordResetEmailSent);
+            }
+        }
+
+        public async Task<ResetPasswordResponse> ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            AuthSettings settings = authSettingsProvider.GetSettings();
+            AuthValidator authValidator = new AuthValidator(settings);
+
+            ValidationResult validationResult = authValidator.ValidateResetPassword(request);
+
+            if (!validationResult.IsValid)
+            {
+                return BuildResetPasswordResponse(false, validationResult.MessageCode);
+            }
+
+            string email = NormalizeEmail(request.Email);
+
+            using (var unitOfWork = unitOfWorkFactory.Create())
+            {
+                AccountTransporter account = await unitOfWork.Accounts.GetByEmailAsync(email);
+
+                if (account == null)
+                {
+                    return BuildResetPasswordResponse(false, AuthMessageCode.PasswordResetTokenNotFound);
+                }
+
+                if (!IsAccountAvailableForPasswordReset(account))
+                {
+                    return BuildResetPasswordResponse(false, AuthMessageCode.AccountNotAvailable);
+                }
+
+                PasswordResetTokenTransporter token =
+                    await unitOfWork.PasswordResetTokens.GetLatestUnusedByAccountIdAsync(account.AccountId);
+
+                if (token == null)
+                {
+                    return BuildResetPasswordResponse(false, AuthMessageCode.PasswordResetTokenNotFound);
+                }
+
+                if (token.ExpiresAt <= DateTime.UtcNow)
+                {
+                    await unitOfWork.PasswordResetTokens.MarkAsUsedAsync(token.PasswordResetTokenId);
+                    await unitOfWork.CommitAsync();
+
+                    return BuildResetPasswordResponse(false, AuthMessageCode.PasswordResetTokenExpired);
+                }
+
+                if (token.Attempts >= settings.MaximumVerificationAttempts)
+                {
+                    return BuildResetPasswordResponse(false, AuthMessageCode.PasswordResetTokenAttemptsExceeded);
+                }
+
+                bool codeIsValid = PasswordHasher.VerifyPassword(request.Code.Trim(), token.ResetCodeHash);
+
+                if (!codeIsValid)
+                {
+                    await unitOfWork.PasswordResetTokens.IncrementAttemptsAsync(token.PasswordResetTokenId);
+                    await unitOfWork.CommitAsync();
+
+                    return BuildResetPasswordResponse(false, AuthMessageCode.InvalidPasswordResetCode);
+                }
+
+                string newPasswordHash = PasswordHasher.HashPassword(request.NewPassword, settings);
+
+                bool passwordUpdated = await unitOfWork.Accounts.UpdatePasswordHashAsync(
+                    account.AccountId,
+                    newPasswordHash);
+
+                bool tokenMarkedAsUsed = await unitOfWork.PasswordResetTokens.MarkAsUsedAsync(
+                    token.PasswordResetTokenId);
+
+                if (!passwordUpdated || !tokenMarkedAsUsed)
+                {
+                    return BuildResetPasswordResponse(false, AuthMessageCode.PasswordResetFailed);
+                }
+
+                await unitOfWork.CommitAsync();
+
+                return BuildResetPasswordResponse(true, AuthMessageCode.PasswordResetSuccessful);
+            }
+        }
+
         private static RegisterResponse BuildRegisterResponse(
             bool success,
             Enum messageCode,
@@ -330,6 +487,50 @@ namespace Hangman.Business.Services
                 MessageCode = messageCode.ToString(),
                 VerificationEmailSent = verificationEmailSent
             };
+        }
+
+        private static RequestPasswordResetResponse BuildRequestPasswordResetResponse(
+    bool success,
+    Enum messageCode)
+        {
+            return new RequestPasswordResetResponse
+            {
+                Success = success,
+                MessageCode = messageCode.ToString()
+            };
+        }
+
+        private static ResetPasswordResponse BuildResetPasswordResponse(
+            bool success,
+            Enum messageCode)
+        {
+            return new ResetPasswordResponse
+            {
+                Success = success,
+                MessageCode = messageCode.ToString()
+            };
+        }
+
+        private static bool IsAccountAvailableForPasswordReset(AccountTransporter account)
+        {
+            if (account == null)
+            {
+                return false;
+            }
+
+            if (account.AccountStatus == AccountStatusConstants.Blocked ||
+                account.AccountStatus == AccountStatusConstants.Deleted)
+            {
+                return false;
+            }
+
+            if (!account.IsEmailVerified ||
+                account.AccountStatus == AccountStatusConstants.PendingVerification)
+            {
+                return false;
+            }
+
+            return account.AccountStatus == AccountStatusConstants.Active;
         }
 
         private static string NormalizeEmail(string email)

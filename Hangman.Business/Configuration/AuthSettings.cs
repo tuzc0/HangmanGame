@@ -8,6 +8,8 @@
 
         public int PasswordIterations { get; set; }
 
+        public int PasswordResetExpirationMinutes { get; set; }
+
         public int VerificationCodeLength { get; set; }
 
         public int VerificationCodeLimit { get; set; }

@@ -105,5 +105,52 @@ namespace HangmanGame.Services.Services
                 };
             }
         }
+
+        public async Task<RequestPasswordResetResponse> RequestPasswordResetAsync(
+    RequestPasswordResetRequest request)
+        {
+            try
+            {
+                return await authBusiness.RequestPasswordResetAsync(request);
+            }
+            catch (Exception exception)
+            {
+                AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
+
+                Log.ErrorFormat("Error executing RequestPasswordResetAsync. MessageCode: {0}. Email: {1}",
+                    messageCode,
+                    request != null ? request.Email : "null",
+                    exception);
+
+                return new RequestPasswordResetResponse
+                {
+                    Success = false,
+                    MessageCode = messageCode.ToString()
+                };
+            }
+        }
+
+        public async Task<ResetPasswordResponse> ResetPasswordAsync(ResetPasswordRequest request)
+        {
+            try
+            {
+                return await authBusiness.ResetPasswordAsync(request);
+            }
+            catch (Exception exception)
+            {
+                AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
+
+                Log.ErrorFormat("Error executing ResetPasswordAsync. MessageCode: {0}. Email: {1}",
+                    messageCode,
+                    request != null ? request.Email : "null",
+                    exception);
+
+                return new ResetPasswordResponse
+                {
+                    Success = false,
+                    MessageCode = messageCode.ToString()
+                };
+            }
+        }
     }
 }
