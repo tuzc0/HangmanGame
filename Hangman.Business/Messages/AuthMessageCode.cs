@@ -19,6 +19,15 @@
         AccountNotAvailable,
         AccountNotActive,
         PlayerProfileNotAvailable,
-        LoginSuccessful
+        LoginSuccessful,
+
+        DatabaseConnectionError,
+        DatabaseTimeout,
+        DatabaseDuplicateKey,
+        DatabaseConstraintError,
+        DatabaseUnavailable,
+        ConfigurationError,
+        RuntimeError,
+        UnexpectedError
     }
 }
