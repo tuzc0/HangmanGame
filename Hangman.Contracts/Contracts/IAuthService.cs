@@ -1,14 +1,16 @@
 ﻿using Hangman.Contracts.Auth;
+using System.ServiceModel;
 using System.Threading.Tasks;
 
-namespace Hangman.Business.Interfaces
+namespace Hangman.Contracts.Contracts
 {
-    public interface IAuthBusiness
+    [ServiceContract]
+    public interface IAuthService
     {
-        Task<bool> EmailExistsAsync(string email);
-
+        [OperationContract]
         Task<RegisterResponse> RegisterAsync(RegisterRequest request);
 
+        [OperationContract]
         Task<LoginResponse> LoginAsync(LoginRequest request);
     }
 }

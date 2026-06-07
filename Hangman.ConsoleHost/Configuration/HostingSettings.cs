@@ -1,0 +1,23 @@
+﻿namespace Hangman.ConsoleHost.Configuration
+{
+    public class HostingSettings
+    {
+        public string BaseAddress { get; set; }
+
+        public string AuthServicePath { get; set; }
+
+        public long MaxReceivedMessageSize { get; set; }
+
+        public int OpenTimeoutSeconds { get; set; }
+
+        public int CloseTimeoutSeconds { get; set; }
+
+        public int SendTimeoutSeconds { get; set; }
+
+        public int ReceiveTimeoutMinutes { get; set; }
+
+        public bool MetadataEnabled { get; set; }
+
+        public bool IncludeExceptionDetailInFaults { get; set; }
+    }
+}
