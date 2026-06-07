@@ -6,7 +6,6 @@ namespace Hangman.Infrastructure.Email.Configuration
     public class SmtpSettingsProvider
     {
         private const int DefaultPort = 587;
-        private const bool DefaultEnableSsl = true;
         private const int DefaultTimeoutMs = 10000;
         private const string DefaultDisplayName = "Hangman Game";
 
@@ -16,7 +15,6 @@ namespace Hangman.Infrastructure.Email.Configuration
             {
                 Host = GetString("Smtp.Host", "HANGMAN_SMTP_HOST", string.Empty),
                 Port = GetInt("Smtp.Port", "HANGMAN_SMTP_PORT", DefaultPort),
-                EnableSsl = GetBool("Smtp.EnableSsl", "HANGMAN_SMTP_ENABLE_SSL", DefaultEnableSsl),
                 User = GetString("Smtp.User", "HANGMAN_SMTP_USER", string.Empty),
                 Password = GetString("Smtp.Password", "HANGMAN_SMTP_PASSWORD", string.Empty),
                 FromAddress = GetString("Smtp.FromAddress", "HANGMAN_SMTP_FROM_ADDRESS", string.Empty),
@@ -44,20 +42,6 @@ namespace Hangman.Infrastructure.Email.Configuration
             int parsedValue;
 
             if (int.TryParse(value, out parsedValue) && parsedValue > 0)
-            {
-                return parsedValue;
-            }
-
-            return defaultValue;
-        }
-
-        private static bool GetBool(string appSettingKey, string environmentVariableKey, bool defaultValue)
-        {
-            string value = GetRawValue(appSettingKey, environmentVariableKey);
-
-            bool parsedValue;
-
-            if (bool.TryParse(value, out parsedValue))
             {
                 return parsedValue;
             }

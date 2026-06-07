@@ -105,7 +105,7 @@ namespace Hangman.Infrastructure.Email
         {
             return new SmtpClient(settings.Host, settings.Port)
             {
-                EnableSsl = settings.EnableSsl,
+                EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
                 Credentials = new NetworkCredential(settings.User, settings.Password),
