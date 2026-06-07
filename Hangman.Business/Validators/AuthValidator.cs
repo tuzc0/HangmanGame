@@ -62,7 +62,7 @@ namespace Hangman.Business.Validators
             return ValidationResult.Success();
         }
 
-        public ValidationResult ValidateLogin(LoginRequest request)
+        public static ValidationResult ValidateLogin(LoginRequest request)
         {
             if (request == null)
             {

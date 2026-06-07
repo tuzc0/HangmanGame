@@ -19,8 +19,6 @@ namespace Hangman.Business.Services
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly IEmailSender emailSender;
         private readonly AuthSettingsProvider authSettingsProvider;
-        private readonly PasswordHasher passwordHasher;
-        private readonly VerificationCodeGenerator verificationCodeGenerator;
 
         public AuthBusiness(IUnitOfWorkFactory unitOfWorkFactory, IEmailSender emailSender)
         {
@@ -28,8 +26,6 @@ namespace Hangman.Business.Services
             this.emailSender = emailSender ?? throw new ArgumentNullException(nameof(emailSender));
 
             authSettingsProvider = new AuthSettingsProvider();
-            passwordHasher = new PasswordHasher();
-            verificationCodeGenerator = new VerificationCodeGenerator();
         }
 
         public async Task<bool> EmailExistsAsync(string email)
@@ -68,9 +64,9 @@ namespace Hangman.Business.Services
                     return BuildRegisterResponse(false, AuthMessageCode.EmailAlreadyRegistered, 0, 0, false, false);
                 }
 
-                string verificationCode = verificationCodeGenerator.GenerateCode(settings);
-                string passwordHash = passwordHasher.HashPassword(request.Password, settings);
-                string verificationCodeHash = passwordHasher.HashPassword(verificationCode, settings);
+                string verificationCode = VerificationCodeGenerator.GenerateCode(settings);
+                string passwordHash = PasswordHasher.HashPassword(request.Password, settings);
+                string verificationCodeHash = PasswordHasher.HashPassword(verificationCode, settings);
 
                 CreatePendingAccountTransporter registration = new CreatePendingAccountTransporter
                 {
@@ -131,10 +127,7 @@ namespace Hangman.Business.Services
 
         public async Task<LoginResponse> LoginAsync(LoginRequest request)
         {
-            AuthSettings settings = authSettingsProvider.GetSettings();
-            AuthValidator authValidator = new AuthValidator(settings);
-
-            ValidationResult validationResult = authValidator.ValidateLogin(request);
+            ValidationResult validationResult = AuthValidator.ValidateLogin(request);
 
             if (!validationResult.IsValid)
             {
@@ -152,7 +145,7 @@ namespace Hangman.Business.Services
                     return BuildLoginResponse(false, AuthMessageCode.InvalidEmailOrPassword, null);
                 }
 
-                bool passwordIsValid = passwordHasher.VerifyPassword(request.Password, credentials.PasswordHash);
+                bool passwordIsValid = PasswordHasher.VerifyPassword(request.Password, credentials.PasswordHash);
 
                 if (!passwordIsValid)
                 {

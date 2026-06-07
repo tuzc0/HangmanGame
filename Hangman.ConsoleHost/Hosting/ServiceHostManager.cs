@@ -51,35 +51,45 @@ namespace Hangman.ConsoleHost.Hosting
                 Console.WriteLine("Service started: {0}", host.BaseAddresses[0]);
                 Log.InfoFormat("Service started: {0}", host.BaseAddresses[0]);
             }
-            catch (AddressAccessDeniedException ex)
+            catch (AddressAccessDeniedException exception)
             {
-                Log.Fatal("Access denied while opening service host. Check URL ACL permissions.", ex);
                 AbortHost(host);
-                throw;
+
+                throw new InvalidOperationException(
+                    "Access denied while opening service host. Check URL ACL permissions.",
+                    exception);
             }
-            catch (AddressAlreadyInUseException ex)
+            catch (AddressAlreadyInUseException exception)
             {
-                Log.Fatal("Address already in use while opening service host.", ex);
                 AbortHost(host);
-                throw;
+
+                throw new InvalidOperationException(
+                    "Address already in use while opening service host.",
+                    exception);
             }
-            catch (TimeoutException ex)
+            catch (TimeoutException exception)
             {
-                Log.Fatal("Timeout while opening service host.", ex);
                 AbortHost(host);
-                throw;
+
+                throw new InvalidOperationException(
+                    "Timeout while opening service host.",
+                    exception);
             }
-            catch (CommunicationException ex)
+            catch (CommunicationException exception)
             {
-                Log.Fatal("Communication error while opening service host.", ex);
                 AbortHost(host);
-                throw;
+
+                throw new InvalidOperationException(
+                    "Communication error while opening service host.",
+                    exception);
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException exception)
             {
-                Log.Fatal("Invalid service host configuration.", ex);
                 AbortHost(host);
-                throw;
+
+                throw new InvalidOperationException(
+                    "Invalid service host configuration.",
+                    exception);
             }
         }
 

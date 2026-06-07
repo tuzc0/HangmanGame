@@ -4,11 +4,11 @@ using System.Security.Cryptography;
 
 namespace Hangman.Business.Security
 {
-    public class PasswordHasher
+    public static class PasswordHasher
     {
         private const string Algorithm = "PBKDF2-SHA256";
 
-        public string HashPassword(string password, AuthSettings settings)
+        public static string HashPassword(string password, AuthSettings settings)
         {
             if (settings == null)
             {
@@ -46,7 +46,7 @@ namespace Hangman.Business.Security
                 Convert.ToBase64String(hash));
         }
 
-        public bool VerifyPassword(string password, string storedPasswordHash)
+        public static bool VerifyPassword(string password, string storedPasswordHash)
         {
             if (string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(storedPasswordHash))
             {

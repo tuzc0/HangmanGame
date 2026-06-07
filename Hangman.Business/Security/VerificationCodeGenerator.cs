@@ -4,9 +4,9 @@ using System.Security.Cryptography;
 
 namespace Hangman.Business.Security
 {
-    public class VerificationCodeGenerator
+    public static class VerificationCodeGenerator
     {
-        public string GenerateCode(AuthSettings settings)
+        public static string GenerateCode(AuthSettings settings)
         {
             if (settings == null)
             {
