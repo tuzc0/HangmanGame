@@ -12,5 +12,9 @@ namespace Hangman.Contracts.Contracts
 
         [OperationContract]
         Task<LoginResponse> LoginAsync(LoginRequest request);
+
+        [OperationContract]
+        Task<ResendVerificationEmailResponse> ResendVerificationEmailAsync(
+            ResendVerificationEmailRequest request);
     }
 }

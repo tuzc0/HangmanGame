@@ -73,10 +73,8 @@ namespace Hangman.Infrastructure.Email
             }
             catch (Exception exception)
             {
-                Log.Error(
-                    string.Format(
-                        "Verification email failed with unexpected error. Recipient: {0}",
-                        MaskEmail(request.RecipientEmail)),
+                Log.ErrorFormat("Verification email failed with unexpected error. Recipient: {0}",
+                    MaskEmail(request.RecipientEmail),
                     exception);
 
                 return EmailSendResult.PermanentFailure(EmailErrorCode.SmtpUnknown, exception);

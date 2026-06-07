@@ -21,6 +21,11 @@
         PlayerProfileNotAvailable,
         LoginSuccessful,
 
+        VerificationEmailResendProcessed,
+        VerificationEmailResent,
+        VerificationEmailResendFailed,
+        AccountAlreadyVerified,
+
         DatabaseConnectionError,
         DatabaseTimeout,
         DatabaseDuplicateKey,

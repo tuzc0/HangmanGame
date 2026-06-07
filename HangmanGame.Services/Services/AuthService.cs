@@ -40,11 +40,9 @@ namespace HangmanGame.Services.Services
             {
                 AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
 
-                Log.Error(
-                    string.Format(
-                        "Error executing RegisterAsync. MessageCode: {0}. Email: {1}",
-                        messageCode,
-                        request != null ? request.Email : "null"),
+                Log.ErrorFormat("Error executing RegisterAsync. MessageCode: {0}. Email: {1}",
+                    messageCode,
+                    request != null ? request.Email : "null",
                     exception);
 
                 return new RegisterResponse
@@ -69,11 +67,9 @@ namespace HangmanGame.Services.Services
             {
                 AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
 
-                Log.Error(
-                    string.Format(
-                        "Error executing LoginAsync. MessageCode: {0}. Email: {1}",
-                        messageCode,
-                        request != null ? request.Email : "null"),
+                Log.ErrorFormat("Error executing LoginAsync. MessageCode: {0}. Email: {1}",
+                    messageCode,
+                    request != null ? request.Email : "null",
                     exception);
 
                 return new LoginResponse
@@ -81,6 +77,31 @@ namespace HangmanGame.Services.Services
                     Success = false,
                     MessageCode = messageCode.ToString(),
                     Player = null
+                };
+            }
+        }
+
+        public async Task<ResendVerificationEmailResponse> ResendVerificationEmailAsync(
+            ResendVerificationEmailRequest request)
+        {
+            try
+            {
+                return await authBusiness.ResendVerificationEmailAsync(request);
+            }
+            catch (Exception exception)
+            {
+                AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
+
+                Log.ErrorFormat("Error executing ResendVerificationEmailAsync. MessageCode: {0}. Email: {1}",
+                    messageCode,
+                    request != null ? request.Email : "null",
+                    exception);
+
+                return new ResendVerificationEmailResponse
+                {
+                    Success = false,
+                    MessageCode = messageCode.ToString(),
+                    VerificationEmailSent = false
                 };
             }
         }

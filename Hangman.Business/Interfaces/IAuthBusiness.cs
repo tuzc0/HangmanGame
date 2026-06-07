@@ -10,5 +10,8 @@ namespace Hangman.Business.Interfaces
         Task<RegisterResponse> RegisterAsync(RegisterRequest request);
 
         Task<LoginResponse> LoginAsync(LoginRequest request);
+
+        Task<ResendVerificationEmailResponse> ResendVerificationEmailAsync(
+            ResendVerificationEmailRequest request);
     }
 }

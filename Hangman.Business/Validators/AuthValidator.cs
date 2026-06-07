@@ -82,6 +82,21 @@ namespace Hangman.Business.Validators
             return ValidationResult.Success();
         }
 
+        public static ValidationResult ValidateResendVerificationEmail(ResendVerificationEmailRequest request)
+        {
+            if (request == null)
+            {
+                return ValidationResult.Fail(AuthMessageCode.RegistrationDataRequired);
+            }
+
+            if (!IsValidEmail(request.Email))
+            {
+                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+            }
+
+            return ValidationResult.Success();
+        }
+
         private bool IsValidLanguageCode(string languageCode)
         {
             if (string.IsNullOrWhiteSpace(languageCode))

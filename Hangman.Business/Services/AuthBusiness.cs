@@ -191,6 +191,102 @@ namespace Hangman.Business.Services
             }
         }
 
+        public async Task<ResendVerificationEmailResponse> ResendVerificationEmailAsync(
+            ResendVerificationEmailRequest request)
+        {
+            ValidationResult validationResult = AuthValidator.ValidateResendVerificationEmail(request);
+
+            if (!validationResult.IsValid)
+            {
+                return BuildResendVerificationEmailResponse(
+                    false,
+                    validationResult.MessageCode,
+                    false);
+            }
+
+            AuthSettings settings = authSettingsProvider.GetSettings();
+            string email = NormalizeEmail(request.Email);
+
+            using (var unitOfWork = unitOfWorkFactory.Create())
+            {
+                AccountTransporter account = await unitOfWork.Accounts.GetByEmailAsync(email);
+
+                if (account == null)
+                {
+                    return BuildResendVerificationEmailResponse(
+                        true,
+                        AuthMessageCode.VerificationEmailResendProcessed,
+                        false);
+                }
+
+                if (account.AccountStatus == AccountStatusConstants.Blocked ||
+                    account.AccountStatus == AccountStatusConstants.Deleted)
+                {
+                    return BuildResendVerificationEmailResponse(
+                        false,
+                        AuthMessageCode.AccountNotAvailable,
+                        false);
+                }
+
+                if (account.IsEmailVerified ||
+                    account.AccountStatus == AccountStatusConstants.Active)
+                {
+                    return BuildResendVerificationEmailResponse(
+                        true,
+                        AuthMessageCode.AccountAlreadyVerified,
+                        false);
+                }
+
+                PlayerTransporter player = await unitOfWork.Players.GetByIdAsync(account.PlayerId);
+
+                if (player == null || !player.IsActive)
+                {
+                    return BuildResendVerificationEmailResponse(
+                        false,
+                        AuthMessageCode.PlayerProfileNotAvailable,
+                        false);
+                }
+
+                string verificationCode = VerificationCodeGenerator.GenerateCode(settings);
+                string verificationCodeHash = PasswordHasher.HashPassword(verificationCode, settings);
+
+                await unitOfWork.EmailVerifications.InvalidateUnusedByAccountIdAsync(account.AccountId);
+
+                unitOfWork.EmailVerifications.Add(
+                    new CreateEmailVerificationTransporter
+                    {
+                        AccountId = account.AccountId,
+                        VerificationCodeHash = verificationCodeHash,
+                        ExpiresAt = DateTime.UtcNow.AddMinutes(settings.EmailVerificationExpirationMinutes)
+                    });
+
+                await unitOfWork.CommitAsync();
+
+                EmailSendResult emailSendResult = await emailSender.SendVerificationCodeAsync(
+                    new VerificationEmailRequest
+                    {
+                        RecipientEmail = account.Email,
+                        RecipientName = player.FullName,
+                        VerificationCode = verificationCode,
+                        ExpirationMinutes = settings.EmailVerificationExpirationMinutes,
+                        LanguageCode = player.PreferredLanguageCode
+                    });
+
+                if (!emailSendResult.IsSuccess)
+                {
+                    return BuildResendVerificationEmailResponse(
+                        true,
+                        AuthMessageCode.VerificationEmailResendFailed,
+                        false);
+                }
+
+                return BuildResendVerificationEmailResponse(
+                    true,
+                    AuthMessageCode.VerificationEmailResent,
+                    true);
+            }
+        }
+
         private static RegisterResponse BuildRegisterResponse(
             bool success,
             AuthMessageCode messageCode,
@@ -220,6 +316,19 @@ namespace Hangman.Business.Services
                 Success = success,
                 MessageCode = messageCode.ToString(),
                 Player = player
+            };
+        }
+
+        private static ResendVerificationEmailResponse BuildResendVerificationEmailResponse(
+            bool success,
+            AuthMessageCode messageCode,
+            bool verificationEmailSent)
+        {
+            return new ResendVerificationEmailResponse
+            {
+                Success = success,
+                MessageCode = messageCode.ToString(),
+                VerificationEmailSent = verificationEmailSent
             };
         }
 
