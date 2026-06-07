@@ -186,5 +186,26 @@ namespace Hangman.DataAccess.Repositories
 
             return true;
         }
+
+        public async Task<bool> UpdateStatusAsync(int accountId, string newStatus)
+        {
+            if (string.IsNullOrWhiteSpace(newStatus))
+            {
+                throw new ArgumentException("Account status is required.", nameof(newStatus));
+            }
+
+            ACCOUNT account = await context.ACCOUNTs
+                .FirstOrDefaultAsync(item => item.account_id == accountId);
+
+            if (account == null)
+            {
+                return false;
+            }
+
+            account.account_status = newStatus;
+            account.updated_at = DateTime.UtcNow;
+
+            return true;
+        }
     }
 }

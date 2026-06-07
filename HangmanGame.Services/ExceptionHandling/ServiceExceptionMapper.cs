@@ -48,6 +48,45 @@ namespace HangmanGame.Services.ExceptionHandling
             return AuthMessageCode.UnexpectedError;
         }
 
+        public static ProfileMessageCode MapProfile(Exception exception)
+        {
+            if (exception == null)
+            {
+                return ProfileMessageCode.UnexpectedError;
+            }
+
+            SqlException sqlException = FindInnerException<SqlException>(exception);
+
+            if (sqlException != null)
+            {
+                return MapSqlExceptionToProfile(sqlException);
+            }
+
+            if (exception is EntityException || exception is DbUpdateException)
+            {
+                return ProfileMessageCode.DatabaseUnavailable;
+            }
+
+            if (exception is TimeoutException)
+            {
+                return ProfileMessageCode.DatabaseTimeout;
+            }
+
+            if (exception is ConfigurationErrorsException)
+            {
+                return ProfileMessageCode.ConfigurationError;
+            }
+
+            if (exception is NullReferenceException ||
+                exception is InvalidOperationException ||
+                exception is ArgumentException)
+            {
+                return ProfileMessageCode.RuntimeError;
+            }
+
+            return ProfileMessageCode.UnexpectedError;
+        }
+
         private static AuthMessageCode MapSqlException(SqlException exception)
         {
             foreach (SqlError error in exception.Errors)
@@ -74,6 +113,34 @@ namespace HangmanGame.Services.ExceptionHandling
             }
 
             return AuthMessageCode.DatabaseUnavailable;
+        }
+
+        private static ProfileMessageCode MapSqlExceptionToProfile(SqlException exception)
+        {
+            foreach (SqlError error in exception.Errors)
+            {
+                switch (error.Number)
+                {
+                    case 2:
+                    case 53:
+                    case 4060:
+                    case 18456:
+                        return ProfileMessageCode.DatabaseConnectionError;
+
+                    case -2:
+                        return ProfileMessageCode.DatabaseTimeout;
+
+                    case 2627:
+                    case 2601:
+                        return ProfileMessageCode.DatabaseDuplicateKey;
+
+                    case 547:
+                    case 515:
+                        return ProfileMessageCode.DatabaseConstraintError;
+                }
+            }
+
+            return ProfileMessageCode.DatabaseUnavailable;
         }
 
         private static TException FindInnerException<TException>(Exception exception)

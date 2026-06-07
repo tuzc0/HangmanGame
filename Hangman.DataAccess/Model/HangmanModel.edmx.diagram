@@ -29,6 +29,8 @@
         <AssociationConnector Association="HangmanDBModel.FK_SCORE_MOVEMENT_MATCH" ManuallyRouted="false" />
         <AssociationConnector Association="HangmanDBModel.FK_MATCH_GUESS_PLAYER" ManuallyRouted="false" />
         <AssociationConnector Association="HangmanDBModel.FK_SCORE_MOVEMENT_PLAYER" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="HangmanDBModel.PASSWORD_RESET_TOKEN" Width="1.5" PointX="7.5" PointY="11.25" />
+        <AssociationConnector Association="HangmanDBModel.FK_PASSWORD_RESET_TOKEN_ACCOUNT" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

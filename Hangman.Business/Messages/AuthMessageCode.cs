@@ -26,6 +26,18 @@
         VerificationEmailResendFailed,
         AccountAlreadyVerified,
 
+        PasswordResetRequestDataRequired,
+        PasswordResetDataRequired,
+        PasswordResetRequestProcessed,
+        PasswordResetEmailSent,
+        PasswordResetEmailFailed,
+        PasswordResetTokenNotFound,
+        PasswordResetTokenExpired,
+        PasswordResetTokenAttemptsExceeded,
+        InvalidPasswordResetCode,
+        PasswordResetSuccessful,
+        PasswordResetFailed,
+
         DatabaseConnectionError,
         DatabaseTimeout,
         DatabaseDuplicateKey,

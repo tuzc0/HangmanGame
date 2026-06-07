@@ -20,6 +20,7 @@ namespace Hangman.ConsoleHost.Configuration
             {
                 BaseAddress = GetString("Wcf.BaseAddress", DefaultBaseAddress),
                 AuthServicePath = GetString("Wcf.AuthServicePath", DefaultAuthServicePath),
+                ProfileServicePath = GetString("Wcf.ProfileServicePath", "ProfileService"),
                 MaxReceivedMessageSize = GetLong("Wcf.MaxReceivedMessageSize", DefaultMaxReceivedMessageSize),
                 OpenTimeoutSeconds = GetInt("Wcf.OpenTimeoutSeconds", DefaultOpenTimeoutSeconds),
                 CloseTimeoutSeconds = GetInt("Wcf.CloseTimeoutSeconds", DefaultCloseTimeoutSeconds),

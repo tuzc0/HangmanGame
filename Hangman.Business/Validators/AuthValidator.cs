@@ -110,6 +110,51 @@ namespace Hangman.Business.Validators
                    settings.AllowedLanguageCodes.Contains(normalizedLanguageCode);
         }
 
+        public static ValidationResult ValidateRequestPasswordReset(RequestPasswordResetRequest request)
+        {
+            if (request == null)
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordResetRequestDataRequired);
+            }
+
+            if (!IsValidEmail(request.Email))
+            {
+                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+            }
+
+            return ValidationResult.Success();
+        }
+
+        public ValidationResult ValidateResetPassword(ResetPasswordRequest request)
+        {
+            if (request == null)
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordResetDataRequired);
+            }
+
+            if (!IsValidEmail(request.Email))
+            {
+                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Code))
+            {
+                return ValidationResult.Fail(AuthMessageCode.InvalidPasswordResetCode);
+            }
+
+            if (string.IsNullOrWhiteSpace(request.NewPassword))
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordRequired);
+            }
+
+            if (request.NewPassword.Length < settings.MinimumPasswordLength)
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordTooShort);
+            }
+
+            return ValidationResult.Success();
+        }
+
         private static bool IsValidEmail(string email)
         {
             if (string.IsNullOrWhiteSpace(email))

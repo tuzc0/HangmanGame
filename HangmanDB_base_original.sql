@@ -287,6 +287,36 @@ CREATE INDEX IX_SCORE_MOVEMENT_match_id
 ON dbo.SCORE_MOVEMENT(match_id);
 GO
 
+CREATE TABLE dbo.PASSWORD_RESET_TOKEN (
+    password_reset_token_id INT IDENTITY(1,1) NOT NULL,
+    account_id INT NOT NULL,
+
+    reset_code_hash NVARCHAR(255) NOT NULL,
+
+    expires_at DATETIME2 NOT NULL,
+    used_at DATETIME2 NULL,
+
+    attempts INT NOT NULL
+        CONSTRAINT DF_PASSWORD_RESET_TOKEN_attempts DEFAULT 0,
+
+    is_used BIT NOT NULL
+        CONSTRAINT DF_PASSWORD_RESET_TOKEN_is_used DEFAULT 0,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_PASSWORD_RESET_TOKEN_created_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT PK_PASSWORD_RESET_TOKEN PRIMARY KEY (password_reset_token_id),
+
+    CONSTRAINT FK_PASSWORD_RESET_TOKEN_ACCOUNT
+        FOREIGN KEY (account_id)
+        REFERENCES dbo.ACCOUNT(account_id)
+);
+GO
+
+CREATE INDEX IX_PASSWORD_RESET_TOKEN_account_used_created
+ON dbo.PASSWORD_RESET_TOKEN(account_id, is_used, created_at DESC);
+GO
+
 INSERT INTO dbo.LANGUAGE (language_code, name)
 VALUES 
 (N'es', N'Español'),

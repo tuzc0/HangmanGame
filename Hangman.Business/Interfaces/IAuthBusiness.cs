@@ -13,5 +13,11 @@ namespace Hangman.Business.Interfaces
 
         Task<ResendVerificationEmailResponse> ResendVerificationEmailAsync(
             ResendVerificationEmailRequest request);
+
+        Task<RequestPasswordResetResponse> RequestPasswordResetAsync(
+            RequestPasswordResetRequest request);
+
+        Task<ResetPasswordResponse> ResetPasswordAsync(
+            ResetPasswordRequest request);
     }
 }

@@ -21,6 +21,11 @@ namespace Hangman.ConsoleHost.Hosting
                 typeof(AuthService),
                 typeof(IAuthService),
                 CombineAddress(settings.BaseAddress, settings.AuthServicePath));
+
+            yield return new ServiceHostDefinition(
+                typeof(ProfileService),
+                typeof(IProfileService),
+                CombineAddress(settings.BaseAddress, settings.ProfileServicePath));
         }
 
         private static string CombineAddress(string baseAddress, string servicePath)

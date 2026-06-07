@@ -12,6 +12,8 @@ namespace Hangman.DataAccess
 
         private IAccountRepository accountRepository;
 
+        private IPasswordResetTokenRepository passwordResetTokenRepository;
+
         private IEmailVerificationRepository emailVerificationRepository;
 
         private IPlayerRepository playerRepository;
@@ -42,6 +44,19 @@ namespace Hangman.DataAccess
                 }
 
                 return accountRepository;
+            }
+        }
+
+        public IPasswordResetTokenRepository PasswordResetTokens
+        {
+            get
+            {
+                if (passwordResetTokenRepository == null)
+                {
+                    passwordResetTokenRepository = new PasswordResetTokenRepository(context);
+                }
+
+                return passwordResetTokenRepository;
             }
         }
 

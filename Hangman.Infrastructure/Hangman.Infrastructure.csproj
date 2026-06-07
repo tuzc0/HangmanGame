@@ -48,6 +48,8 @@
   <ItemGroup>
     <Compile Include="Email\Builders\EmailMessage.cs" />
     <Compile Include="Email\Builders\IEmailMessageBuilder.cs" />
+    <Compile Include="Email\Builders\PasswordResetEmailBuilder.cs" />
+    <Compile Include="Email\Builders\PasswordResetEmailContext.cs" />
     <Compile Include="Email\Builders\VerificationCodeEmailBuilder.cs" />
     <Compile Include="Email\Builders\VerificationCodeEmailContext.cs" />
     <Compile Include="Email\Configuration\SmtpSettings.cs" />

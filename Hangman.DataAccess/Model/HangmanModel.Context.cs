@@ -34,5 +34,6 @@ namespace Hangman.DataAccess.Model
         public virtual DbSet<PLAYER> PLAYERs { get; set; }
         public virtual DbSet<SCORE_MOVEMENT> SCORE_MOVEMENT { get; set; }
         public virtual DbSet<WORD> WORDs { get; set; }
+        public virtual DbSet<PASSWORD_RESET_TOKEN> PASSWORD_RESET_TOKEN { get; set; }
     }
 }
