@@ -60,9 +60,11 @@
     <Compile Include="Helpers\EmailNormalizer.cs" />
     <Compile Include="Interfaces\IAuthBusiness.cs" />
     <Compile Include="Interfaces\IProfileBusiness.cs" />
+    <Compile Include="Interfaces\IWordBusiness.cs" />
     <Compile Include="Mappers\AuthResponseFactory.cs" />
     <Compile Include="Messages\AuthMessageCode.cs" />
     <Compile Include="Messages\ProfileMessageCode.cs" />
+    <Compile Include="Messages\WordMessageCode.cs" />
     <Compile Include="Policies\AccountAvailabilityPolicy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Results\ValidationResult.cs" />
@@ -70,6 +72,7 @@
     <Compile Include="Security\VerificationCodeGenerator.cs" />
     <Compile Include="Services\AuthBusiness.cs" />
     <Compile Include="Services\ProfileBusiness.cs" />
+    <Compile Include="Services\WordBusiness.cs" />
     <Compile Include="UserCases\Auth\LoginUseCase.cs" />
     <Compile Include="UserCases\Auth\RegisterUseCase.cs" />
     <Compile Include="UserCases\Auth\RequestPasswordResetUseCase.cs" />
@@ -77,6 +80,7 @@
     <Compile Include="UserCases\Auth\ResetPasswordUseCase.cs" />
     <Compile Include="Validators\AuthValidator.cs" />
     <Compile Include="Validators\ProfileValidator.cs" />
+    <Compile Include="Validators\WordValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hangman.Contracts\Hangman.Contracts.csproj">

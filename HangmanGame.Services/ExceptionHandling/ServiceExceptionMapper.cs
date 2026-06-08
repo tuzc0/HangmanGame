@@ -4,6 +4,8 @@ using System.Configuration;
 using System.Data.Entity.Core;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
+using System.IO;
+using System.ServiceModel;
 
 namespace HangmanGame.Services.ExceptionHandling
 {
@@ -141,6 +143,83 @@ namespace HangmanGame.Services.ExceptionHandling
             }
 
             return ProfileMessageCode.DatabaseUnavailable;
+        }
+
+        public static WordMessageCode MapWord(Exception exception)
+        {
+            if (exception == null)
+            {
+                return WordMessageCode.UnexpectedError;
+            }
+
+            Exception baseException = exception.GetBaseException();
+
+            if (exception is TimeoutException || baseException is TimeoutException)
+            {
+                return WordMessageCode.DatabaseTimeout;
+            }
+
+            SqlException sqlException = exception as SqlException
+                ?? baseException as SqlException;
+
+            if (sqlException != null)
+            {
+                return MapWordSqlException(sqlException);
+            }
+
+            if (exception is DbUpdateException ||
+                exception is EntityException ||
+                baseException is DbUpdateException ||
+                baseException is EntityException)
+            {
+                return WordMessageCode.DatabaseUnavailable;
+            }
+
+            if (exception is ConfigurationErrorsException ||
+                baseException is ConfigurationErrorsException)
+            {
+                return WordMessageCode.ConfigurationError;
+            }
+
+            if (exception is CommunicationException ||
+                exception is IOException ||
+                baseException is CommunicationException ||
+                baseException is IOException)
+            {
+                return WordMessageCode.RuntimeError;
+            }
+
+            if (exception is InvalidOperationException ||
+                exception is ArgumentException ||
+                baseException is InvalidOperationException ||
+                baseException is ArgumentException)
+            {
+                return WordMessageCode.RuntimeError;
+            }
+
+            return WordMessageCode.UnexpectedError;
+        }
+
+        private static WordMessageCode MapWordSqlException(SqlException sqlException)
+        {
+            switch (sqlException.Number)
+            {
+                case -2:
+                    return WordMessageCode.DatabaseTimeout;
+
+                case 2:
+                case 26:
+                case 40:
+                case 53:
+                case 4060:
+                case 10060:
+                case 10061:
+                case 18456:
+                    return WordMessageCode.DatabaseConnectionError;
+
+                default:
+                    return WordMessageCode.DatabaseUnavailable;
+            }
         }
 
         private static TException FindInnerException<TException>(Exception exception)
