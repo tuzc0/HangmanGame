@@ -26,14 +26,17 @@ namespace Hangman.DataAccess.Model
         }
     
         public virtual DbSet<ACCOUNT> ACCOUNTs { get; set; }
-        public virtual DbSet<CATEGORY> CATEGORies { get; set; }
         public virtual DbSet<EMAIL_VERIFICATION> EMAIL_VERIFICATION { get; set; }
         public virtual DbSet<LANGUAGE> LANGUAGEs { get; set; }
-        public virtual DbSet<MATCH> MATCHes { get; set; }
         public virtual DbSet<MATCH_GUESS> MATCH_GUESS { get; set; }
         public virtual DbSet<PLAYER> PLAYERs { get; set; }
         public virtual DbSet<SCORE_MOVEMENT> SCORE_MOVEMENT { get; set; }
-        public virtual DbSet<WORD> WORDs { get; set; }
         public virtual DbSet<PASSWORD_RESET_TOKEN> PASSWORD_RESET_TOKEN { get; set; }
+        public virtual DbSet<CATEGORY> CATEGORies { get; set; }
+        public virtual DbSet<CATEGORY_TRANSLATION> CATEGORY_TRANSLATION { get; set; }
+        public virtual DbSet<MATCH> MATCHes { get; set; }
+        public virtual DbSet<MATCH_CATEGORY_VOTE> MATCH_CATEGORY_VOTE { get; set; }
+        public virtual DbSet<WORD> WORDs { get; set; }
+        public virtual DbSet<WORD_TRANSLATION> WORD_TRANSLATION { get; set; }
     }
 }

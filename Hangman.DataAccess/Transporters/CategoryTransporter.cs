@@ -4,6 +4,8 @@
     {
         public int CategoryId { get; set; }
 
+        public string CategoryKey { get; set; }
+
         public string Name { get; set; }
 
         public string LanguageCode { get; set; }

@@ -18,19 +18,18 @@ namespace Hangman.DataAccess.Model
         public WORD()
         {
             this.MATCHes = new HashSet<MATCH>();
+            this.WORD_TRANSLATION = new HashSet<WORD_TRANSLATION>();
         }
     
         public int word_id { get; set; }
         public int category_id { get; set; }
-        public string word_text { get; set; }
-        public string description { get; set; }
-        public string language_code { get; set; }
         public bool is_active { get; set; }
         public System.DateTime created_at { get; set; }
     
         public virtual CATEGORY CATEGORY { get; set; }
-        public virtual LANGUAGE LANGUAGE { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<MATCH> MATCHes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WORD_TRANSLATION> WORD_TRANSLATION { get; set; }
     }
 }

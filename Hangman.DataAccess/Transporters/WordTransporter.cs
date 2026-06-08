@@ -8,6 +8,8 @@ namespace Hangman.DataAccess.Transporters
 
         public int CategoryId { get; set; }
 
+        public string CategoryKey { get; set; }
+
         public string CategoryName { get; set; }
 
         public string WordText { get; set; }

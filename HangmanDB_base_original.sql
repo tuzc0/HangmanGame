@@ -103,41 +103,84 @@ CREATE TABLE dbo.EMAIL_VERIFICATION (
 );
 GO
 
-DROP INDEX UX_EMAIL_VERIFICATION_account_active
-ON dbo.EMAIL_VERIFICATION;
-GO
-
 CREATE INDEX IX_EMAIL_VERIFICATION_account_used_created
 ON dbo.EMAIL_VERIFICATION(account_id, is_used, created_at DESC);
 GO
 
+CREATE TABLE dbo.PASSWORD_RESET_TOKEN (
+    password_reset_token_id INT IDENTITY(1,1) NOT NULL,
+    account_id INT NOT NULL,
+
+    reset_code_hash NVARCHAR(255) NOT NULL,
+
+    expires_at DATETIME2 NOT NULL,
+    used_at DATETIME2 NULL,
+
+    attempts INT NOT NULL
+        CONSTRAINT DF_PASSWORD_RESET_TOKEN_attempts DEFAULT 0,
+
+    is_used BIT NOT NULL
+        CONSTRAINT DF_PASSWORD_RESET_TOKEN_is_used DEFAULT 0,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_PASSWORD_RESET_TOKEN_created_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT PK_PASSWORD_RESET_TOKEN PRIMARY KEY (password_reset_token_id),
+
+    CONSTRAINT FK_PASSWORD_RESET_TOKEN_ACCOUNT
+        FOREIGN KEY (account_id)
+        REFERENCES dbo.ACCOUNT(account_id)
+);
+GO
+
+CREATE INDEX IX_PASSWORD_RESET_TOKEN_account_used_created
+ON dbo.PASSWORD_RESET_TOKEN(account_id, is_used, created_at DESC);
+GO
+
 CREATE TABLE dbo.CATEGORY (
     category_id INT IDENTITY(1,1) NOT NULL,
-    name NVARCHAR(80) NOT NULL,
-    language_code NVARCHAR(5) NOT NULL,
+    category_key NVARCHAR(80) NOT NULL,
 
     is_active BIT NOT NULL
         CONSTRAINT DF_CATEGORY_is_active DEFAULT 1,
 
-    CONSTRAINT PK_CATEGORY PRIMARY KEY (category_id),
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_CATEGORY_created_at DEFAULT SYSUTCDATETIME(),
 
-    CONSTRAINT FK_CATEGORY_LANGUAGE
+    CONSTRAINT PK_CATEGORY PRIMARY KEY (category_id),
+    CONSTRAINT UQ_CATEGORY_category_key UNIQUE (category_key)
+);
+GO
+
+CREATE TABLE dbo.CATEGORY_TRANSLATION (
+    category_translation_id INT IDENTITY(1,1) NOT NULL,
+    category_id INT NOT NULL,
+    language_code NVARCHAR(5) NOT NULL,
+    name NVARCHAR(80) NOT NULL,
+
+    CONSTRAINT PK_CATEGORY_TRANSLATION PRIMARY KEY (category_translation_id),
+
+    CONSTRAINT FK_CATEGORY_TRANSLATION_CATEGORY
+        FOREIGN KEY (category_id)
+        REFERENCES dbo.CATEGORY(category_id),
+
+    CONSTRAINT FK_CATEGORY_TRANSLATION_LANGUAGE
         FOREIGN KEY (language_code)
         REFERENCES dbo.LANGUAGE(language_code)
 );
 GO
 
-CREATE UNIQUE INDEX UX_CATEGORY_name_language
-ON dbo.CATEGORY(name, language_code);
+CREATE UNIQUE INDEX UX_CATEGORY_TRANSLATION_category_language
+ON dbo.CATEGORY_TRANSLATION(category_id, language_code);
+GO
+
+CREATE UNIQUE INDEX UX_CATEGORY_TRANSLATION_name_language
+ON dbo.CATEGORY_TRANSLATION(name, language_code);
 GO
 
 CREATE TABLE dbo.WORD (
     word_id INT IDENTITY(1,1) NOT NULL,
     category_id INT NOT NULL,
-
-    word_text NVARCHAR(80) NOT NULL,
-    description NVARCHAR(300) NOT NULL,
-    language_code NVARCHAR(5) NOT NULL,
 
     is_active BIT NOT NULL
         CONSTRAINT DF_WORD_is_active DEFAULT 1,
@@ -149,16 +192,46 @@ CREATE TABLE dbo.WORD (
 
     CONSTRAINT FK_WORD_CATEGORY
         FOREIGN KEY (category_id)
-        REFERENCES dbo.CATEGORY(category_id),
+        REFERENCES dbo.CATEGORY(category_id)
+);
+GO
 
-    CONSTRAINT FK_WORD_LANGUAGE
+CREATE INDEX IX_WORD_category_id
+ON dbo.WORD(category_id);
+GO
+
+CREATE TABLE dbo.WORD_TRANSLATION (
+    word_translation_id INT IDENTITY(1,1) NOT NULL,
+    word_id INT NOT NULL,
+    language_code NVARCHAR(5) NOT NULL,
+
+    word_text NVARCHAR(80) NOT NULL,
+    description NVARCHAR(300) NOT NULL,
+
+    is_active BIT NOT NULL
+        CONSTRAINT DF_WORD_TRANSLATION_is_active DEFAULT 1,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_WORD_TRANSLATION_created_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT PK_WORD_TRANSLATION PRIMARY KEY (word_translation_id),
+
+    CONSTRAINT FK_WORD_TRANSLATION_WORD
+        FOREIGN KEY (word_id)
+        REFERENCES dbo.WORD(word_id),
+
+    CONSTRAINT FK_WORD_TRANSLATION_LANGUAGE
         FOREIGN KEY (language_code)
         REFERENCES dbo.LANGUAGE(language_code)
 );
 GO
 
-CREATE UNIQUE INDEX UX_WORD_text_category_language
-ON dbo.WORD(word_text, category_id, language_code);
+CREATE UNIQUE INDEX UX_WORD_TRANSLATION_word_language
+ON dbo.WORD_TRANSLATION(word_id, language_code);
+GO
+
+CREATE INDEX IX_WORD_TRANSLATION_language_active
+ON dbo.WORD_TRANSLATION(language_code, is_active);
 GO
 
 CREATE TABLE dbo.[MATCH] (
@@ -166,17 +239,26 @@ CREATE TABLE dbo.[MATCH] (
 
     host_id INT NOT NULL,
     guest_id INT NULL,
-    word_id INT NOT NULL,
+
+    host_language_code NVARCHAR(5) NOT NULL,
+    guest_language_code NVARCHAR(5) NULL,
+
+    selected_category_id INT NULL,
+    selected_word_id INT NULL,
 
     created_at DATETIME2 NOT NULL
         CONSTRAINT DF_MATCH_created_at DEFAULT SYSUTCDATETIME(),
 
     joined_at DATETIME2 NULL,
+    category_voting_started_at DATETIME2 NULL,
+    category_voting_ends_at DATETIME2 NULL,
+    word_selection_started_at DATETIME2 NULL,
+    word_selection_ends_at DATETIME2 NULL,
     started_at DATETIME2 NULL,
     finished_at DATETIME2 NULL,
 
     match_status NVARCHAR(30) NOT NULL
-        CONSTRAINT DF_MATCH_status DEFAULT N'Available',
+        CONSTRAINT DF_MATCH_status DEFAULT N'WaitingForGuest',
 
     winner_id INT NULL,
     penalized_user_id INT NULL,
@@ -197,8 +279,20 @@ CREATE TABLE dbo.[MATCH] (
         FOREIGN KEY (guest_id)
         REFERENCES dbo.PLAYER(player_id),
 
-    CONSTRAINT FK_MATCH_WORD
-        FOREIGN KEY (word_id)
+    CONSTRAINT FK_MATCH_HOST_LANGUAGE
+        FOREIGN KEY (host_language_code)
+        REFERENCES dbo.LANGUAGE(language_code),
+
+    CONSTRAINT FK_MATCH_GUEST_LANGUAGE
+        FOREIGN KEY (guest_language_code)
+        REFERENCES dbo.LANGUAGE(language_code),
+
+    CONSTRAINT FK_MATCH_SELECTED_CATEGORY
+        FOREIGN KEY (selected_category_id)
+        REFERENCES dbo.CATEGORY(category_id),
+
+    CONSTRAINT FK_MATCH_SELECTED_WORD
+        FOREIGN KEY (selected_word_id)
         REFERENCES dbo.WORD(word_id),
 
     CONSTRAINT FK_MATCH_WINNER_PLAYER
@@ -221,6 +315,51 @@ GO
 
 CREATE INDEX IX_MATCH_guest_id
 ON dbo.[MATCH](guest_id);
+GO
+
+CREATE INDEX IX_MATCH_selected_category_id
+ON dbo.[MATCH](selected_category_id);
+GO
+
+CREATE INDEX IX_MATCH_selected_word_id
+ON dbo.[MATCH](selected_word_id);
+GO
+
+CREATE TABLE dbo.MATCH_CATEGORY_VOTE (
+    match_category_vote_id INT IDENTITY(1,1) NOT NULL,
+    match_id INT NOT NULL,
+    player_id INT NOT NULL,
+    category_id INT NOT NULL,
+
+    created_at DATETIME2 NOT NULL
+        CONSTRAINT DF_MATCH_CATEGORY_VOTE_created_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT PK_MATCH_CATEGORY_VOTE PRIMARY KEY (match_category_vote_id),
+
+    CONSTRAINT FK_MATCH_CATEGORY_VOTE_MATCH
+        FOREIGN KEY (match_id)
+        REFERENCES dbo.[MATCH](match_id),
+
+    CONSTRAINT FK_MATCH_CATEGORY_VOTE_PLAYER
+        FOREIGN KEY (player_id)
+        REFERENCES dbo.PLAYER(player_id),
+
+    CONSTRAINT FK_MATCH_CATEGORY_VOTE_CATEGORY
+        FOREIGN KEY (category_id)
+        REFERENCES dbo.CATEGORY(category_id)
+);
+GO
+
+CREATE UNIQUE INDEX UX_MATCH_CATEGORY_VOTE_match_player
+ON dbo.MATCH_CATEGORY_VOTE(match_id, player_id);
+GO
+
+CREATE INDEX IX_MATCH_CATEGORY_VOTE_match_id
+ON dbo.MATCH_CATEGORY_VOTE(match_id);
+GO
+
+CREATE INDEX IX_MATCH_CATEGORY_VOTE_category_id
+ON dbo.MATCH_CATEGORY_VOTE(category_id);
 GO
 
 CREATE TABLE dbo.MATCH_GUESS (
@@ -287,56 +426,67 @@ CREATE INDEX IX_SCORE_MOVEMENT_match_id
 ON dbo.SCORE_MOVEMENT(match_id);
 GO
 
-CREATE TABLE dbo.PASSWORD_RESET_TOKEN (
-    password_reset_token_id INT IDENTITY(1,1) NOT NULL,
-    account_id INT NOT NULL,
-
-    reset_code_hash NVARCHAR(255) NOT NULL,
-
-    expires_at DATETIME2 NOT NULL,
-    used_at DATETIME2 NULL,
-
-    attempts INT NOT NULL
-        CONSTRAINT DF_PASSWORD_RESET_TOKEN_attempts DEFAULT 0,
-
-    is_used BIT NOT NULL
-        CONSTRAINT DF_PASSWORD_RESET_TOKEN_is_used DEFAULT 0,
-
-    created_at DATETIME2 NOT NULL
-        CONSTRAINT DF_PASSWORD_RESET_TOKEN_created_at DEFAULT SYSUTCDATETIME(),
-
-    CONSTRAINT PK_PASSWORD_RESET_TOKEN PRIMARY KEY (password_reset_token_id),
-
-    CONSTRAINT FK_PASSWORD_RESET_TOKEN_ACCOUNT
-        FOREIGN KEY (account_id)
-        REFERENCES dbo.ACCOUNT(account_id)
-);
-GO
-
-CREATE INDEX IX_PASSWORD_RESET_TOKEN_account_used_created
-ON dbo.PASSWORD_RESET_TOKEN(account_id, is_used, created_at DESC);
-GO
-
 INSERT INTO dbo.LANGUAGE (language_code, name)
 VALUES 
 (N'es', N'Español'),
 (N'en', N'English');
 GO
 
-INSERT INTO dbo.CATEGORY (name, language_code)
+INSERT INTO dbo.CATEGORY (category_key)
 VALUES
-(N'Animales', N'es'),
-(N'Tecnología', N'es'),
-(N'Animals', N'en'),
-(N'Technology', N'en');
+(N'animals'),
+(N'technology');
 GO
 
-INSERT INTO dbo.WORD (category_id, word_text, description, language_code)
+INSERT INTO dbo.CATEGORY_TRANSLATION (category_id, language_code, name)
+SELECT category_id, N'es', N'Animales'
+FROM dbo.CATEGORY
+WHERE category_key = N'animals';
+
+INSERT INTO dbo.CATEGORY_TRANSLATION (category_id, language_code, name)
+SELECT category_id, N'en', N'Animals'
+FROM dbo.CATEGORY
+WHERE category_key = N'animals';
+
+INSERT INTO dbo.CATEGORY_TRANSLATION (category_id, language_code, name)
+SELECT category_id, N'es', N'Tecnología'
+FROM dbo.CATEGORY
+WHERE category_key = N'technology';
+
+INSERT INTO dbo.CATEGORY_TRANSLATION (category_id, language_code, name)
+SELECT category_id, N'en', N'Technology'
+FROM dbo.CATEGORY
+WHERE category_key = N'technology';
+GO
+
+DECLARE @AnimalsCategoryId INT = (
+    SELECT category_id
+    FROM dbo.CATEGORY
+    WHERE category_key = N'animals'
+);
+
+DECLARE @TechnologyCategoryId INT = (
+    SELECT category_id
+    FROM dbo.CATEGORY
+    WHERE category_key = N'technology'
+);
+
+INSERT INTO dbo.WORD (category_id)
 VALUES
-(1, N'perro', N'Animal doméstico conocido por ser fiel al ser humano.', N'es'),
-(1, N'gato', N'Animal doméstico pequeño que suele maullar.', N'es'),
-(2, N'computadora', N'Dispositivo electrónico usado para procesar información.', N'es'),
-(3, N'dog', N'Domestic animal known for being loyal to humans.', N'en'),
-(3, N'cat', N'Small domestic animal that usually meows.', N'en'),
-(4, N'computer', N'Electronic device used to process information.', N'en');
+(@AnimalsCategoryId),
+(@AnimalsCategoryId),
+(@TechnologyCategoryId);
+
+DECLARE @DogWordId INT = 1;
+DECLARE @CatWordId INT = 2;
+DECLARE @ComputerWordId INT = 3;
+
+INSERT INTO dbo.WORD_TRANSLATION (word_id, language_code, word_text, description)
+VALUES
+(@DogWordId, N'es', N'perro', N'Animal doméstico conocido por ser fiel al ser humano.'),
+(@DogWordId, N'en', N'dog', N'Domestic animal known for being loyal to humans.'),
+(@CatWordId, N'es', N'gato', N'Animal doméstico pequeño que suele maullar.'),
+(@CatWordId, N'en', N'cat', N'Small domestic animal that usually meows.'),
+(@ComputerWordId, N'es', N'computadora', N'Dispositivo electrónico usado para procesar información.'),
+(@ComputerWordId, N'en', N'computer', N'Electronic device used to process information.');
 GO

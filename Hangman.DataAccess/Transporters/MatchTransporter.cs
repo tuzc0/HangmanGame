@@ -18,21 +18,37 @@ namespace Hangman.DataAccess.Transporters
 
         public string GuestEmail { get; set; }
 
-        public int WordId { get; set; }
+        public string HostLanguageCode { get; set; }
 
-        public string WordText { get; set; }
+        public string GuestLanguageCode { get; set; }
 
-        public string WordDescription { get; set; }
+        public int? SelectedCategoryId { get; set; }
 
-        public int CategoryId { get; set; }
+        public string HostCategoryName { get; set; }
 
-        public string CategoryName { get; set; }
+        public string GuestCategoryName { get; set; }
 
-        public string LanguageCode { get; set; }
+        public int? SelectedWordId { get; set; }
+
+        public string HostWordText { get; set; }
+
+        public string GuestWordText { get; set; }
+
+        public string HostWordDescription { get; set; }
+
+        public string GuestWordDescription { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
         public DateTime? JoinedAt { get; set; }
+
+        public DateTime? CategoryVotingStartedAt { get; set; }
+
+        public DateTime? CategoryVotingEndsAt { get; set; }
+
+        public DateTime? WordSelectionStartedAt { get; set; }
+
+        public DateTime? WordSelectionEndsAt { get; set; }
 
         public DateTime? StartedAt { get; set; }
 

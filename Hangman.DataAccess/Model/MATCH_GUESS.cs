@@ -21,7 +21,7 @@ namespace Hangman.DataAccess.Model
         public bool is_correct { get; set; }
         public System.DateTime created_at { get; set; }
     
-        public virtual MATCH MATCH { get; set; }
         public virtual PLAYER PLAYER { get; set; }
+        public virtual MATCH MATCH { get; set; }
     }
 }

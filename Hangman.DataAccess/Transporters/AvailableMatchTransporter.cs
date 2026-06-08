@@ -12,9 +12,9 @@ namespace Hangman.DataAccess.Transporters
 
         public string HostEmail { get; set; }
 
-        public string CategoryName { get; set; }
+        public string HostLanguageCode { get; set; }
 
-        public string LanguageCode { get; set; }
+        public string MatchStatus { get; set; }
 
         public DateTime CreatedAt { get; set; }
     }
