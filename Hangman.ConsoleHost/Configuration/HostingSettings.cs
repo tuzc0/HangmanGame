@@ -8,6 +8,8 @@
 
         public string ProfileServicePath { get; set; }
 
+        public string WordServicePath { get; set; }
+
         public long MaxReceivedMessageSize { get; set; }
 
         public int OpenTimeoutSeconds { get; set; }
