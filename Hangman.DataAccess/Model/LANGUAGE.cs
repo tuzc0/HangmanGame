@@ -17,19 +17,25 @@ namespace Hangman.DataAccess.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public LANGUAGE()
         {
-            this.CATEGORies = new HashSet<CATEGORY>();
             this.PLAYERs = new HashSet<PLAYER>();
-            this.WORDs = new HashSet<WORD>();
+            this.CATEGORY_TRANSLATION = new HashSet<CATEGORY_TRANSLATION>();
+            this.MATCHes = new HashSet<MATCH>();
+            this.MATCHes1 = new HashSet<MATCH>();
+            this.WORD_TRANSLATION = new HashSet<WORD_TRANSLATION>();
         }
     
         public string language_code { get; set; }
         public string name { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<CATEGORY> CATEGORies { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PLAYER> PLAYERs { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<WORD> WORDs { get; set; }
+        public virtual ICollection<CATEGORY_TRANSLATION> CATEGORY_TRANSLATION { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MATCH> MATCHes { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MATCH> MATCHes1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<WORD_TRANSLATION> WORD_TRANSLATION { get; set; }
     }
 }

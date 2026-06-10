@@ -18,12 +18,13 @@ namespace Hangman.DataAccess.Model
         public PLAYER()
         {
             this.ACCOUNTs = new HashSet<ACCOUNT>();
+            this.MATCH_GUESS = new HashSet<MATCH_GUESS>();
+            this.SCORE_MOVEMENT = new HashSet<SCORE_MOVEMENT>();
             this.MATCHes = new HashSet<MATCH>();
             this.MATCHes1 = new HashSet<MATCH>();
             this.MATCHes2 = new HashSet<MATCH>();
             this.MATCHes3 = new HashSet<MATCH>();
-            this.MATCH_GUESS = new HashSet<MATCH_GUESS>();
-            this.SCORE_MOVEMENT = new HashSet<SCORE_MOVEMENT>();
+            this.MATCH_CATEGORY_VOTE = new HashSet<MATCH_CATEGORY_VOTE>();
         }
     
         public int player_id { get; set; }
@@ -38,6 +39,10 @@ namespace Hangman.DataAccess.Model
         public virtual ICollection<ACCOUNT> ACCOUNTs { get; set; }
         public virtual LANGUAGE LANGUAGE { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MATCH_GUESS> MATCH_GUESS { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<SCORE_MOVEMENT> SCORE_MOVEMENT { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<MATCH> MATCHes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<MATCH> MATCHes1 { get; set; }
@@ -46,8 +51,6 @@ namespace Hangman.DataAccess.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<MATCH> MATCHes3 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<MATCH_GUESS> MATCH_GUESS { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<SCORE_MOVEMENT> SCORE_MOVEMENT { get; set; }
+        public virtual ICollection<MATCH_CATEGORY_VOTE> MATCH_CATEGORY_VOTE { get; set; }
     }
 }

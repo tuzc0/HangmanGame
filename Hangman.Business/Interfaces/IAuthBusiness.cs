@@ -11,6 +11,8 @@ namespace Hangman.Business.Interfaces
 
         Task<LoginResponse> LoginAsync(LoginRequest request);
 
+        Task<VerifyEmailResponse> VerifyEmailAsync(VerifyEmailRequest request);
+
         Task<ResendVerificationEmailResponse> ResendVerificationEmailAsync(
             ResendVerificationEmailRequest request);
 

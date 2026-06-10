@@ -4,7 +4,7 @@
     {
         public int HostId { get; set; }
 
-        public int WordId { get; set; }
+        public string HostLanguageCode { get; set; }
 
         public string MatchStatus { get; set; }
 

@@ -24,9 +24,18 @@
             <PropertyRef Name="category_id" />
           </Key>
           <Property Name="category_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="name" Type="nvarchar" MaxLength="80" Nullable="false" />
-          <Property Name="language_code" Type="nvarchar" MaxLength="5" Nullable="false" />
+          <Property Name="category_key" Type="nvarchar" MaxLength="80" Nullable="false" />
           <Property Name="is_active" Type="bit" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="CATEGORY_TRANSLATION">
+          <Key>
+            <PropertyRef Name="category_translation_id" />
+          </Key>
+          <Property Name="category_translation_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="category_id" Type="int" Nullable="false" />
+          <Property Name="language_code" Type="nvarchar" MaxLength="5" Nullable="false" />
+          <Property Name="name" Type="nvarchar" MaxLength="80" Nullable="false" />
         </EntityType>
         <EntityType Name="EMAIL_VERIFICATION">
           <Key>
@@ -55,9 +64,16 @@
           <Property Name="match_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="host_id" Type="int" Nullable="false" />
           <Property Name="guest_id" Type="int" />
-          <Property Name="word_id" Type="int" Nullable="false" />
+          <Property Name="host_language_code" Type="nvarchar" MaxLength="5" Nullable="false" />
+          <Property Name="guest_language_code" Type="nvarchar" MaxLength="5" />
+          <Property Name="selected_category_id" Type="int" />
+          <Property Name="selected_word_id" Type="int" />
           <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
           <Property Name="joined_at" Type="datetime2" Precision="7" />
+          <Property Name="category_voting_started_at" Type="datetime2" Precision="7" />
+          <Property Name="category_voting_ends_at" Type="datetime2" Precision="7" />
+          <Property Name="word_selection_started_at" Type="datetime2" Precision="7" />
+          <Property Name="word_selection_ends_at" Type="datetime2" Precision="7" />
           <Property Name="started_at" Type="datetime2" Precision="7" />
           <Property Name="finished_at" Type="datetime2" Precision="7" />
           <Property Name="match_status" Type="nvarchar" MaxLength="30" Nullable="false" />
@@ -65,6 +81,16 @@
           <Property Name="penalized_user_id" Type="int" />
           <Property Name="failed_attempts" Type="int" Nullable="false" />
           <Property Name="max_attempts" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="MATCH_CATEGORY_VOTE">
+          <Key>
+            <PropertyRef Name="match_category_vote_id" />
+          </Key>
+          <Property Name="match_category_vote_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="match_id" Type="int" Nullable="false" />
+          <Property Name="player_id" Type="int" Nullable="false" />
+          <Property Name="category_id" Type="int" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
         </EntityType>
         <EntityType Name="MATCH_GUESS">
           <Key>
@@ -119,9 +145,18 @@
           </Key>
           <Property Name="word_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="category_id" Type="int" Nullable="false" />
+          <Property Name="is_active" Type="bit" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="WORD_TRANSLATION">
+          <Key>
+            <PropertyRef Name="word_translation_id" />
+          </Key>
+          <Property Name="word_translation_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="word_id" Type="int" Nullable="false" />
+          <Property Name="language_code" Type="nvarchar" MaxLength="5" Nullable="false" />
           <Property Name="word_text" Type="nvarchar" MaxLength="80" Nullable="false" />
           <Property Name="description" Type="nvarchar" MaxLength="300" Nullable="false" />
-          <Property Name="language_code" Type="nvarchar" MaxLength="5" Nullable="false" />
           <Property Name="is_active" Type="bit" Nullable="false" />
           <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
         </EntityType>
@@ -137,14 +172,26 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_CATEGORY_LANGUAGE">
+        <Association Name="FK_CATEGORY_TRANSLATION_CATEGORY">
+          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="1" />
+          <End Role="CATEGORY_TRANSLATION" Type="Self.CATEGORY_TRANSLATION" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CATEGORY">
+              <PropertyRef Name="category_id" />
+            </Principal>
+            <Dependent Role="CATEGORY_TRANSLATION">
+              <PropertyRef Name="category_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CATEGORY_TRANSLATION_LANGUAGE">
           <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
-          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="*" />
+          <End Role="CATEGORY_TRANSLATION" Type="Self.CATEGORY_TRANSLATION" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="LANGUAGE">
               <PropertyRef Name="language_code" />
             </Principal>
-            <Dependent Role="CATEGORY">
+            <Dependent Role="CATEGORY_TRANSLATION">
               <PropertyRef Name="language_code" />
             </Dependent>
           </ReferentialConstraint>
@@ -158,6 +205,42 @@
             </Principal>
             <Dependent Role="EMAIL_VERIFICATION">
               <PropertyRef Name="account_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_CATEGORY_VOTE_CATEGORY">
+          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="1" />
+          <End Role="MATCH_CATEGORY_VOTE" Type="Self.MATCH_CATEGORY_VOTE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CATEGORY">
+              <PropertyRef Name="category_id" />
+            </Principal>
+            <Dependent Role="MATCH_CATEGORY_VOTE">
+              <PropertyRef Name="category_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_CATEGORY_VOTE_MATCH">
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="1" />
+          <End Role="MATCH_CATEGORY_VOTE" Type="Self.MATCH_CATEGORY_VOTE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="MATCH_CATEGORY_VOTE">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_CATEGORY_VOTE_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="MATCH_CATEGORY_VOTE" Type="Self.MATCH_CATEGORY_VOTE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH_CATEGORY_VOTE">
+              <PropertyRef Name="player_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -185,6 +268,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_MATCH_GUEST_LANGUAGE">
+          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="0..1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="guest_language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_MATCH_GUEST_PLAYER">
           <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
           <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
@@ -194,6 +289,18 @@
             </Principal>
             <Dependent Role="MATCH">
               <PropertyRef Name="guest_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_HOST_LANGUAGE">
+          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="host_language_code" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -221,6 +328,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_MATCH_SELECTED_CATEGORY">
+          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="0..1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CATEGORY">
+              <PropertyRef Name="category_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="selected_category_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_SELECTED_WORD">
+          <End Role="WORD" Type="Self.WORD" Multiplicity="0..1" />
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WORD">
+              <PropertyRef Name="word_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="selected_word_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_MATCH_WINNER_PLAYER">
           <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
           <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
@@ -230,18 +361,6 @@
             </Principal>
             <Dependent Role="MATCH">
               <PropertyRef Name="winner_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_MATCH_WORD">
-          <End Role="WORD" Type="Self.WORD" Multiplicity="1" />
-          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="WORD">
-              <PropertyRef Name="word_id" />
-            </Principal>
-            <Dependent Role="MATCH">
-              <PropertyRef Name="word_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -305,40 +424,71 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_WORD_LANGUAGE">
+        <Association Name="FK_WORD_TRANSLATION_LANGUAGE">
           <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
-          <End Role="WORD" Type="Self.WORD" Multiplicity="*" />
+          <End Role="WORD_TRANSLATION" Type="Self.WORD_TRANSLATION" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="LANGUAGE">
               <PropertyRef Name="language_code" />
             </Principal>
-            <Dependent Role="WORD">
+            <Dependent Role="WORD_TRANSLATION">
               <PropertyRef Name="language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WORD_TRANSLATION_WORD">
+          <End Role="WORD" Type="Self.WORD" Multiplicity="1" />
+          <End Role="WORD_TRANSLATION" Type="Self.WORD_TRANSLATION" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WORD">
+              <PropertyRef Name="word_id" />
+            </Principal>
+            <Dependent Role="WORD_TRANSLATION">
+              <PropertyRef Name="word_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="HangmanDBModelStoreContainer">
           <EntitySet Name="ACCOUNT" EntityType="Self.ACCOUNT" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="CATEGORY" EntityType="Self.CATEGORY" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="CATEGORY_TRANSLATION" EntityType="Self.CATEGORY_TRANSLATION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="EMAIL_VERIFICATION" EntityType="Self.EMAIL_VERIFICATION" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="LANGUAGE" EntityType="Self.LANGUAGE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MATCH" EntityType="Self.MATCH" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MATCH_CATEGORY_VOTE" EntityType="Self.MATCH_CATEGORY_VOTE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MATCH_GUESS" EntityType="Self.MATCH_GUESS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PASSWORD_RESET_TOKEN" EntityType="Self.PASSWORD_RESET_TOKEN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAYER" EntityType="Self.PLAYER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCORE_MOVEMENT" EntityType="Self.SCORE_MOVEMENT" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="WORD" EntityType="Self.WORD" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="WORD_TRANSLATION" EntityType="Self.WORD_TRANSLATION" Schema="dbo" store:Type="Tables" />
           <AssociationSet Name="FK_ACCOUNT_PLAYER" Association="Self.FK_ACCOUNT_PLAYER">
             <End Role="PLAYER" EntitySet="PLAYER" />
             <End Role="ACCOUNT" EntitySet="ACCOUNT" />
           </AssociationSet>
-          <AssociationSet Name="FK_CATEGORY_LANGUAGE" Association="Self.FK_CATEGORY_LANGUAGE">
-            <End Role="LANGUAGE" EntitySet="LANGUAGE" />
+          <AssociationSet Name="FK_CATEGORY_TRANSLATION_CATEGORY" Association="Self.FK_CATEGORY_TRANSLATION_CATEGORY">
             <End Role="CATEGORY" EntitySet="CATEGORY" />
+            <End Role="CATEGORY_TRANSLATION" EntitySet="CATEGORY_TRANSLATION" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CATEGORY_TRANSLATION_LANGUAGE" Association="Self.FK_CATEGORY_TRANSLATION_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGE" />
+            <End Role="CATEGORY_TRANSLATION" EntitySet="CATEGORY_TRANSLATION" />
           </AssociationSet>
           <AssociationSet Name="FK_EMAIL_VERIFICATION_ACCOUNT" Association="Self.FK_EMAIL_VERIFICATION_ACCOUNT">
             <End Role="ACCOUNT" EntitySet="ACCOUNT" />
             <End Role="EMAIL_VERIFICATION" EntitySet="EMAIL_VERIFICATION" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_CATEGORY_VOTE_CATEGORY" Association="Self.FK_MATCH_CATEGORY_VOTE_CATEGORY">
+            <End Role="CATEGORY" EntitySet="CATEGORY" />
+            <End Role="MATCH_CATEGORY_VOTE" EntitySet="MATCH_CATEGORY_VOTE" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_CATEGORY_VOTE_MATCH" Association="Self.FK_MATCH_CATEGORY_VOTE_MATCH">
+            <End Role="MATCH" EntitySet="MATCH" />
+            <End Role="MATCH_CATEGORY_VOTE" EntitySet="MATCH_CATEGORY_VOTE" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_CATEGORY_VOTE_PLAYER" Association="Self.FK_MATCH_CATEGORY_VOTE_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="MATCH_CATEGORY_VOTE" EntitySet="MATCH_CATEGORY_VOTE" />
           </AssociationSet>
           <AssociationSet Name="FK_MATCH_GUESS_MATCH" Association="Self.FK_MATCH_GUESS_MATCH">
             <End Role="MATCH" EntitySet="MATCH" />
@@ -348,8 +498,16 @@
             <End Role="PLAYER" EntitySet="PLAYER" />
             <End Role="MATCH_GUESS" EntitySet="MATCH_GUESS" />
           </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUEST_LANGUAGE" Association="Self.FK_MATCH_GUEST_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGE" />
+            <End Role="MATCH" EntitySet="MATCH" />
+          </AssociationSet>
           <AssociationSet Name="FK_MATCH_GUEST_PLAYER" Association="Self.FK_MATCH_GUEST_PLAYER">
             <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="MATCH" EntitySet="MATCH" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_HOST_LANGUAGE" Association="Self.FK_MATCH_HOST_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGE" />
             <End Role="MATCH" EntitySet="MATCH" />
           </AssociationSet>
           <AssociationSet Name="FK_MATCH_HOST_PLAYER" Association="Self.FK_MATCH_HOST_PLAYER">
@@ -360,12 +518,16 @@
             <End Role="PLAYER" EntitySet="PLAYER" />
             <End Role="MATCH" EntitySet="MATCH" />
           </AssociationSet>
-          <AssociationSet Name="FK_MATCH_WINNER_PLAYER" Association="Self.FK_MATCH_WINNER_PLAYER">
-            <End Role="PLAYER" EntitySet="PLAYER" />
+          <AssociationSet Name="FK_MATCH_SELECTED_CATEGORY" Association="Self.FK_MATCH_SELECTED_CATEGORY">
+            <End Role="CATEGORY" EntitySet="CATEGORY" />
             <End Role="MATCH" EntitySet="MATCH" />
           </AssociationSet>
-          <AssociationSet Name="FK_MATCH_WORD" Association="Self.FK_MATCH_WORD">
+          <AssociationSet Name="FK_MATCH_SELECTED_WORD" Association="Self.FK_MATCH_SELECTED_WORD">
             <End Role="WORD" EntitySet="WORD" />
+            <End Role="MATCH" EntitySet="MATCH" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_WINNER_PLAYER" Association="Self.FK_MATCH_WINNER_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
             <End Role="MATCH" EntitySet="MATCH" />
           </AssociationSet>
           <AssociationSet Name="FK_PASSWORD_RESET_TOKEN_ACCOUNT" Association="Self.FK_PASSWORD_RESET_TOKEN_ACCOUNT">
@@ -388,9 +550,13 @@
             <End Role="CATEGORY" EntitySet="CATEGORY" />
             <End Role="WORD" EntitySet="WORD" />
           </AssociationSet>
-          <AssociationSet Name="FK_WORD_LANGUAGE" Association="Self.FK_WORD_LANGUAGE">
+          <AssociationSet Name="FK_WORD_TRANSLATION_LANGUAGE" Association="Self.FK_WORD_TRANSLATION_LANGUAGE">
             <End Role="LANGUAGE" EntitySet="LANGUAGE" />
+            <End Role="WORD_TRANSLATION" EntitySet="WORD_TRANSLATION" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WORD_TRANSLATION_WORD" Association="Self.FK_WORD_TRANSLATION_WORD">
             <End Role="WORD" EntitySet="WORD" />
+            <End Role="WORD_TRANSLATION" EntitySet="WORD_TRANSLATION" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -414,17 +580,6 @@
           <NavigationProperty Name="EMAIL_VERIFICATION" Relationship="Self.FK_EMAIL_VERIFICATION_ACCOUNT" FromRole="ACCOUNT" ToRole="EMAIL_VERIFICATION" />
           <NavigationProperty Name="PASSWORD_RESET_TOKEN" Relationship="HangmanDBModel.FK_PASSWORD_RESET_TOKEN_ACCOUNT" FromRole="ACCOUNT" ToRole="PASSWORD_RESET_TOKEN" />
         </EntityType>
-        <EntityType Name="CATEGORY">
-          <Key>
-            <PropertyRef Name="category_id" />
-          </Key>
-          <Property Name="category_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="name" Type="String" MaxLength="80" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="language_code" Type="String" MaxLength="5" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="is_active" Type="Boolean" Nullable="false" />
-          <NavigationProperty Name="LANGUAGE" Relationship="Self.FK_CATEGORY_LANGUAGE" FromRole="CATEGORY" ToRole="LANGUAGE" />
-          <NavigationProperty Name="WORDs" Relationship="Self.FK_WORD_CATEGORY" FromRole="CATEGORY" ToRole="WORD" />
-        </EntityType>
         <EntityType Name="EMAIL_VERIFICATION">
           <Key>
             <PropertyRef Name="email_verification_id" />
@@ -445,34 +600,11 @@
           </Key>
           <Property Name="language_code" Type="String" MaxLength="5" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
-          <NavigationProperty Name="CATEGORies" Relationship="Self.FK_CATEGORY_LANGUAGE" FromRole="LANGUAGE" ToRole="CATEGORY" />
           <NavigationProperty Name="PLAYERs" Relationship="Self.FK_PLAYER_LANGUAGE" FromRole="LANGUAGE" ToRole="PLAYER" />
-          <NavigationProperty Name="WORDs" Relationship="Self.FK_WORD_LANGUAGE" FromRole="LANGUAGE" ToRole="WORD" />
-        </EntityType>
-        <EntityType Name="MATCH">
-          <Key>
-            <PropertyRef Name="match_id" />
-          </Key>
-          <Property Name="match_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="host_id" Type="Int32" Nullable="false" />
-          <Property Name="guest_id" Type="Int32" />
-          <Property Name="word_id" Type="Int32" Nullable="false" />
-          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
-          <Property Name="joined_at" Type="DateTime" Precision="7" />
-          <Property Name="started_at" Type="DateTime" Precision="7" />
-          <Property Name="finished_at" Type="DateTime" Precision="7" />
-          <Property Name="match_status" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="winner_id" Type="Int32" />
-          <Property Name="penalized_user_id" Type="Int32" />
-          <Property Name="failed_attempts" Type="Int32" Nullable="false" />
-          <Property Name="max_attempts" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="MATCH_GUESS" Relationship="Self.FK_MATCH_GUESS_MATCH" FromRole="MATCH" ToRole="MATCH_GUESS" />
-          <NavigationProperty Name="PLAYER" Relationship="Self.FK_MATCH_GUEST_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
-          <NavigationProperty Name="PLAYER1" Relationship="Self.FK_MATCH_HOST_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
-          <NavigationProperty Name="PLAYER2" Relationship="Self.FK_MATCH_PENALIZED_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
-          <NavigationProperty Name="PLAYER3" Relationship="Self.FK_MATCH_WINNER_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
-          <NavigationProperty Name="WORD" Relationship="Self.FK_MATCH_WORD" FromRole="MATCH" ToRole="WORD" />
-          <NavigationProperty Name="SCORE_MOVEMENT" Relationship="Self.FK_SCORE_MOVEMENT_MATCH" FromRole="MATCH" ToRole="SCORE_MOVEMENT" />
+          <NavigationProperty Name="CATEGORY_TRANSLATION" Relationship="HangmanDBModel.FK_CATEGORY_TRANSLATION_LANGUAGE" FromRole="LANGUAGE" ToRole="CATEGORY_TRANSLATION" />
+          <NavigationProperty Name="MATCHes" Relationship="HangmanDBModel.FK_MATCH_GUEST_LANGUAGE" FromRole="LANGUAGE" ToRole="MATCH" />
+          <NavigationProperty Name="MATCHes1" Relationship="HangmanDBModel.FK_MATCH_HOST_LANGUAGE" FromRole="LANGUAGE" ToRole="MATCH" />
+          <NavigationProperty Name="WORD_TRANSLATION" Relationship="HangmanDBModel.FK_WORD_TRANSLATION_LANGUAGE" FromRole="LANGUAGE" ToRole="WORD_TRANSLATION" />
         </EntityType>
         <EntityType Name="MATCH_GUESS">
           <Key>
@@ -484,8 +616,8 @@
           <Property Name="letter" Type="String" MaxLength="1" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="is_correct" Type="Boolean" Nullable="false" />
           <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
-          <NavigationProperty Name="MATCH" Relationship="Self.FK_MATCH_GUESS_MATCH" FromRole="MATCH_GUESS" ToRole="MATCH" />
           <NavigationProperty Name="PLAYER" Relationship="Self.FK_MATCH_GUESS_PLAYER" FromRole="MATCH_GUESS" ToRole="PLAYER" />
+          <NavigationProperty Name="MATCH" Relationship="HangmanDBModel.FK_MATCH_GUESS_MATCH" FromRole="MATCH_GUESS" ToRole="MATCH" />
         </EntityType>
         <EntityType Name="PLAYER">
           <Key>
@@ -500,12 +632,13 @@
           <Property Name="preferred_language_code" Type="String" MaxLength="5" FixedLength="false" Unicode="true" Nullable="false" />
           <NavigationProperty Name="ACCOUNTs" Relationship="Self.FK_ACCOUNT_PLAYER" FromRole="PLAYER" ToRole="ACCOUNT" />
           <NavigationProperty Name="LANGUAGE" Relationship="Self.FK_PLAYER_LANGUAGE" FromRole="PLAYER" ToRole="LANGUAGE" />
-          <NavigationProperty Name="MATCHes" Relationship="Self.FK_MATCH_GUEST_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
-          <NavigationProperty Name="MATCHes1" Relationship="Self.FK_MATCH_HOST_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
-          <NavigationProperty Name="MATCHes2" Relationship="Self.FK_MATCH_PENALIZED_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
-          <NavigationProperty Name="MATCHes3" Relationship="Self.FK_MATCH_WINNER_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
           <NavigationProperty Name="MATCH_GUESS" Relationship="Self.FK_MATCH_GUESS_PLAYER" FromRole="PLAYER" ToRole="MATCH_GUESS" />
           <NavigationProperty Name="SCORE_MOVEMENT" Relationship="Self.FK_SCORE_MOVEMENT_PLAYER" FromRole="PLAYER" ToRole="SCORE_MOVEMENT" />
+          <NavigationProperty Name="MATCHes" Relationship="HangmanDBModel.FK_MATCH_GUEST_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
+          <NavigationProperty Name="MATCHes1" Relationship="HangmanDBModel.FK_MATCH_HOST_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
+          <NavigationProperty Name="MATCHes2" Relationship="HangmanDBModel.FK_MATCH_PENALIZED_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
+          <NavigationProperty Name="MATCHes3" Relationship="HangmanDBModel.FK_MATCH_WINNER_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
+          <NavigationProperty Name="MATCH_CATEGORY_VOTE" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_PLAYER" FromRole="PLAYER" ToRole="MATCH_CATEGORY_VOTE" />
         </EntityType>
         <EntityType Name="SCORE_MOVEMENT">
           <Key>
@@ -517,23 +650,8 @@
           <Property Name="points" Type="Int32" Nullable="false" />
           <Property Name="movement_type" Type="String" MaxLength="30" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
-          <NavigationProperty Name="MATCH" Relationship="Self.FK_SCORE_MOVEMENT_MATCH" FromRole="SCORE_MOVEMENT" ToRole="MATCH" />
           <NavigationProperty Name="PLAYER" Relationship="Self.FK_SCORE_MOVEMENT_PLAYER" FromRole="SCORE_MOVEMENT" ToRole="PLAYER" />
-        </EntityType>
-        <EntityType Name="WORD">
-          <Key>
-            <PropertyRef Name="word_id" />
-          </Key>
-          <Property Name="word_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="category_id" Type="Int32" Nullable="false" />
-          <Property Name="word_text" Type="String" MaxLength="80" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="description" Type="String" MaxLength="300" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="language_code" Type="String" MaxLength="5" FixedLength="false" Unicode="true" Nullable="false" />
-          <Property Name="is_active" Type="Boolean" Nullable="false" />
-          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
-          <NavigationProperty Name="CATEGORY" Relationship="Self.FK_WORD_CATEGORY" FromRole="WORD" ToRole="CATEGORY" />
-          <NavigationProperty Name="LANGUAGE" Relationship="Self.FK_WORD_LANGUAGE" FromRole="WORD" ToRole="LANGUAGE" />
-          <NavigationProperty Name="MATCHes" Relationship="Self.FK_MATCH_WORD" FromRole="WORD" ToRole="MATCH" />
+          <NavigationProperty Name="MATCH" Relationship="HangmanDBModel.FK_SCORE_MOVEMENT_MATCH" FromRole="SCORE_MOVEMENT" ToRole="MATCH" />
         </EntityType>
         <Association Name="FK_ACCOUNT_PLAYER">
           <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
@@ -559,30 +677,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK_CATEGORY_LANGUAGE">
-          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
-          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="LANGUAGE">
-              <PropertyRef Name="language_code" />
-            </Principal>
-            <Dependent Role="CATEGORY">
-              <PropertyRef Name="language_code" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_WORD_CATEGORY">
-          <End Role="CATEGORY" Type="Self.CATEGORY" Multiplicity="1" />
-          <End Role="WORD" Type="Self.WORD" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="CATEGORY">
-              <PropertyRef Name="category_id" />
-            </Principal>
-            <Dependent Role="WORD">
-              <PropertyRef Name="category_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="FK_PLAYER_LANGUAGE">
           <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
           <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="*" />
@@ -592,102 +686,6 @@
             </Principal>
             <Dependent Role="PLAYER">
               <PropertyRef Name="preferred_language_code" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_WORD_LANGUAGE">
-          <End Role="LANGUAGE" Type="Self.LANGUAGE" Multiplicity="1" />
-          <End Role="WORD" Type="Self.WORD" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="LANGUAGE">
-              <PropertyRef Name="language_code" />
-            </Principal>
-            <Dependent Role="WORD">
-              <PropertyRef Name="language_code" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_MATCH_GUESS_MATCH">
-          <End Role="MATCH" Type="Self.MATCH" Multiplicity="1" />
-          <End Role="MATCH_GUESS" Type="Self.MATCH_GUESS" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="MATCH">
-              <PropertyRef Name="match_id" />
-            </Principal>
-            <Dependent Role="MATCH_GUESS">
-              <PropertyRef Name="match_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_MATCH_GUEST_PLAYER">
-          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
-          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PLAYER">
-              <PropertyRef Name="player_id" />
-            </Principal>
-            <Dependent Role="MATCH">
-              <PropertyRef Name="guest_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_MATCH_HOST_PLAYER">
-          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
-          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PLAYER">
-              <PropertyRef Name="player_id" />
-            </Principal>
-            <Dependent Role="MATCH">
-              <PropertyRef Name="host_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_MATCH_PENALIZED_PLAYER">
-          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
-          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PLAYER">
-              <PropertyRef Name="player_id" />
-            </Principal>
-            <Dependent Role="MATCH">
-              <PropertyRef Name="penalized_user_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_MATCH_WINNER_PLAYER">
-          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="0..1" />
-          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="PLAYER">
-              <PropertyRef Name="player_id" />
-            </Principal>
-            <Dependent Role="MATCH">
-              <PropertyRef Name="winner_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_MATCH_WORD">
-          <End Role="WORD" Type="Self.WORD" Multiplicity="1" />
-          <End Role="MATCH" Type="Self.MATCH" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="WORD">
-              <PropertyRef Name="word_id" />
-            </Principal>
-            <Dependent Role="MATCH">
-              <PropertyRef Name="word_id" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_SCORE_MOVEMENT_MATCH">
-          <End Role="MATCH" Type="Self.MATCH" Multiplicity="1" />
-          <End Role="SCORE_MOVEMENT" Type="Self.SCORE_MOVEMENT" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="MATCH">
-              <PropertyRef Name="match_id" />
-            </Principal>
-            <Dependent Role="SCORE_MOVEMENT">
-              <PropertyRef Name="match_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -717,14 +715,11 @@
         </Association>
         <EntityContainer Name="HangmanDBEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="ACCOUNTs" EntityType="Self.ACCOUNT" />
-          <EntitySet Name="CATEGORies" EntityType="Self.CATEGORY" />
           <EntitySet Name="EMAIL_VERIFICATION" EntityType="Self.EMAIL_VERIFICATION" />
           <EntitySet Name="LANGUAGEs" EntityType="Self.LANGUAGE" />
-          <EntitySet Name="MATCHes" EntityType="Self.MATCH" />
           <EntitySet Name="MATCH_GUESS" EntityType="Self.MATCH_GUESS" />
           <EntitySet Name="PLAYERs" EntityType="Self.PLAYER" />
           <EntitySet Name="SCORE_MOVEMENT" EntityType="Self.SCORE_MOVEMENT" />
-          <EntitySet Name="WORDs" EntityType="Self.WORD" />
           <AssociationSet Name="FK_ACCOUNT_PLAYER" Association="Self.FK_ACCOUNT_PLAYER">
             <End Role="PLAYER" EntitySet="PLAYERs" />
             <End Role="ACCOUNT" EntitySet="ACCOUNTs" />
@@ -733,49 +728,9 @@
             <End Role="ACCOUNT" EntitySet="ACCOUNTs" />
             <End Role="EMAIL_VERIFICATION" EntitySet="EMAIL_VERIFICATION" />
           </AssociationSet>
-          <AssociationSet Name="FK_CATEGORY_LANGUAGE" Association="Self.FK_CATEGORY_LANGUAGE">
-            <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
-            <End Role="CATEGORY" EntitySet="CATEGORies" />
-          </AssociationSet>
-          <AssociationSet Name="FK_WORD_CATEGORY" Association="Self.FK_WORD_CATEGORY">
-            <End Role="CATEGORY" EntitySet="CATEGORies" />
-            <End Role="WORD" EntitySet="WORDs" />
-          </AssociationSet>
           <AssociationSet Name="FK_PLAYER_LANGUAGE" Association="Self.FK_PLAYER_LANGUAGE">
             <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
             <End Role="PLAYER" EntitySet="PLAYERs" />
-          </AssociationSet>
-          <AssociationSet Name="FK_WORD_LANGUAGE" Association="Self.FK_WORD_LANGUAGE">
-            <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
-            <End Role="WORD" EntitySet="WORDs" />
-          </AssociationSet>
-          <AssociationSet Name="FK_MATCH_GUESS_MATCH" Association="Self.FK_MATCH_GUESS_MATCH">
-            <End Role="MATCH" EntitySet="MATCHes" />
-            <End Role="MATCH_GUESS" EntitySet="MATCH_GUESS" />
-          </AssociationSet>
-          <AssociationSet Name="FK_MATCH_GUEST_PLAYER" Association="Self.FK_MATCH_GUEST_PLAYER">
-            <End Role="PLAYER" EntitySet="PLAYERs" />
-            <End Role="MATCH" EntitySet="MATCHes" />
-          </AssociationSet>
-          <AssociationSet Name="FK_MATCH_HOST_PLAYER" Association="Self.FK_MATCH_HOST_PLAYER">
-            <End Role="PLAYER" EntitySet="PLAYERs" />
-            <End Role="MATCH" EntitySet="MATCHes" />
-          </AssociationSet>
-          <AssociationSet Name="FK_MATCH_PENALIZED_PLAYER" Association="Self.FK_MATCH_PENALIZED_PLAYER">
-            <End Role="PLAYER" EntitySet="PLAYERs" />
-            <End Role="MATCH" EntitySet="MATCHes" />
-          </AssociationSet>
-          <AssociationSet Name="FK_MATCH_WINNER_PLAYER" Association="Self.FK_MATCH_WINNER_PLAYER">
-            <End Role="PLAYER" EntitySet="PLAYERs" />
-            <End Role="MATCH" EntitySet="MATCHes" />
-          </AssociationSet>
-          <AssociationSet Name="FK_MATCH_WORD" Association="Self.FK_MATCH_WORD">
-            <End Role="WORD" EntitySet="WORDs" />
-            <End Role="MATCH" EntitySet="MATCHes" />
-          </AssociationSet>
-          <AssociationSet Name="FK_SCORE_MOVEMENT_MATCH" Association="Self.FK_SCORE_MOVEMENT_MATCH">
-            <End Role="MATCH" EntitySet="MATCHes" />
-            <End Role="SCORE_MOVEMENT" EntitySet="SCORE_MOVEMENT" />
           </AssociationSet>
           <AssociationSet Name="FK_MATCH_GUESS_PLAYER" Association="Self.FK_MATCH_GUESS_PLAYER">
             <End Role="PLAYER" EntitySet="PLAYERs" />
@@ -789,6 +744,84 @@
           <AssociationSet Name="FK_PASSWORD_RESET_TOKEN_ACCOUNT" Association="HangmanDBModel.FK_PASSWORD_RESET_TOKEN_ACCOUNT">
             <End Role="ACCOUNT" EntitySet="ACCOUNTs" />
             <End Role="PASSWORD_RESET_TOKEN" EntitySet="PASSWORD_RESET_TOKEN" />
+          </AssociationSet>
+          <EntitySet Name="CATEGORies" EntityType="HangmanDBModel.CATEGORY" />
+          <EntitySet Name="CATEGORY_TRANSLATION" EntityType="HangmanDBModel.CATEGORY_TRANSLATION" />
+          <EntitySet Name="MATCHes" EntityType="HangmanDBModel.MATCH" />
+          <EntitySet Name="MATCH_CATEGORY_VOTE" EntityType="HangmanDBModel.MATCH_CATEGORY_VOTE" />
+          <EntitySet Name="WORDs" EntityType="HangmanDBModel.WORD" />
+          <EntitySet Name="WORD_TRANSLATION" EntityType="HangmanDBModel.WORD_TRANSLATION" />
+          <AssociationSet Name="FK_CATEGORY_TRANSLATION_CATEGORY" Association="HangmanDBModel.FK_CATEGORY_TRANSLATION_CATEGORY">
+            <End Role="CATEGORY" EntitySet="CATEGORies" />
+            <End Role="CATEGORY_TRANSLATION" EntitySet="CATEGORY_TRANSLATION" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_CATEGORY_VOTE_CATEGORY" Association="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_CATEGORY">
+            <End Role="CATEGORY" EntitySet="CATEGORies" />
+            <End Role="MATCH_CATEGORY_VOTE" EntitySet="MATCH_CATEGORY_VOTE" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_SELECTED_CATEGORY" Association="HangmanDBModel.FK_MATCH_SELECTED_CATEGORY">
+            <End Role="CATEGORY" EntitySet="CATEGORies" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WORD_CATEGORY" Association="HangmanDBModel.FK_WORD_CATEGORY">
+            <End Role="CATEGORY" EntitySet="CATEGORies" />
+            <End Role="WORD" EntitySet="WORDs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_CATEGORY_TRANSLATION_LANGUAGE" Association="HangmanDBModel.FK_CATEGORY_TRANSLATION_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
+            <End Role="CATEGORY_TRANSLATION" EntitySet="CATEGORY_TRANSLATION" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUEST_LANGUAGE" Association="HangmanDBModel.FK_MATCH_GUEST_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_HOST_LANGUAGE" Association="HangmanDBModel.FK_MATCH_HOST_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WORD_TRANSLATION_LANGUAGE" Association="HangmanDBModel.FK_WORD_TRANSLATION_LANGUAGE">
+            <End Role="LANGUAGE" EntitySet="LANGUAGEs" />
+            <End Role="WORD_TRANSLATION" EntitySet="WORD_TRANSLATION" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_CATEGORY_VOTE_MATCH" Association="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_MATCH">
+            <End Role="MATCH" EntitySet="MATCHes" />
+            <End Role="MATCH_CATEGORY_VOTE" EntitySet="MATCH_CATEGORY_VOTE" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUESS_MATCH" Association="HangmanDBModel.FK_MATCH_GUESS_MATCH">
+            <End Role="MATCH" EntitySet="MATCHes" />
+            <End Role="MATCH_GUESS" EntitySet="MATCH_GUESS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_GUEST_PLAYER" Association="HangmanDBModel.FK_MATCH_GUEST_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_HOST_PLAYER" Association="HangmanDBModel.FK_MATCH_HOST_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_PENALIZED_PLAYER" Association="HangmanDBModel.FK_MATCH_PENALIZED_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_SELECTED_WORD" Association="HangmanDBModel.FK_MATCH_SELECTED_WORD">
+            <End Role="WORD" EntitySet="WORDs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_WINNER_PLAYER" Association="HangmanDBModel.FK_MATCH_WINNER_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH" EntitySet="MATCHes" />
+          </AssociationSet>
+          <AssociationSet Name="FK_SCORE_MOVEMENT_MATCH" Association="HangmanDBModel.FK_SCORE_MOVEMENT_MATCH">
+            <End Role="MATCH" EntitySet="MATCHes" />
+            <End Role="SCORE_MOVEMENT" EntitySet="SCORE_MOVEMENT" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_CATEGORY_VOTE_PLAYER" Association="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH_CATEGORY_VOTE" EntitySet="MATCH_CATEGORY_VOTE" />
+          </AssociationSet>
+          <AssociationSet Name="FK_WORD_TRANSLATION_WORD" Association="HangmanDBModel.FK_WORD_TRANSLATION_WORD">
+            <End Role="WORD" EntitySet="WORDs" />
+            <End Role="WORD_TRANSLATION" EntitySet="WORD_TRANSLATION" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="PASSWORD_RESET_TOKEN">
@@ -817,6 +850,321 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="CATEGORY">
+          <Key>
+            <PropertyRef Name="category_id" />
+          </Key>
+          <Property Name="category_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="category_key" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="is_active" Type="Boolean" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="CATEGORY_TRANSLATION" Relationship="HangmanDBModel.FK_CATEGORY_TRANSLATION_CATEGORY" FromRole="CATEGORY" ToRole="CATEGORY_TRANSLATION" />
+          <NavigationProperty Name="MATCH_CATEGORY_VOTE" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_CATEGORY" FromRole="CATEGORY" ToRole="MATCH_CATEGORY_VOTE" />
+          <NavigationProperty Name="MATCHes" Relationship="HangmanDBModel.FK_MATCH_SELECTED_CATEGORY" FromRole="CATEGORY" ToRole="MATCH" />
+          <NavigationProperty Name="WORDs" Relationship="HangmanDBModel.FK_WORD_CATEGORY" FromRole="CATEGORY" ToRole="WORD" />
+        </EntityType>
+        <EntityType Name="CATEGORY_TRANSLATION">
+          <Key>
+            <PropertyRef Name="category_translation_id" />
+          </Key>
+          <Property Name="category_translation_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="category_id" Type="Int32" Nullable="false" />
+          <Property Name="language_code" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="true" />
+          <Property Name="name" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="CATEGORY" Relationship="HangmanDBModel.FK_CATEGORY_TRANSLATION_CATEGORY" FromRole="CATEGORY_TRANSLATION" ToRole="CATEGORY" />
+          <NavigationProperty Name="LANGUAGE" Relationship="HangmanDBModel.FK_CATEGORY_TRANSLATION_LANGUAGE" FromRole="CATEGORY_TRANSLATION" ToRole="LANGUAGE" />
+        </EntityType>
+        <EntityType Name="MATCH">
+          <Key>
+            <PropertyRef Name="match_id" />
+          </Key>
+          <Property Name="match_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="host_id" Type="Int32" Nullable="false" />
+          <Property Name="guest_id" Type="Int32" />
+          <Property Name="host_language_code" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="true" />
+          <Property Name="guest_language_code" Type="String" MaxLength="5" FixedLength="false" Unicode="true" />
+          <Property Name="selected_category_id" Type="Int32" />
+          <Property Name="selected_word_id" Type="Int32" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <Property Name="joined_at" Type="DateTime" Precision="7" />
+          <Property Name="category_voting_started_at" Type="DateTime" Precision="7" />
+          <Property Name="category_voting_ends_at" Type="DateTime" Precision="7" />
+          <Property Name="word_selection_started_at" Type="DateTime" Precision="7" />
+          <Property Name="word_selection_ends_at" Type="DateTime" Precision="7" />
+          <Property Name="started_at" Type="DateTime" Precision="7" />
+          <Property Name="finished_at" Type="DateTime" Precision="7" />
+          <Property Name="match_status" Type="String" Nullable="false" MaxLength="30" FixedLength="false" Unicode="true" />
+          <Property Name="winner_id" Type="Int32" />
+          <Property Name="penalized_user_id" Type="Int32" />
+          <Property Name="failed_attempts" Type="Int32" Nullable="false" />
+          <Property Name="max_attempts" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="CATEGORY" Relationship="HangmanDBModel.FK_MATCH_SELECTED_CATEGORY" FromRole="MATCH" ToRole="CATEGORY" />
+          <NavigationProperty Name="LANGUAGE" Relationship="HangmanDBModel.FK_MATCH_GUEST_LANGUAGE" FromRole="MATCH" ToRole="LANGUAGE" />
+          <NavigationProperty Name="LANGUAGE1" Relationship="HangmanDBModel.FK_MATCH_HOST_LANGUAGE" FromRole="MATCH" ToRole="LANGUAGE" />
+          <NavigationProperty Name="MATCH_CATEGORY_VOTE" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_MATCH" FromRole="MATCH" ToRole="MATCH_CATEGORY_VOTE" />
+          <NavigationProperty Name="MATCH_GUESS" Relationship="HangmanDBModel.FK_MATCH_GUESS_MATCH" FromRole="MATCH" ToRole="MATCH_GUESS" />
+          <NavigationProperty Name="PLAYER" Relationship="HangmanDBModel.FK_MATCH_GUEST_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
+          <NavigationProperty Name="PLAYER1" Relationship="HangmanDBModel.FK_MATCH_HOST_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
+          <NavigationProperty Name="PLAYER2" Relationship="HangmanDBModel.FK_MATCH_PENALIZED_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
+          <NavigationProperty Name="WORD" Relationship="HangmanDBModel.FK_MATCH_SELECTED_WORD" FromRole="MATCH" ToRole="WORD" />
+          <NavigationProperty Name="PLAYER3" Relationship="HangmanDBModel.FK_MATCH_WINNER_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
+          <NavigationProperty Name="SCORE_MOVEMENT" Relationship="HangmanDBModel.FK_SCORE_MOVEMENT_MATCH" FromRole="MATCH" ToRole="SCORE_MOVEMENT" />
+        </EntityType>
+        <EntityType Name="MATCH_CATEGORY_VOTE">
+          <Key>
+            <PropertyRef Name="match_category_vote_id" />
+          </Key>
+          <Property Name="match_category_vote_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="match_id" Type="Int32" Nullable="false" />
+          <Property Name="player_id" Type="Int32" Nullable="false" />
+          <Property Name="category_id" Type="Int32" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="CATEGORY" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_CATEGORY" FromRole="MATCH_CATEGORY_VOTE" ToRole="CATEGORY" />
+          <NavigationProperty Name="MATCH" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_MATCH" FromRole="MATCH_CATEGORY_VOTE" ToRole="MATCH" />
+          <NavigationProperty Name="PLAYER" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_PLAYER" FromRole="MATCH_CATEGORY_VOTE" ToRole="PLAYER" />
+        </EntityType>
+        <EntityType Name="WORD">
+          <Key>
+            <PropertyRef Name="word_id" />
+          </Key>
+          <Property Name="word_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="category_id" Type="Int32" Nullable="false" />
+          <Property Name="is_active" Type="Boolean" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="CATEGORY" Relationship="HangmanDBModel.FK_WORD_CATEGORY" FromRole="WORD" ToRole="CATEGORY" />
+          <NavigationProperty Name="MATCHes" Relationship="HangmanDBModel.FK_MATCH_SELECTED_WORD" FromRole="WORD" ToRole="MATCH" />
+          <NavigationProperty Name="WORD_TRANSLATION" Relationship="HangmanDBModel.FK_WORD_TRANSLATION_WORD" FromRole="WORD" ToRole="WORD_TRANSLATION" />
+        </EntityType>
+        <EntityType Name="WORD_TRANSLATION">
+          <Key>
+            <PropertyRef Name="word_translation_id" />
+          </Key>
+          <Property Name="word_translation_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="word_id" Type="Int32" Nullable="false" />
+          <Property Name="language_code" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="true" />
+          <Property Name="word_text" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="true" />
+          <Property Name="description" Type="String" Nullable="false" MaxLength="300" FixedLength="false" Unicode="true" />
+          <Property Name="is_active" Type="Boolean" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="LANGUAGE" Relationship="HangmanDBModel.FK_WORD_TRANSLATION_LANGUAGE" FromRole="WORD_TRANSLATION" ToRole="LANGUAGE" />
+          <NavigationProperty Name="WORD" Relationship="HangmanDBModel.FK_WORD_TRANSLATION_WORD" FromRole="WORD_TRANSLATION" ToRole="WORD" />
+        </EntityType>
+        <Association Name="FK_CATEGORY_TRANSLATION_CATEGORY">
+          <End Type="HangmanDBModel.CATEGORY" Role="CATEGORY" Multiplicity="1" />
+          <End Type="HangmanDBModel.CATEGORY_TRANSLATION" Role="CATEGORY_TRANSLATION" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CATEGORY">
+              <PropertyRef Name="category_id" />
+            </Principal>
+            <Dependent Role="CATEGORY_TRANSLATION">
+              <PropertyRef Name="category_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_CATEGORY_VOTE_CATEGORY">
+          <End Type="HangmanDBModel.CATEGORY" Role="CATEGORY" Multiplicity="1" />
+          <End Type="HangmanDBModel.MATCH_CATEGORY_VOTE" Role="MATCH_CATEGORY_VOTE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CATEGORY">
+              <PropertyRef Name="category_id" />
+            </Principal>
+            <Dependent Role="MATCH_CATEGORY_VOTE">
+              <PropertyRef Name="category_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_SELECTED_CATEGORY">
+          <End Type="HangmanDBModel.CATEGORY" Role="CATEGORY" Multiplicity="0..1" />
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CATEGORY">
+              <PropertyRef Name="category_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="selected_category_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WORD_CATEGORY">
+          <End Type="HangmanDBModel.CATEGORY" Role="CATEGORY" Multiplicity="1" />
+          <End Type="HangmanDBModel.WORD" Role="WORD" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="CATEGORY">
+              <PropertyRef Name="category_id" />
+            </Principal>
+            <Dependent Role="WORD">
+              <PropertyRef Name="category_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_CATEGORY_TRANSLATION_LANGUAGE">
+          <End Type="HangmanDBModel.LANGUAGE" Role="LANGUAGE" Multiplicity="1" />
+          <End Type="HangmanDBModel.CATEGORY_TRANSLATION" Role="CATEGORY_TRANSLATION" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="CATEGORY_TRANSLATION">
+              <PropertyRef Name="language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_GUEST_LANGUAGE">
+          <End Type="HangmanDBModel.LANGUAGE" Role="LANGUAGE" Multiplicity="0..1" />
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="guest_language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_HOST_LANGUAGE">
+          <End Type="HangmanDBModel.LANGUAGE" Role="LANGUAGE" Multiplicity="1" />
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="host_language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WORD_TRANSLATION_LANGUAGE">
+          <End Type="HangmanDBModel.LANGUAGE" Role="LANGUAGE" Multiplicity="1" />
+          <End Type="HangmanDBModel.WORD_TRANSLATION" Role="WORD_TRANSLATION" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="LANGUAGE">
+              <PropertyRef Name="language_code" />
+            </Principal>
+            <Dependent Role="WORD_TRANSLATION">
+              <PropertyRef Name="language_code" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_CATEGORY_VOTE_MATCH">
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="1" />
+          <End Type="HangmanDBModel.MATCH_CATEGORY_VOTE" Role="MATCH_CATEGORY_VOTE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="MATCH_CATEGORY_VOTE">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_GUESS_MATCH">
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="1" />
+          <End Type="HangmanDBModel.MATCH_GUESS" Role="MATCH_GUESS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="MATCH_GUESS">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_GUEST_PLAYER">
+          <End Type="HangmanDBModel.PLAYER" Role="PLAYER" Multiplicity="0..1" />
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="guest_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_HOST_PLAYER">
+          <End Type="HangmanDBModel.PLAYER" Role="PLAYER" Multiplicity="1" />
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="host_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_PENALIZED_PLAYER">
+          <End Type="HangmanDBModel.PLAYER" Role="PLAYER" Multiplicity="0..1" />
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="penalized_user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_SELECTED_WORD">
+          <End Type="HangmanDBModel.WORD" Role="WORD" Multiplicity="0..1" />
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WORD">
+              <PropertyRef Name="word_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="selected_word_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_WINNER_PLAYER">
+          <End Type="HangmanDBModel.PLAYER" Role="PLAYER" Multiplicity="0..1" />
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH">
+              <PropertyRef Name="winner_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_SCORE_MOVEMENT_MATCH">
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="1" />
+          <End Type="HangmanDBModel.SCORE_MOVEMENT" Role="SCORE_MOVEMENT" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="SCORE_MOVEMENT">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_CATEGORY_VOTE_PLAYER">
+          <End Type="HangmanDBModel.PLAYER" Role="PLAYER" Multiplicity="1" />
+          <End Type="HangmanDBModel.MATCH_CATEGORY_VOTE" Role="MATCH_CATEGORY_VOTE" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH_CATEGORY_VOTE">
+              <PropertyRef Name="player_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_WORD_TRANSLATION_WORD">
+          <End Type="HangmanDBModel.WORD" Role="WORD" Multiplicity="1" />
+          <End Type="HangmanDBModel.WORD_TRANSLATION" Role="WORD_TRANSLATION" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="WORD">
+              <PropertyRef Name="word_id" />
+            </Principal>
+            <Dependent Role="WORD_TRANSLATION">
+              <PropertyRef Name="word_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -835,16 +1183,6 @@
                 <ScalarProperty Name="account_status" ColumnName="account_status" />
                 <ScalarProperty Name="created_at" ColumnName="created_at" />
                 <ScalarProperty Name="updated_at" ColumnName="updated_at" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="CATEGORies">
-            <EntityTypeMapping TypeName="HangmanDBModel.CATEGORY">
-              <MappingFragment StoreEntitySet="CATEGORY">
-                <ScalarProperty Name="category_id" ColumnName="category_id" />
-                <ScalarProperty Name="name" ColumnName="name" />
-                <ScalarProperty Name="language_code" ColumnName="language_code" />
-                <ScalarProperty Name="is_active" ColumnName="is_active" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -867,25 +1205,6 @@
               <MappingFragment StoreEntitySet="LANGUAGE">
                 <ScalarProperty Name="language_code" ColumnName="language_code" />
                 <ScalarProperty Name="name" ColumnName="name" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="MATCHes">
-            <EntityTypeMapping TypeName="HangmanDBModel.MATCH">
-              <MappingFragment StoreEntitySet="MATCH">
-                <ScalarProperty Name="match_id" ColumnName="match_id" />
-                <ScalarProperty Name="host_id" ColumnName="host_id" />
-                <ScalarProperty Name="guest_id" ColumnName="guest_id" />
-                <ScalarProperty Name="word_id" ColumnName="word_id" />
-                <ScalarProperty Name="created_at" ColumnName="created_at" />
-                <ScalarProperty Name="joined_at" ColumnName="joined_at" />
-                <ScalarProperty Name="started_at" ColumnName="started_at" />
-                <ScalarProperty Name="finished_at" ColumnName="finished_at" />
-                <ScalarProperty Name="match_status" ColumnName="match_status" />
-                <ScalarProperty Name="winner_id" ColumnName="winner_id" />
-                <ScalarProperty Name="penalized_user_id" ColumnName="penalized_user_id" />
-                <ScalarProperty Name="failed_attempts" ColumnName="failed_attempts" />
-                <ScalarProperty Name="max_attempts" ColumnName="max_attempts" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -926,19 +1245,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="WORDs">
-            <EntityTypeMapping TypeName="HangmanDBModel.WORD">
-              <MappingFragment StoreEntitySet="WORD">
-                <ScalarProperty Name="word_id" ColumnName="word_id" />
-                <ScalarProperty Name="category_id" ColumnName="category_id" />
-                <ScalarProperty Name="word_text" ColumnName="word_text" />
-                <ScalarProperty Name="description" ColumnName="description" />
-                <ScalarProperty Name="language_code" ColumnName="language_code" />
-                <ScalarProperty Name="is_active" ColumnName="is_active" />
-                <ScalarProperty Name="created_at" ColumnName="created_at" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="PASSWORD_RESET_TOKEN">
             <EntityTypeMapping TypeName="HangmanDBModel.PASSWORD_RESET_TOKEN">
               <MappingFragment StoreEntitySet="PASSWORD_RESET_TOKEN">
@@ -950,6 +1256,86 @@
                 <ScalarProperty Name="reset_code_hash" ColumnName="reset_code_hash" />
                 <ScalarProperty Name="account_id" ColumnName="account_id" />
                 <ScalarProperty Name="password_reset_token_id" ColumnName="password_reset_token_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CATEGORies">
+            <EntityTypeMapping TypeName="HangmanDBModel.CATEGORY">
+              <MappingFragment StoreEntitySet="CATEGORY">
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="is_active" ColumnName="is_active" />
+                <ScalarProperty Name="category_key" ColumnName="category_key" />
+                <ScalarProperty Name="category_id" ColumnName="category_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="CATEGORY_TRANSLATION">
+            <EntityTypeMapping TypeName="HangmanDBModel.CATEGORY_TRANSLATION">
+              <MappingFragment StoreEntitySet="CATEGORY_TRANSLATION">
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="language_code" ColumnName="language_code" />
+                <ScalarProperty Name="category_id" ColumnName="category_id" />
+                <ScalarProperty Name="category_translation_id" ColumnName="category_translation_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MATCHes">
+            <EntityTypeMapping TypeName="HangmanDBModel.MATCH">
+              <MappingFragment StoreEntitySet="MATCH">
+                <ScalarProperty Name="max_attempts" ColumnName="max_attempts" />
+                <ScalarProperty Name="failed_attempts" ColumnName="failed_attempts" />
+                <ScalarProperty Name="penalized_user_id" ColumnName="penalized_user_id" />
+                <ScalarProperty Name="winner_id" ColumnName="winner_id" />
+                <ScalarProperty Name="match_status" ColumnName="match_status" />
+                <ScalarProperty Name="finished_at" ColumnName="finished_at" />
+                <ScalarProperty Name="started_at" ColumnName="started_at" />
+                <ScalarProperty Name="word_selection_ends_at" ColumnName="word_selection_ends_at" />
+                <ScalarProperty Name="word_selection_started_at" ColumnName="word_selection_started_at" />
+                <ScalarProperty Name="category_voting_ends_at" ColumnName="category_voting_ends_at" />
+                <ScalarProperty Name="category_voting_started_at" ColumnName="category_voting_started_at" />
+                <ScalarProperty Name="joined_at" ColumnName="joined_at" />
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="selected_word_id" ColumnName="selected_word_id" />
+                <ScalarProperty Name="selected_category_id" ColumnName="selected_category_id" />
+                <ScalarProperty Name="guest_language_code" ColumnName="guest_language_code" />
+                <ScalarProperty Name="host_language_code" ColumnName="host_language_code" />
+                <ScalarProperty Name="guest_id" ColumnName="guest_id" />
+                <ScalarProperty Name="host_id" ColumnName="host_id" />
+                <ScalarProperty Name="match_id" ColumnName="match_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MATCH_CATEGORY_VOTE">
+            <EntityTypeMapping TypeName="HangmanDBModel.MATCH_CATEGORY_VOTE">
+              <MappingFragment StoreEntitySet="MATCH_CATEGORY_VOTE">
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="category_id" ColumnName="category_id" />
+                <ScalarProperty Name="player_id" ColumnName="player_id" />
+                <ScalarProperty Name="match_id" ColumnName="match_id" />
+                <ScalarProperty Name="match_category_vote_id" ColumnName="match_category_vote_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WORDs">
+            <EntityTypeMapping TypeName="HangmanDBModel.WORD">
+              <MappingFragment StoreEntitySet="WORD">
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="is_active" ColumnName="is_active" />
+                <ScalarProperty Name="category_id" ColumnName="category_id" />
+                <ScalarProperty Name="word_id" ColumnName="word_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="WORD_TRANSLATION">
+            <EntityTypeMapping TypeName="HangmanDBModel.WORD_TRANSLATION">
+              <MappingFragment StoreEntitySet="WORD_TRANSLATION">
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="is_active" ColumnName="is_active" />
+                <ScalarProperty Name="description" ColumnName="description" />
+                <ScalarProperty Name="word_text" ColumnName="word_text" />
+                <ScalarProperty Name="language_code" ColumnName="language_code" />
+                <ScalarProperty Name="word_id" ColumnName="word_id" />
+                <ScalarProperty Name="word_translation_id" ColumnName="word_translation_id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

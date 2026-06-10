@@ -16,6 +16,18 @@
 
         public int EmailVerificationExpirationMinutes { get; set; }
 
+        public int MaximumPasswordLength { get; set; }
+
+        public bool RequirePasswordUppercase { get; set; }
+
+        public bool RequirePasswordLowercase { get; set; }
+
+        public bool RequirePasswordDigit { get; set; }
+
+        public bool RequirePasswordSpecialCharacter { get; set; }
+
+        public bool DisallowPasswordWhiteSpace { get; set; }
+
         public int MinimumPasswordLength { get; set; }
 
         public int MaximumVerificationAttempts { get; set; }

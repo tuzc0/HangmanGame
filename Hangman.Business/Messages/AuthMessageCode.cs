@@ -26,6 +26,15 @@
         VerificationEmailResendFailed,
         AccountAlreadyVerified,
 
+        EmailVerificationDataRequired,
+        VerificationCodeRequired,
+        EmailVerificationTokenNotFound,
+        EmailVerificationTokenExpired,
+        EmailVerificationTokenAttemptsExceeded,
+        InvalidEmailVerificationCode,
+        EmailVerificationSuccessful,
+        EmailVerificationFailed,
+
         PasswordResetRequestDataRequired,
         PasswordResetDataRequired,
         PasswordResetRequestProcessed,
@@ -37,6 +46,12 @@
         InvalidPasswordResetCode,
         PasswordResetSuccessful,
         PasswordResetFailed,
+        PasswordTooLong,
+        PasswordRequiresUppercase,
+        PasswordRequiresLowercase,
+        PasswordRequiresDigit,
+        PasswordRequiresSpecialCharacter,
+        PasswordContainsWhiteSpace,
 
         DatabaseConnectionError,
         DatabaseTimeout,

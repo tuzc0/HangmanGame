@@ -81,6 +81,31 @@ namespace HangmanGame.Services.Services
             }
         }
 
+        public async Task<VerifyEmailResponse> VerifyEmailAsync(VerifyEmailRequest request)
+        {
+            try
+            {
+                return await authBusiness.VerifyEmailAsync(request);
+            }
+            catch (Exception exception)
+            {
+                AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
+
+                Log.ErrorFormat("Error executing VerifyEmailAsync. MessageCode: {0}. Email: {1}",
+                    messageCode,
+                    request != null ? request.Email : "null",
+                    exception);
+
+                return new VerifyEmailResponse
+                {
+                    Success = false,
+                    MessageCode = messageCode.ToString(),
+                    AccountId = 0,
+                    IsEmailVerified = false
+                };
+            }
+        }
+
         public async Task<ResendVerificationEmailResponse> ResendVerificationEmailAsync(
             ResendVerificationEmailRequest request)
         {

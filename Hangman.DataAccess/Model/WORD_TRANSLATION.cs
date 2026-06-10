@@ -12,16 +12,17 @@ namespace Hangman.DataAccess.Model
     using System;
     using System.Collections.Generic;
     
-    public partial class SCORE_MOVEMENT
+    public partial class WORD_TRANSLATION
     {
-        public int score_movement_id { get; set; }
-        public int player_id { get; set; }
-        public int match_id { get; set; }
-        public int points { get; set; }
-        public string movement_type { get; set; }
+        public int word_translation_id { get; set; }
+        public int word_id { get; set; }
+        public string language_code { get; set; }
+        public string word_text { get; set; }
+        public string description { get; set; }
+        public bool is_active { get; set; }
         public System.DateTime created_at { get; set; }
     
-        public virtual PLAYER PLAYER { get; set; }
-        public virtual MATCH MATCH { get; set; }
+        public virtual LANGUAGE LANGUAGE { get; set; }
+        public virtual WORD WORD { get; set; }
     }
 }

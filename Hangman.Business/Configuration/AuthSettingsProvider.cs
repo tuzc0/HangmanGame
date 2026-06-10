@@ -14,7 +14,15 @@ namespace Hangman.Business.Configuration
         private const int DefaultVerificationCodeLimit = 1000000;
         private const int DefaultEmailVerificationExpirationMinutes = 15;
         private const int DefaultMinimumPasswordLength = 8;
+        private const int DefaultMaximumPasswordLength = 100;
         private const int DefaultMaximumVerificationAttempts = 5;
+
+        private const bool DefaultRequirePasswordUppercase = true;
+        private const bool DefaultRequirePasswordLowercase = true;
+        private const bool DefaultRequirePasswordDigit = true;
+        private const bool DefaultRequirePasswordSpecialCharacter = true;
+        private const bool DefaultDisallowPasswordWhiteSpace = true;
+
         private const string DefaultLanguageCodeValue = "es";
         private const string DefaultAllowedLanguageCodesValue = "es,en";
 
@@ -30,6 +38,14 @@ namespace Hangman.Business.Configuration
                 VerificationCodeLimit = GetInt("Auth.VerificationCodeLimit", "HANGMAN_AUTH_VERIFICATION_CODE_LIMIT", DefaultVerificationCodeLimit),
                 EmailVerificationExpirationMinutes = GetInt("Auth.EmailVerificationExpirationMinutes", "HANGMAN_AUTH_EMAIL_VERIFICATION_EXPIRATION_MINUTES", DefaultEmailVerificationExpirationMinutes),
                 MinimumPasswordLength = GetInt("Auth.MinimumPasswordLength", "HANGMAN_AUTH_MINIMUM_PASSWORD_LENGTH", DefaultMinimumPasswordLength),
+                MaximumPasswordLength = GetInt("Auth.MaximumPasswordLength", "HANGMAN_AUTH_MAXIMUM_PASSWORD_LENGTH", DefaultMaximumPasswordLength),
+
+                RequirePasswordUppercase = GetBool("Auth.RequirePasswordUppercase", "HANGMAN_AUTH_REQUIRE_PASSWORD_UPPERCASE", DefaultRequirePasswordUppercase),
+                RequirePasswordLowercase = GetBool("Auth.RequirePasswordLowercase", "HANGMAN_AUTH_REQUIRE_PASSWORD_LOWERCASE", DefaultRequirePasswordLowercase),
+                RequirePasswordDigit = GetBool("Auth.RequirePasswordDigit", "HANGMAN_AUTH_REQUIRE_PASSWORD_DIGIT", DefaultRequirePasswordDigit),
+                RequirePasswordSpecialCharacter = GetBool("Auth.RequirePasswordSpecialCharacter", "HANGMAN_AUTH_REQUIRE_PASSWORD_SPECIAL_CHARACTER", DefaultRequirePasswordSpecialCharacter),
+                DisallowPasswordWhiteSpace = GetBool("Auth.DisallowPasswordWhiteSpace", "HANGMAN_AUTH_DISALLOW_PASSWORD_WHITE_SPACE", DefaultDisallowPasswordWhiteSpace),
+
                 MaximumVerificationAttempts = GetInt("Auth.MaximumVerificationAttempts", "HANGMAN_AUTH_MAXIMUM_VERIFICATION_ATTEMPTS", DefaultMaximumVerificationAttempts),
                 DefaultLanguageCode = GetString("Auth.DefaultLanguageCode", "HANGMAN_AUTH_DEFAULT_LANGUAGE_CODE", DefaultLanguageCodeValue),
                 AllowedLanguageCodes = GetString("Auth.AllowedLanguageCodes", "HANGMAN_AUTH_ALLOWED_LANGUAGE_CODES", DefaultAllowedLanguageCodesValue)
@@ -47,6 +63,20 @@ namespace Hangman.Business.Configuration
             int parsedValue;
 
             if (int.TryParse(value, out parsedValue) && parsedValue > 0)
+            {
+                return parsedValue;
+            }
+
+            return defaultValue;
+        }
+
+        private static bool GetBool(string appSettingKey, string environmentVariableKey, bool defaultValue)
+        {
+            string value = GetRawValue(appSettingKey, environmentVariableKey);
+
+            bool parsedValue;
+
+            if (bool.TryParse(value, out parsedValue))
             {
                 return parsedValue;
             }

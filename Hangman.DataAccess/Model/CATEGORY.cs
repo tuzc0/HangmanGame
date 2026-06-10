@@ -17,15 +17,23 @@ namespace Hangman.DataAccess.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public CATEGORY()
         {
+            this.CATEGORY_TRANSLATION = new HashSet<CATEGORY_TRANSLATION>();
+            this.MATCH_CATEGORY_VOTE = new HashSet<MATCH_CATEGORY_VOTE>();
+            this.MATCHes = new HashSet<MATCH>();
             this.WORDs = new HashSet<WORD>();
         }
     
         public int category_id { get; set; }
-        public string name { get; set; }
-        public string language_code { get; set; }
+        public string category_key { get; set; }
         public bool is_active { get; set; }
+        public System.DateTime created_at { get; set; }
     
-        public virtual LANGUAGE LANGUAGE { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<CATEGORY_TRANSLATION> CATEGORY_TRANSLATION { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MATCH_CATEGORY_VOTE> MATCH_CATEGORY_VOTE { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MATCH> MATCHes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<WORD> WORDs { get; set; }
     }

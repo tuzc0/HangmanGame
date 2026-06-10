@@ -69,6 +69,9 @@
     <Compile Include="Model\CATEGORY.cs">
       <DependentUpon>HangmanModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Model\CATEGORY_TRANSLATION.cs">
+      <DependentUpon>HangmanModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Model\EMAIL_VERIFICATION.cs">
       <DependentUpon>HangmanModel.tt</DependentUpon>
     </Compile>
@@ -93,6 +96,9 @@
     <Compile Include="Model\MATCH.cs">
       <DependentUpon>HangmanModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Model\MATCH_CATEGORY_VOTE.cs">
+      <DependentUpon>HangmanModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Model\MATCH_GUESS.cs">
       <DependentUpon>HangmanModel.tt</DependentUpon>
     </Compile>
@@ -106,6 +112,9 @@
       <DependentUpon>HangmanModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Model\WORD.cs">
+      <DependentUpon>HangmanModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Model\WORD_TRANSLATION.cs">
       <DependentUpon>HangmanModel.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -139,6 +148,8 @@
     <Compile Include="Transporters\PlayerScoreSummaryTransporter.cs" />
     <Compile Include="Transporters\PlayerTransporter.cs" />
     <Compile Include="Transporters\ScoreMovementTransporter.cs" />
+    <Compile Include="Transporters\SelectMatchCategoryTransporter.cs" />
+    <Compile Include="Transporters\SelectMatchWordTransporter.cs" />
     <Compile Include="Transporters\UpdateMatchStatusTransporter.cs" />
     <Compile Include="Transporters\UpdatePlayerActiveStatusTransporter.cs" />
     <Compile Include="Transporters\UpdatePlayerProfileTransporter.cs" />

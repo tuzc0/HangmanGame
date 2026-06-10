@@ -17,6 +17,7 @@ namespace Hangman.DataAccess.Model
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public MATCH()
         {
+            this.MATCH_CATEGORY_VOTE = new HashSet<MATCH_CATEGORY_VOTE>();
             this.MATCH_GUESS = new HashSet<MATCH_GUESS>();
             this.SCORE_MOVEMENT = new HashSet<SCORE_MOVEMENT>();
         }
@@ -24,9 +25,16 @@ namespace Hangman.DataAccess.Model
         public int match_id { get; set; }
         public int host_id { get; set; }
         public Nullable<int> guest_id { get; set; }
-        public int word_id { get; set; }
+        public string host_language_code { get; set; }
+        public string guest_language_code { get; set; }
+        public Nullable<int> selected_category_id { get; set; }
+        public Nullable<int> selected_word_id { get; set; }
         public System.DateTime created_at { get; set; }
         public Nullable<System.DateTime> joined_at { get; set; }
+        public Nullable<System.DateTime> category_voting_started_at { get; set; }
+        public Nullable<System.DateTime> category_voting_ends_at { get; set; }
+        public Nullable<System.DateTime> word_selection_started_at { get; set; }
+        public Nullable<System.DateTime> word_selection_ends_at { get; set; }
         public Nullable<System.DateTime> started_at { get; set; }
         public Nullable<System.DateTime> finished_at { get; set; }
         public string match_status { get; set; }
@@ -35,13 +43,18 @@ namespace Hangman.DataAccess.Model
         public int failed_attempts { get; set; }
         public int max_attempts { get; set; }
     
+        public virtual CATEGORY CATEGORY { get; set; }
+        public virtual LANGUAGE LANGUAGE { get; set; }
+        public virtual LANGUAGE LANGUAGE1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MATCH_CATEGORY_VOTE> MATCH_CATEGORY_VOTE { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<MATCH_GUESS> MATCH_GUESS { get; set; }
         public virtual PLAYER PLAYER { get; set; }
         public virtual PLAYER PLAYER1 { get; set; }
         public virtual PLAYER PLAYER2 { get; set; }
-        public virtual PLAYER PLAYER3 { get; set; }
         public virtual WORD WORD { get; set; }
+        public virtual PLAYER PLAYER3 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCORE_MOVEMENT> SCORE_MOVEMENT { get; set; }
     }

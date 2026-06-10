@@ -12,9 +12,7 @@ namespace Hangman.DataAccess.Interfaces
 
         Task<List<MatchTransporter>> GetByStatusAsync(string matchStatus);
 
-        Task<List<AvailableMatchTransporter>> GetAvailableByLanguageAsync(
-            string matchStatus,
-            string languageCode);
+        Task<List<AvailableMatchTransporter>> GetAvailableByStatusAsync(string matchStatus);
 
         Task<bool> ExistsAsync(int matchId);
 
@@ -23,6 +21,10 @@ namespace Hangman.DataAccess.Interfaces
         void Add(CreateMatchTransporter match);
 
         Task<bool> JoinAsync(JoinMatchTransporter match);
+
+        Task<bool> UpdateSelectedCategoryAsync(SelectMatchCategoryTransporter match);
+
+        Task<bool> UpdateSelectedWordAsync(SelectMatchWordTransporter match);
 
         Task<bool> IncrementFailedAttemptsAsync(int matchId);
 

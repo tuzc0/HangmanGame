@@ -43,9 +43,7 @@ namespace Hangman.DataAccess.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<AvailableMatchTransporter>> GetAvailableByLanguageAsync(
-            string matchStatus,
-            string languageCode)
+        public async Task<List<AvailableMatchTransporter>> GetAvailableByStatusAsync(string matchStatus)
         {
             return await
                 (from match in context.MATCHes.AsNoTracking()
@@ -53,15 +51,8 @@ namespace Hangman.DataAccess.Repositories
                     on match.host_id equals host.player_id
                  join hostAccount in context.ACCOUNTs.AsNoTracking()
                     on host.player_id equals hostAccount.player_id
-                 join word in context.WORDs.AsNoTracking()
-                    on match.word_id equals word.word_id
-                 join category in context.CATEGORies.AsNoTracking()
-                    on word.category_id equals category.category_id
-                 where match.match_status == matchStatus
-                       && match.guest_id == null
-                       && word.language_code == languageCode
-                       && word.is_active
-                       && category.is_active
+                 where match.match_status == matchStatus &&
+                       match.guest_id == null
                  orderby match.created_at descending
                  select new AvailableMatchTransporter
                  {
@@ -69,8 +60,8 @@ namespace Hangman.DataAccess.Repositories
                      HostId = host.player_id,
                      HostFullName = host.full_name,
                      HostEmail = hostAccount.email,
-                     CategoryName = category.name,
-                     LanguageCode = word.language_code,
+                     HostLanguageCode = match.host_language_code,
+                     MatchStatus = match.match_status,
                      CreatedAt = match.created_at
                  }).ToListAsync();
         }
@@ -102,9 +93,16 @@ namespace Hangman.DataAccess.Repositories
             {
                 host_id = match.HostId,
                 guest_id = null,
-                word_id = match.WordId,
+                selected_category_id = null,
+                selected_word_id = null,
+                host_language_code = match.HostLanguageCode,
+                guest_language_code = null,
                 created_at = DateTime.UtcNow,
                 joined_at = null,
+                category_voting_started_at = null,
+                category_voting_ends_at = null,
+                word_selection_started_at = null,
+                word_selection_ends_at = null,
                 started_at = null,
                 finished_at = null,
                 match_status = match.MatchStatus,
@@ -135,8 +133,55 @@ namespace Hangman.DataAccess.Repositories
             DateTime currentDate = DateTime.UtcNow;
 
             entity.guest_id = match.GuestId;
+            entity.guest_language_code = match.GuestLanguageCode;
             entity.joined_at = currentDate;
-            entity.started_at = currentDate;
+            entity.category_voting_started_at = match.CategoryVotingStartedAt;
+            entity.category_voting_ends_at = match.CategoryVotingEndsAt;
+            entity.match_status = match.MatchStatus;
+
+            return true;
+        }
+
+        public async Task<bool> UpdateSelectedCategoryAsync(SelectMatchCategoryTransporter match)
+        {
+            if (match == null)
+            {
+                throw new ArgumentNullException(nameof(match));
+            }
+
+            MATCH entity = await context.MATCHes
+                .FirstOrDefaultAsync(item => item.match_id == match.MatchId);
+
+            if (entity == null)
+            {
+                return false;
+            }
+
+            entity.selected_category_id = match.SelectedCategoryId;
+            entity.word_selection_started_at = match.WordSelectionStartedAt;
+            entity.word_selection_ends_at = match.WordSelectionEndsAt;
+            entity.match_status = match.MatchStatus;
+
+            return true;
+        }
+
+        public async Task<bool> UpdateSelectedWordAsync(SelectMatchWordTransporter match)
+        {
+            if (match == null)
+            {
+                throw new ArgumentNullException(nameof(match));
+            }
+
+            MATCH entity = await context.MATCHes
+                .FirstOrDefaultAsync(item => item.match_id == match.MatchId);
+
+            if (entity == null)
+            {
+                return false;
+            }
+
+            entity.selected_word_id = match.SelectedWordId;
+            entity.started_at = DateTime.UtcNow;
             entity.match_status = match.MatchStatus;
 
             return true;
@@ -229,20 +274,77 @@ namespace Hangman.DataAccess.Repositories
         {
             return
                 from match in context.MATCHes.AsNoTracking()
+
                 join host in context.PLAYERs.AsNoTracking()
                     on match.host_id equals host.player_id
+
                 join hostAccount in context.ACCOUNTs.AsNoTracking()
                     on host.player_id equals hostAccount.player_id
+
                 join guest in context.PLAYERs.AsNoTracking()
                     on match.guest_id equals guest.player_id into guestGroup
                 from guest in guestGroup.DefaultIfEmpty()
+
                 join guestAccount in context.ACCOUNTs.AsNoTracking()
                     on guest.player_id equals guestAccount.player_id into guestAccountGroup
                 from guestAccount in guestAccountGroup.DefaultIfEmpty()
-                join word in context.WORDs.AsNoTracking()
-                    on match.word_id equals word.word_id
-                join category in context.CATEGORies.AsNoTracking()
-                    on word.category_id equals category.category_id
+
+                join hostCategoryTranslation in context.CATEGORY_TRANSLATION.AsNoTracking()
+                    on new
+                    {
+                        CategoryId = match.selected_category_id,
+                        LanguageCode = match.host_language_code
+                    }
+                    equals new
+                    {
+                        CategoryId = (int?)hostCategoryTranslation.category_id,
+                        LanguageCode = hostCategoryTranslation.language_code
+                    }
+                    into hostCategoryTranslationGroup
+                from hostCategoryTranslation in hostCategoryTranslationGroup.DefaultIfEmpty()
+
+                join guestCategoryTranslation in context.CATEGORY_TRANSLATION.AsNoTracking()
+                    on new
+                    {
+                        CategoryId = match.selected_category_id,
+                        LanguageCode = match.guest_language_code
+                    }
+                    equals new
+                    {
+                        CategoryId = (int?)guestCategoryTranslation.category_id,
+                        LanguageCode = guestCategoryTranslation.language_code
+                    }
+                    into guestCategoryTranslationGroup
+                from guestCategoryTranslation in guestCategoryTranslationGroup.DefaultIfEmpty()
+
+                join hostWordTranslation in context.WORD_TRANSLATION.AsNoTracking()
+                    on new
+                    {
+                        WordId = match.selected_word_id,
+                        LanguageCode = match.host_language_code
+                    }
+                    equals new
+                    {
+                        WordId = (int?)hostWordTranslation.word_id,
+                        LanguageCode = hostWordTranslation.language_code
+                    }
+                    into hostWordTranslationGroup
+                from hostWordTranslation in hostWordTranslationGroup.DefaultIfEmpty()
+
+                join guestWordTranslation in context.WORD_TRANSLATION.AsNoTracking()
+                    on new
+                    {
+                        WordId = match.selected_word_id,
+                        LanguageCode = match.guest_language_code
+                    }
+                    equals new
+                    {
+                        WordId = (int?)guestWordTranslation.word_id,
+                        LanguageCode = guestWordTranslation.language_code
+                    }
+                    into guestWordTranslationGroup
+                from guestWordTranslation in guestWordTranslationGroup.DefaultIfEmpty()
+
                 select new MatchTransporter
                 {
                     MatchId = match.match_id,
@@ -252,16 +354,29 @@ namespace Hangman.DataAccess.Repositories
                     GuestId = match.guest_id,
                     GuestFullName = guest.full_name,
                     GuestEmail = guestAccount.email,
-                    WordId = match.word_id,
-                    WordText = word.word_text,
-                    WordDescription = word.description,
-                    CategoryId = category.category_id,
-                    CategoryName = category.name,
-                    LanguageCode = word.language_code,
+
+                    HostLanguageCode = match.host_language_code,
+                    GuestLanguageCode = match.guest_language_code,
+
+                    SelectedCategoryId = match.selected_category_id,
+                    HostCategoryName = hostCategoryTranslation.name,
+                    GuestCategoryName = guestCategoryTranslation.name,
+
+                    SelectedWordId = match.selected_word_id,
+                    HostWordText = hostWordTranslation.word_text,
+                    GuestWordText = guestWordTranslation.word_text,
+                    HostWordDescription = hostWordTranslation.description,
+                    GuestWordDescription = guestWordTranslation.description,
+
                     CreatedAt = match.created_at,
                     JoinedAt = match.joined_at,
+                    CategoryVotingStartedAt = match.category_voting_started_at,
+                    CategoryVotingEndsAt = match.category_voting_ends_at,
+                    WordSelectionStartedAt = match.word_selection_started_at,
+                    WordSelectionEndsAt = match.word_selection_ends_at,
                     StartedAt = match.started_at,
                     FinishedAt = match.finished_at,
+
                     MatchStatus = match.match_status,
                     WinnerId = match.winner_id,
                     PenalizedUserId = match.penalized_user_id,

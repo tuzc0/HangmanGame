@@ -15,6 +15,7 @@ namespace Hangman.Business.Services
         private readonly IUnitOfWorkFactory unitOfWorkFactory;
         private readonly RegisterUseCase registerUseCase;
         private readonly LoginUseCase loginUseCase;
+        private readonly VerifyEmailUseCase verifyEmailUseCase;
         private readonly ResendVerificationEmailUseCase resendVerificationEmailUseCase;
         private readonly RequestPasswordResetUseCase requestPasswordResetUseCase;
         private readonly ResetPasswordUseCase resetPasswordUseCase;
@@ -36,6 +37,10 @@ namespace Hangman.Business.Services
                 authSettingsProvider);
 
             loginUseCase = new LoginUseCase(unitOfWorkFactory);
+
+            verifyEmailUseCase = new VerifyEmailUseCase(
+                unitOfWorkFactory,
+                authSettingsProvider);
 
             resendVerificationEmailUseCase = new ResendVerificationEmailUseCase(
                 unitOfWorkFactory,
@@ -73,6 +78,11 @@ namespace Hangman.Business.Services
         public Task<LoginResponse> LoginAsync(LoginRequest request)
         {
             return loginUseCase.ExecuteAsync(request);
+        }
+
+        public Task<VerifyEmailResponse> VerifyEmailAsync(VerifyEmailRequest request)
+        {
+            return verifyEmailUseCase.ExecuteAsync(request);
         }
 
         public Task<ResendVerificationEmailResponse> ResendVerificationEmailAsync(
