@@ -47,6 +47,7 @@
     <Compile Include="Constants\AccountStatusConstants.cs" />
     <Compile Include="Constants\MatchDefaultsConstants.cs" />
     <Compile Include="Constants\MatchStatusConstants.cs" />
+    <Compile Include="Constants\MatchTimingConstants.cs" />
     <Compile Include="Constants\ScoreMovementTypeConstants.cs" />
     <Compile Include="Constants\ScorePointsConstants.cs" />
     <Compile Include="Email\EmailErrorCode.cs" />
@@ -59,10 +60,12 @@
     <Compile Include="Factories\UnitOfWorkFactory.cs" />
     <Compile Include="Helpers\EmailNormalizer.cs" />
     <Compile Include="Interfaces\IAuthBusiness.cs" />
+    <Compile Include="Interfaces\IMatchBusiness.cs" />
     <Compile Include="Interfaces\IProfileBusiness.cs" />
     <Compile Include="Interfaces\IWordBusiness.cs" />
     <Compile Include="Mappers\AuthResponseFactory.cs" />
     <Compile Include="Messages\AuthMessageCode.cs" />
+    <Compile Include="Messages\MatchMessageCode.cs" />
     <Compile Include="Messages\ProfileMessageCode.cs" />
     <Compile Include="Messages\WordMessageCode.cs" />
     <Compile Include="Policies\AccountAvailabilityPolicy.cs" />
@@ -71,6 +74,7 @@
     <Compile Include="Security\PasswordHasher.cs" />
     <Compile Include="Security\VerificationCodeGenerator.cs" />
     <Compile Include="Services\AuthBusiness.cs" />
+    <Compile Include="Services\MatchBusiness.cs" />
     <Compile Include="Services\ProfileBusiness.cs" />
     <Compile Include="Services\WordBusiness.cs" />
     <Compile Include="UserCases\Auth\LoginUseCase.cs" />
@@ -78,7 +82,9 @@
     <Compile Include="UserCases\Auth\RequestPasswordResetUseCase.cs" />
     <Compile Include="UserCases\Auth\ResendVerificationEmailUseCase.cs" />
     <Compile Include="UserCases\Auth\ResetPasswordUseCase.cs" />
+    <Compile Include="UserCases\Auth\VerifyEmailUseCase.cs" />
     <Compile Include="Validators\AuthValidator.cs" />
+    <Compile Include="Validators\MatchValidator.cs" />
     <Compile Include="Validators\ProfileValidator.cs" />
     <Compile Include="Validators\WordValidator.cs" />
   </ItemGroup>

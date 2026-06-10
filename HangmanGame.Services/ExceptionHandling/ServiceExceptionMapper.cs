@@ -222,6 +222,83 @@ namespace HangmanGame.Services.ExceptionHandling
             }
         }
 
+        public static MatchMessageCode MapMatch(Exception exception)
+        {
+            if (exception == null)
+            {
+                return MatchMessageCode.UnexpectedError;
+            }
+
+            Exception baseException = exception.GetBaseException();
+
+            if (exception is TimeoutException || baseException is TimeoutException)
+            {
+                return MatchMessageCode.DatabaseTimeout;
+            }
+
+            SqlException sqlException = exception as SqlException
+                ?? baseException as SqlException;
+
+            if (sqlException != null)
+            {
+                return MapMatchSqlException(sqlException);
+            }
+
+            if (exception is DbUpdateException ||
+                exception is EntityException ||
+                baseException is DbUpdateException ||
+                baseException is EntityException)
+            {
+                return MatchMessageCode.DatabaseUnavailable;
+            }
+
+            if (exception is ConfigurationErrorsException ||
+                baseException is ConfigurationErrorsException)
+            {
+                return MatchMessageCode.ConfigurationError;
+            }
+
+            if (exception is CommunicationException ||
+                exception is IOException ||
+                baseException is CommunicationException ||
+                baseException is IOException)
+            {
+                return MatchMessageCode.RuntimeError;
+            }
+
+            if (exception is InvalidOperationException ||
+                exception is ArgumentException ||
+                baseException is InvalidOperationException ||
+                baseException is ArgumentException)
+            {
+                return MatchMessageCode.RuntimeError;
+            }
+
+            return MatchMessageCode.UnexpectedError;
+        }
+
+        private static MatchMessageCode MapMatchSqlException(SqlException sqlException)
+        {
+            switch (sqlException.Number)
+            {
+                case -2:
+                    return MatchMessageCode.DatabaseTimeout;
+
+                case 2:
+                case 26:
+                case 40:
+                case 53:
+                case 4060:
+                case 10060:
+                case 10061:
+                case 18456:
+                    return MatchMessageCode.DatabaseConnectionError;
+
+                default:
+                    return MatchMessageCode.DatabaseUnavailable;
+            }
+        }
+
         private static TException FindInnerException<TException>(Exception exception)
             where TException : Exception
         {

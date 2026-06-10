@@ -49,14 +49,38 @@ namespace Hangman.Business.Validators
                 return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
             }
 
-            if (string.IsNullOrWhiteSpace(request.Password))
+            ValidationResult passwordValidation = ValidatePasswordPolicy(request.Password);
+
+            if (!passwordValidation.IsValid)
             {
-                return ValidationResult.Fail(AuthMessageCode.PasswordRequired);
+                return passwordValidation;
             }
 
-            if (request.Password.Length < settings.MinimumPasswordLength)
+            return ValidationResult.Success();
+        }
+
+        public ValidationResult ValidateVerifyEmail(VerifyEmailRequest request)
+        {
+            if (request == null)
             {
-                return ValidationResult.Fail(AuthMessageCode.PasswordTooShort);
+                return ValidationResult.Fail(AuthMessageCode.EmailVerificationDataRequired);
+            }
+
+            if (!IsValidEmail(request.Email))
+            {
+                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Code))
+            {
+                return ValidationResult.Fail(AuthMessageCode.VerificationCodeRequired);
+            }
+
+            string code = request.Code.Trim();
+
+            if (code.Length != settings.VerificationCodeLength)
+            {
+                return ValidationResult.Fail(AuthMessageCode.InvalidEmailVerificationCode);
             }
 
             return ValidationResult.Success();
@@ -142,17 +166,77 @@ namespace Hangman.Business.Validators
                 return ValidationResult.Fail(AuthMessageCode.InvalidPasswordResetCode);
             }
 
-            if (string.IsNullOrWhiteSpace(request.NewPassword))
+            ValidationResult passwordValidation = ValidatePasswordPolicy(request.NewPassword);
+
+            if (!passwordValidation.IsValid)
+            {
+                return passwordValidation;
+            }
+
+            return ValidationResult.Success();
+        }
+
+        private ValidationResult ValidatePasswordPolicy(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password))
             {
                 return ValidationResult.Fail(AuthMessageCode.PasswordRequired);
             }
 
-            if (request.NewPassword.Length < settings.MinimumPasswordLength)
+            if (password.Length < settings.MinimumPasswordLength)
             {
                 return ValidationResult.Fail(AuthMessageCode.PasswordTooShort);
             }
 
+            if (password.Length > settings.MaximumPasswordLength)
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordTooLong);
+            }
+
+            if (settings.DisallowPasswordWhiteSpace && ContainsWhiteSpace(password))
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordContainsWhiteSpace);
+            }
+
+            if (settings.RequirePasswordUppercase && !password.Any(char.IsUpper))
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordRequiresUppercase);
+            }
+
+            if (settings.RequirePasswordLowercase && !password.Any(char.IsLower))
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordRequiresLowercase);
+            }
+
+            if (settings.RequirePasswordDigit && !password.Any(char.IsDigit))
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordRequiresDigit);
+            }
+
+            if (settings.RequirePasswordSpecialCharacter && !password.Any(IsSpecialCharacter))
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordRequiresSpecialCharacter);
+            }
+
             return ValidationResult.Success();
+        }
+
+        private static bool ContainsWhiteSpace(string value)
+        {
+            foreach (char character in value)
+            {
+                if (char.IsWhiteSpace(character))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsSpecialCharacter(char character)
+        {
+            return !char.IsLetterOrDigit(character) && !char.IsWhiteSpace(character);
         }
 
         private static bool IsValidEmail(string email)

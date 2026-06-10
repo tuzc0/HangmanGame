@@ -71,5 +71,20 @@ namespace Hangman.Business.Mappers
                 MessageCode = messageCode.ToString()
             };
         }
+
+        public static VerifyEmailResponse BuildVerifyEmailResponse(
+            bool success,
+            Enum messageCode,
+            int accountId,
+            bool isEmailVerified)
+        {
+            return new VerifyEmailResponse
+            {
+                Success = success,
+                MessageCode = messageCode.ToString(),
+                AccountId = accountId,
+                IsEmailVerified = isEmailVerified
+            };
+        }
     }
 }

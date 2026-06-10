@@ -10,6 +10,8 @@
 
         public string WordServicePath { get; set; }
 
+        public string MatchServicePath { get; set; }
+
         public long MaxReceivedMessageSize { get; set; }
 
         public int OpenTimeoutSeconds { get; set; }

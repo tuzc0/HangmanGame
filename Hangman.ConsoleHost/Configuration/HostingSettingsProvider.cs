@@ -22,6 +22,7 @@ namespace Hangman.ConsoleHost.Configuration
                 AuthServicePath = GetString("Wcf.AuthServicePath", DefaultAuthServicePath),
                 ProfileServicePath = GetString("Wcf.ProfileServicePath", "ProfileService"),
                 WordServicePath = GetString("Wcf.WordServicePath", "WordService"),
+                MatchServicePath = GetString("Wcf.MatchServicePath", "MatchService"),
                 MaxReceivedMessageSize = GetLong("Wcf.MaxReceivedMessageSize", DefaultMaxReceivedMessageSize),
                 OpenTimeoutSeconds = GetInt("Wcf.OpenTimeoutSeconds", DefaultOpenTimeoutSeconds),
                 CloseTimeoutSeconds = GetInt("Wcf.CloseTimeoutSeconds", DefaultCloseTimeoutSeconds),
