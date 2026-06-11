@@ -24,19 +24,25 @@ namespace Hangman.Business.Validators
                 return ValidationResult.Fail(AuthMessageCode.RegistrationDataRequired);
             }
 
-            if (string.IsNullOrWhiteSpace(request.FullName))
+            ValidationResult fullNameValidation = ValidateFullName(request.FullName);
+
+            if (!fullNameValidation.IsValid)
             {
-                return ValidationResult.Fail(AuthMessageCode.FullNameRequired);
+                return fullNameValidation;
             }
 
-            if (request.DateOfBirth == default(DateTime) || request.DateOfBirth >= DateTime.Today)
+            ValidationResult dateValidation = ValidateDateOfBirth(request.DateOfBirth);
+
+            if (!dateValidation.IsValid)
             {
-                return ValidationResult.Fail(AuthMessageCode.InvalidDateOfBirth);
+                return dateValidation;
             }
 
-            if (string.IsNullOrWhiteSpace(request.Phone))
+            ValidationResult phoneValidation = ValidatePhone(request.Phone);
+
+            if (!phoneValidation.IsValid)
             {
-                return ValidationResult.Fail(AuthMessageCode.PhoneRequired);
+                return phoneValidation;
             }
 
             if (!IsValidLanguageCode(request.PreferredLanguageCode))
@@ -44,9 +50,11 @@ namespace Hangman.Business.Validators
                 return ValidationResult.Fail(AuthMessageCode.InvalidPreferredLanguage);
             }
 
-            if (!IsValidEmail(request.Email))
+            ValidationResult emailValidation = ValidateEmail(request.Email);
+
+            if (!emailValidation.IsValid)
             {
-                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+                return emailValidation;
             }
 
             ValidationResult passwordValidation = ValidatePasswordPolicy(request.Password);
@@ -66,21 +74,22 @@ namespace Hangman.Business.Validators
                 return ValidationResult.Fail(AuthMessageCode.EmailVerificationDataRequired);
             }
 
-            if (!IsValidEmail(request.Email))
+            ValidationResult emailValidation = ValidateEmail(request.Email);
+
+            if (!emailValidation.IsValid)
             {
-                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+                return emailValidation;
             }
 
-            if (string.IsNullOrWhiteSpace(request.Code))
-            {
-                return ValidationResult.Fail(AuthMessageCode.VerificationCodeRequired);
-            }
+            ValidationResult codeValidation = ValidateNumericCode(
+                request.Code,
+                settings.VerificationCodeLength,
+                AuthMessageCode.VerificationCodeRequired,
+                AuthMessageCode.InvalidEmailVerificationCode);
 
-            string code = request.Code.Trim();
-
-            if (code.Length != settings.VerificationCodeLength)
+            if (!codeValidation.IsValid)
             {
-                return ValidationResult.Fail(AuthMessageCode.InvalidEmailVerificationCode);
+                return codeValidation;
             }
 
             return ValidationResult.Success();
@@ -93,9 +102,11 @@ namespace Hangman.Business.Validators
                 return ValidationResult.Fail(AuthMessageCode.LoginDataRequired);
             }
 
-            if (!IsValidEmail(request.Email))
+            ValidationResult emailValidation = ValidateEmail(request.Email);
+
+            if (!emailValidation.IsValid)
             {
-                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+                return emailValidation;
             }
 
             if (string.IsNullOrWhiteSpace(request.Password))
@@ -113,9 +124,184 @@ namespace Hangman.Business.Validators
                 return ValidationResult.Fail(AuthMessageCode.RegistrationDataRequired);
             }
 
-            if (!IsValidEmail(request.Email))
+            ValidationResult emailValidation = ValidateEmail(request.Email);
+
+            if (!emailValidation.IsValid)
+            {
+                return emailValidation;
+            }
+
+            return ValidationResult.Success();
+        }
+
+        public static ValidationResult ValidateRequestPasswordReset(RequestPasswordResetRequest request)
+        {
+            if (request == null)
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordResetRequestDataRequired);
+            }
+
+            ValidationResult emailValidation = ValidateEmail(request.Email);
+
+            if (!emailValidation.IsValid)
+            {
+                return emailValidation;
+            }
+
+            return ValidationResult.Success();
+        }
+
+        public ValidationResult ValidateResetPassword(ResetPasswordRequest request)
+        {
+            if (request == null)
+            {
+                return ValidationResult.Fail(AuthMessageCode.PasswordResetDataRequired);
+            }
+
+            ValidationResult emailValidation = ValidateEmail(request.Email);
+
+            if (!emailValidation.IsValid)
+            {
+                return emailValidation;
+            }
+
+            ValidationResult codeValidation = ValidateNumericCode(
+                request.Code,
+                settings.VerificationCodeLength,
+                AuthMessageCode.InvalidPasswordResetCode,
+                AuthMessageCode.InvalidPasswordResetCode);
+
+            if (!codeValidation.IsValid)
+            {
+                return codeValidation;
+            }
+
+            ValidationResult passwordValidation = ValidatePasswordPolicy(request.NewPassword);
+
+            if (!passwordValidation.IsValid)
+            {
+                return passwordValidation;
+            }
+
+            return ValidationResult.Success();
+        }
+
+        private static ValidationResult ValidateFullName(string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                return ValidationResult.Fail(AuthMessageCode.FullNameRequired);
+            }
+
+            string normalizedFullName = fullName.Trim();
+
+            if (normalizedFullName.Length < ValidationLimits.FullNameMinimumLength)
+            {
+                return ValidationResult.Fail(AuthMessageCode.FullNameTooShort);
+            }
+
+            if (normalizedFullName.Length > ValidationLimits.FullNameMaximumLength)
+            {
+                return ValidationResult.Fail(AuthMessageCode.FullNameTooLong);
+            }
+
+            return ValidationResult.Success();
+        }
+
+        private static ValidationResult ValidateDateOfBirth(DateTime dateOfBirth)
+        {
+            DateTime today = DateTime.Today;
+            DateTime minimumAllowedDate = today.AddYears(-ValidationLimits.MaximumAgeInYears);
+
+            if (dateOfBirth == default(DateTime) ||
+                dateOfBirth.Date >= today ||
+                dateOfBirth.Date < minimumAllowedDate)
+            {
+                return ValidationResult.Fail(AuthMessageCode.InvalidDateOfBirth);
+            }
+
+            return ValidationResult.Success();
+        }
+
+        private static ValidationResult ValidatePhone(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                return ValidationResult.Fail(AuthMessageCode.PhoneRequired);
+            }
+
+            string normalizedPhone = phone.Trim();
+
+            if (normalizedPhone.Length < ValidationLimits.PhoneMinimumLength)
+            {
+                return ValidationResult.Fail(AuthMessageCode.PhoneTooShort);
+            }
+
+            if (normalizedPhone.Length > ValidationLimits.PhoneMaximumLength)
+            {
+                return ValidationResult.Fail(AuthMessageCode.PhoneTooLong);
+            }
+
+            if (!normalizedPhone.All(char.IsDigit))
+            {
+                return ValidationResult.Fail(AuthMessageCode.InvalidPhone);
+            }
+
+            return ValidationResult.Success();
+        }
+
+        private static ValidationResult ValidateEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
             {
                 return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+            }
+
+            string normalizedEmail = email.Trim();
+
+            if (normalizedEmail.Length > ValidationLimits.EmailMaximumLength)
+            {
+                return ValidationResult.Fail(AuthMessageCode.EmailTooLong);
+            }
+
+            try
+            {
+                MailAddress mailAddress = new MailAddress(normalizedEmail);
+
+                if (!string.Equals(mailAddress.Address, normalizedEmail, StringComparison.OrdinalIgnoreCase))
+                {
+                    return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+                }
+
+                return ValidationResult.Success();
+            }
+            catch (FormatException)
+            {
+                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
+            }
+        }
+
+        private static ValidationResult ValidateNumericCode(
+            string code,
+            int requiredLength,
+            AuthMessageCode requiredCode,
+            AuthMessageCode invalidCode)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+            {
+                return ValidationResult.Fail(requiredCode);
+            }
+
+            string normalizedCode = code.Trim();
+
+            if (normalizedCode.Length != requiredLength)
+            {
+                return ValidationResult.Fail(invalidCode);
+            }
+
+            if (!normalizedCode.All(char.IsDigit))
+            {
+                return ValidationResult.Fail(invalidCode);
             }
 
             return ValidationResult.Success();
@@ -132,48 +318,6 @@ namespace Hangman.Business.Validators
 
             return settings.AllowedLanguageCodes != null &&
                    settings.AllowedLanguageCodes.Contains(normalizedLanguageCode);
-        }
-
-        public static ValidationResult ValidateRequestPasswordReset(RequestPasswordResetRequest request)
-        {
-            if (request == null)
-            {
-                return ValidationResult.Fail(AuthMessageCode.PasswordResetRequestDataRequired);
-            }
-
-            if (!IsValidEmail(request.Email))
-            {
-                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
-            }
-
-            return ValidationResult.Success();
-        }
-
-        public ValidationResult ValidateResetPassword(ResetPasswordRequest request)
-        {
-            if (request == null)
-            {
-                return ValidationResult.Fail(AuthMessageCode.PasswordResetDataRequired);
-            }
-
-            if (!IsValidEmail(request.Email))
-            {
-                return ValidationResult.Fail(AuthMessageCode.InvalidEmail);
-            }
-
-            if (string.IsNullOrWhiteSpace(request.Code))
-            {
-                return ValidationResult.Fail(AuthMessageCode.InvalidPasswordResetCode);
-            }
-
-            ValidationResult passwordValidation = ValidatePasswordPolicy(request.NewPassword);
-
-            if (!passwordValidation.IsValid)
-            {
-                return passwordValidation;
-            }
-
-            return ValidationResult.Success();
         }
 
         private ValidationResult ValidatePasswordPolicy(string password)
@@ -223,38 +367,12 @@ namespace Hangman.Business.Validators
 
         private static bool ContainsWhiteSpace(string value)
         {
-            foreach (char character in value)
-            {
-                if (char.IsWhiteSpace(character))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return value.Any(char.IsWhiteSpace);
         }
 
         private static bool IsSpecialCharacter(char character)
         {
             return !char.IsLetterOrDigit(character) && !char.IsWhiteSpace(character);
-        }
-
-        private static bool IsValidEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email))
-            {
-                return false;
-            }
-
-            try
-            {
-                MailAddress mailAddress = new MailAddress(email);
-                return mailAddress.Address == email;
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
         }
     }
 }

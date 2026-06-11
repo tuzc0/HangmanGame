@@ -14,6 +14,12 @@
         EmailVerificationRequired,
         PlayerProfileNotAvailable,
 
+        FullNameTooShort,
+        FullNameTooLong,
+        PhoneTooShort,
+        PhoneTooLong,
+        InvalidPhone,
+
         ProfileRetrieved,
         ProfileUpdated,
         ProfileDeleted,
