@@ -16,6 +16,9 @@ namespace Hangman.Contracts.Match
         public string HostFullName { get; set; }
 
         [DataMember]
+        public string HostEmail { get; set; }
+
+        [DataMember]
         public string HostLanguageCode { get; set; }
 
         [DataMember]

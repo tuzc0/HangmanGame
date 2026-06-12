@@ -307,6 +307,7 @@ namespace Hangman.Business.Services
                 MatchId = match.MatchId,
                 HostId = match.HostId,
                 HostFullName = match.HostFullName,
+                HostEmail = match.HostEmail,
                 HostLanguageCode = match.HostLanguageCode,
                 MatchStatus = match.MatchStatus,
                 CreatedAt = match.CreatedAt
