@@ -25,7 +25,20 @@ namespace Hangman.ConsoleHost.Hosting
 
             ServiceHost host = new ServiceHost(definition.ServiceType, baseAddress);
 
-            host.AddServiceEndpoint(definition.ContractType, CreateBasicHttpBinding(), string.Empty);
+            if (definition.BindingKind == ServiceBindingKind.NetTcpDuplex)
+            {
+                host.AddServiceEndpoint(
+                    definition.ContractType,
+                    CreateNetTcpBinding(),
+                    string.Empty);
+            }
+            else
+            {
+                host.AddServiceEndpoint(
+                    definition.ContractType,
+                    CreateBasicHttpBinding(),
+                    string.Empty);
+            }
 
             ConfigureMetadata(host, baseAddress);
             ConfigureDebugBehavior(host);
@@ -45,6 +58,24 @@ namespace Hangman.ConsoleHost.Hosting
             };
         }
 
+        private NetTcpBinding CreateNetTcpBinding()
+        {
+            NetTcpBinding binding = new NetTcpBinding(SecurityMode.None)
+            {
+                MaxReceivedMessageSize = settings.MaxReceivedMessageSize,
+                OpenTimeout = TimeSpan.FromSeconds(settings.OpenTimeoutSeconds),
+                CloseTimeout = TimeSpan.FromSeconds(settings.CloseTimeoutSeconds),
+                SendTimeout = TimeSpan.FromSeconds(settings.SendTimeoutSeconds),
+                ReceiveTimeout = TimeSpan.FromMinutes(settings.ReceiveTimeoutMinutes)
+            };
+
+            binding.ReliableSession.Enabled = true;
+            binding.ReliableSession.InactivityTimeout =
+                TimeSpan.FromMinutes(settings.ReceiveTimeoutMinutes);
+
+            return binding;
+        }
+
         private void ConfigureMetadata(ServiceHost host, Uri baseAddress)
         {
             if (!settings.MetadataEnabled)
@@ -61,13 +92,27 @@ namespace Hangman.ConsoleHost.Hosting
                 host.Description.Behaviors.Add(metadataBehavior);
             }
 
-            metadataBehavior.HttpGetEnabled = true;
-            metadataBehavior.HttpGetUrl = baseAddress;
+            if (baseAddress.Scheme == Uri.UriSchemeHttp ||
+                baseAddress.Scheme == Uri.UriSchemeHttps)
+            {
+                metadataBehavior.HttpGetEnabled = true;
+                metadataBehavior.HttpGetUrl = baseAddress;
 
-            host.AddServiceEndpoint(
-                typeof(IMetadataExchange),
-                MetadataExchangeBindings.CreateMexHttpBinding(),
-                "mex");
+                host.AddServiceEndpoint(
+                    typeof(IMetadataExchange),
+                    MetadataExchangeBindings.CreateMexHttpBinding(),
+                    "mex");
+
+                return;
+            }
+
+            if (baseAddress.Scheme == Uri.UriSchemeNetTcp)
+            {
+                host.AddServiceEndpoint(
+                    typeof(IMetadataExchange),
+                    MetadataExchangeBindings.CreateMexTcpBinding(),
+                    "mex");
+            }
         }
 
         private void ConfigureDebugBehavior(ServiceHost host)
@@ -81,7 +126,8 @@ namespace Hangman.ConsoleHost.Hosting
                 host.Description.Behaviors.Add(debugBehavior);
             }
 
-            debugBehavior.IncludeExceptionDetailInFaults = settings.IncludeExceptionDetailInFaults;
+            debugBehavior.IncludeExceptionDetailInFaults =
+                settings.IncludeExceptionDetailInFaults;
         }
     }
 }

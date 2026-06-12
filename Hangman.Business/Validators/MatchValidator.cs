@@ -41,6 +41,33 @@ namespace Hangman.Business.Validators
             return ValidateLanguageCode(request.GuestLanguageCode);
         }
 
+        public static MatchMessageCode? ValidateGetCurrentLobby(
+            GetCurrentLobbyRequest request)
+        {
+            if (request == null || request.AccountId <= 0)
+            {
+                return MatchMessageCode.InvalidAccountId;
+            }
+
+            return null;
+        }
+
+        public static MatchMessageCode? ValidateLeaveLobby(
+            LeaveLobbyRequest request)
+        {
+            if (request == null || request.MatchId <= 0)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
+            if (request.AccountId <= 0)
+            {
+                return MatchMessageCode.InvalidAccountId;
+            }
+
+            return null;
+        }
+
         private static MatchMessageCode? ValidateLanguageCode(string languageCode)
         {
             if (string.IsNullOrWhiteSpace(languageCode))

@@ -28,14 +28,22 @@ namespace Hangman.ConsoleHost.Hosting
                 CombineAddress(settings.BaseAddress, settings.ProfileServicePath));
 
             yield return new ServiceHostDefinition(
-               typeof(WordService),
-               typeof(IWordService),
-               CombineAddress(settings.BaseAddress, settings.WordServicePath));
+                typeof(WordService),
+                typeof(IWordService),
+                CombineAddress(settings.BaseAddress, settings.WordServicePath));
 
             yield return new ServiceHostDefinition(
-               typeof(MatchService),
-               typeof(IMatchService),
-               CombineAddress(settings.BaseAddress, settings.MatchServicePath));
+                typeof(MatchService),
+                typeof(IMatchService),
+                CombineAddress(settings.BaseAddress, settings.MatchServicePath));
+
+            yield return new ServiceHostDefinition(
+                typeof(MatchNotificationService),
+                typeof(IMatchNotificationService),
+                CombineAddress(
+                    settings.DuplexBaseAddress,
+                    settings.MatchNotificationServicePath),
+                ServiceBindingKind.NetTcpDuplex);
         }
 
         private static string CombineAddress(string baseAddress, string servicePath)

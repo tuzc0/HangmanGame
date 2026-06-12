@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Configuration\HostingSettings.cs" />
     <Compile Include="Configuration\HostingSettingsProvider.cs" />
+    <Compile Include="Hosting\ServiceBindingKind.cs" />
     <Compile Include="Hosting\ServiceHostDefinition.cs" />
     <Compile Include="Hosting\ServiceHostFactory.cs" />
     <Compile Include="Hosting\ServiceHostManager.cs" />

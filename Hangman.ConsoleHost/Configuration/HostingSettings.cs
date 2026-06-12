@@ -4,6 +4,8 @@
     {
         public string BaseAddress { get; set; }
 
+        public string DuplexBaseAddress { get; set; }
+
         public string AuthServicePath { get; set; }
 
         public string ProfileServicePath { get; set; }
@@ -11,6 +13,8 @@
         public string WordServicePath { get; set; }
 
         public string MatchServicePath { get; set; }
+
+        public string MatchNotificationServicePath { get; set; }
 
         public long MaxReceivedMessageSize { get; set; }
 

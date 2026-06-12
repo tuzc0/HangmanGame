@@ -275,6 +275,108 @@ namespace Hangman.Business.Services
                 .FirstOrDefault();
         }
 
+        public async Task<GetCurrentLobbyResponse> GetCurrentLobbyAsync(
+    GetCurrentLobbyRequest request)
+        {
+            MatchMessageCode? validationResult =
+                MatchValidator.ValidateGetCurrentLobby(request);
+
+            if (validationResult.HasValue)
+            {
+                return BuildGetCurrentLobbyResponse(false, validationResult.Value, null);
+            }
+
+            using (var unitOfWork = unitOfWorkFactory.Create())
+            {
+                PlayerAvailabilityResult playerAvailability =
+                    await ValidatePlayerAvailabilityAsync(unitOfWork, request.AccountId);
+
+                if (!playerAvailability.IsAvailable)
+                {
+                    return BuildGetCurrentLobbyResponse(
+                        false,
+                        playerAvailability.MessageCode,
+                        null);
+                }
+
+                MatchTransporter currentMatch = await GetCurrentActiveMatchAsync(
+                    unitOfWork,
+                    playerAvailability.Player.PlayerId);
+
+                if (currentMatch == null)
+                {
+                    return BuildGetCurrentLobbyResponse(
+                        true,
+                        MatchMessageCode.NoActiveLobby,
+                        null);
+                }
+
+                return BuildGetCurrentLobbyResponse(
+                    true,
+                    MatchMessageCode.CurrentLobbyRetrieved,
+                    BuildMatchLobbyDto(currentMatch));
+            }
+        }
+
+        public async Task<LeaveLobbyResponse> LeaveLobbyAsync(LeaveLobbyRequest request)
+        {
+            MatchMessageCode? validationResult = MatchValidator.ValidateLeaveLobby(request);
+
+            if (validationResult.HasValue)
+            {
+                return BuildLeaveLobbyResponse(false, validationResult.Value);
+            }
+
+            using (var unitOfWork = unitOfWorkFactory.Create())
+            {
+                PlayerAvailabilityResult playerAvailability =
+                    await ValidatePlayerAvailabilityAsync(unitOfWork, request.AccountId);
+
+                if (!playerAvailability.IsAvailable)
+                {
+                    return BuildLeaveLobbyResponse(false, playerAvailability.MessageCode);
+                }
+
+                MatchTransporter match = await unitOfWork.Matches.GetByIdAsync(request.MatchId);
+
+                if (match == null)
+                {
+                    return BuildLeaveLobbyResponse(false, MatchMessageCode.MatchNotFound);
+                }
+
+                bool playerBelongsToMatch =
+                    match.HostId == playerAvailability.Player.PlayerId ||
+                    match.GuestId == playerAvailability.Player.PlayerId;
+
+                if (!playerBelongsToMatch)
+                {
+                    return BuildLeaveLobbyResponse(false, MatchMessageCode.LobbyLeaveNotAllowed);
+                }
+
+                if (!CanLeaveLobbyWithoutPenalty(match))
+                {
+                    return BuildLeaveLobbyResponse(false, MatchMessageCode.LobbyLeaveNotAllowed);
+                }
+
+                bool finished = await unitOfWork.Matches.FinishAsync(
+                    new FinishMatchTransporter
+                    {
+                        MatchId = match.MatchId,
+                        WinnerId = null,
+                        MatchStatus = MatchStatusConstants.Finished
+                    });
+
+                if (!finished)
+                {
+                    return BuildLeaveLobbyResponse(false, MatchMessageCode.LobbyLeaveFailed);
+                }
+
+                await unitOfWork.CommitAsync();
+
+                return BuildLeaveLobbyResponse(true, MatchMessageCode.LobbyLeft);
+            }
+        }
+
         private static MatchLobbyDto BuildMatchLobbyDto(MatchTransporter match)
         {
             if (match == null)
@@ -350,6 +452,76 @@ namespace Hangman.Business.Services
                 Success = success,
                 MessageCode = messageCode.ToString(),
                 Lobby = lobby
+            };
+        }
+
+        private static async Task<MatchTransporter> GetCurrentActiveMatchAsync(
+    DataAccess.Interfaces.IUnitOfWork unitOfWork,
+    int playerId)
+        {
+            List<MatchTransporter> matches = await unitOfWork.Matches.GetByPlayerIdAsync(playerId);
+
+            return matches
+                .Where(IsActiveMatch)
+                .OrderByDescending(match => match.CreatedAt)
+                .FirstOrDefault();
+        }
+
+        private static bool IsActiveMatch(MatchTransporter match)
+        {
+            if (match == null)
+            {
+                return false;
+            }
+
+            return match.MatchStatus == MatchStatusConstants.WaitingForGuest ||
+                   match.MatchStatus == MatchStatusConstants.VotingCategory ||
+                   match.MatchStatus == MatchStatusConstants.WaitingForHostWord ||
+                   match.MatchStatus == MatchStatusConstants.InProgress;
+        }
+
+        private static bool CanLeaveLobbyWithoutPenalty(MatchTransporter match)
+        {
+            if (match == null)
+            {
+                return false;
+            }
+
+            if (match.MatchStatus == MatchStatusConstants.WaitingForGuest)
+            {
+                return true;
+            }
+
+            if (match.MatchStatus == MatchStatusConstants.VotingCategory)
+            {
+                return !match.CategoryVotingEndsAt.HasValue ||
+                       DateTime.UtcNow <= match.CategoryVotingEndsAt.Value;
+            }
+
+            return false;
+        }
+
+        private static GetCurrentLobbyResponse BuildGetCurrentLobbyResponse(
+            bool success,
+            Enum messageCode,
+            MatchLobbyDto lobby)
+        {
+            return new GetCurrentLobbyResponse
+            {
+                Success = success,
+                MessageCode = messageCode.ToString(),
+                Lobby = lobby
+            };
+        }
+
+        private static LeaveLobbyResponse BuildLeaveLobbyResponse(
+            bool success,
+            Enum messageCode)
+        {
+            return new LeaveLobbyResponse
+            {
+                Success = success,
+                MessageCode = messageCode.ToString()
             };
         }
 
