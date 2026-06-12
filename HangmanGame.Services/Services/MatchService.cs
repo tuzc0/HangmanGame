@@ -5,6 +5,7 @@ using Hangman.Business.Services;
 using Hangman.Contracts.Contracts;
 using Hangman.Contracts.Match;
 using HangmanGame.Services.ExceptionHandling;
+using HangmanGame.Services.Notifications;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -35,7 +36,16 @@ namespace HangmanGame.Services.Services
         {
             try
             {
-                return await matchBusiness.CreateLobbyAsync(request);
+                CreateLobbyResponse response = await matchBusiness.CreateLobbyAsync(request);
+
+                if (response != null &&
+                    response.Success &&
+                    response.Lobby != null)
+                {
+                    MatchNotificationHub.NotifyAvailableLobbiesChanged();
+                }
+
+                return response;
             }
             catch (Exception exception)
             {
@@ -86,7 +96,22 @@ namespace HangmanGame.Services.Services
         {
             try
             {
-                return await matchBusiness.JoinLobbyAsync(request);
+                JoinLobbyResponse response = await matchBusiness.JoinLobbyAsync(request);
+
+                if (response != null &&
+                    response.Success &&
+                    response.Lobby != null)
+                {
+                    MatchNotificationHub.NotifyAvailableLobbiesChanged();
+
+                    MatchNotificationHub.NotifyLobbyUpdated(response.Lobby.MatchId);
+
+                    MatchNotificationHub.NotifyMatchStatusChanged(
+                        response.Lobby.MatchId,
+                        response.Lobby.MatchStatus);
+                }
+
+                return response;
             }
             catch (Exception exception)
             {
@@ -104,6 +129,70 @@ namespace HangmanGame.Services.Services
                     Success = false,
                     MessageCode = messageCode.ToString(),
                     Lobby = null
+                };
+            }
+        }
+
+        public async Task<GetCurrentLobbyResponse> GetCurrentLobbyAsync(
+    GetCurrentLobbyRequest request)
+        {
+            try
+            {
+                return await matchBusiness.GetCurrentLobbyAsync(request);
+            }
+            catch (Exception exception)
+            {
+                MatchMessageCode messageCode = ServiceExceptionMapper.MapMatch(exception);
+
+                Log.ErrorFormat(
+                    "Error executing GetCurrentLobbyAsync. MessageCode: {0}. AccountId: {1}",
+                    messageCode,
+                    request != null ? request.AccountId : 0,
+                    exception);
+
+                return new GetCurrentLobbyResponse
+                {
+                    Success = false,
+                    MessageCode = messageCode.ToString(),
+                    Lobby = null
+                };
+            }
+        }
+
+        public async Task<LeaveLobbyResponse> LeaveLobbyAsync(LeaveLobbyRequest request)
+        {
+            try
+            {
+                LeaveLobbyResponse response = await matchBusiness.LeaveLobbyAsync(request);
+
+                if (response != null &&
+                    response.Success &&
+                    request != null)
+                {
+                    MatchNotificationHub.NotifyLobbyClosed(
+                        request.MatchId,
+                        response.MessageCode);
+
+                    MatchNotificationHub.NotifyAvailableLobbiesChanged();
+                }
+
+                return response;
+            }
+            catch (Exception exception)
+            {
+                MatchMessageCode messageCode = ServiceExceptionMapper.MapMatch(exception);
+
+                Log.ErrorFormat(
+                    "Error executing LeaveLobbyAsync. MessageCode: {0}. MatchId: {1}. AccountId: {2}",
+                    messageCode,
+                    request != null ? request.MatchId : 0,
+                    request != null ? request.AccountId : 0,
+                    exception);
+
+                return new LeaveLobbyResponse
+                {
+                    Success = false,
+                    MessageCode = messageCode.ToString()
                 };
             }
         }

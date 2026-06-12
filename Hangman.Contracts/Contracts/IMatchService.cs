@@ -16,5 +16,12 @@ namespace Hangman.Contracts.Contracts
 
         [OperationContract]
         Task<JoinLobbyResponse> JoinLobbyAsync(JoinLobbyRequest request);
+
+        [OperationContract]
+        Task<GetCurrentLobbyResponse> GetCurrentLobbyAsync(
+            GetCurrentLobbyRequest request);
+
+        [OperationContract]
+        Task<LeaveLobbyResponse> LeaveLobbyAsync(LeaveLobbyRequest request);
     }
 }

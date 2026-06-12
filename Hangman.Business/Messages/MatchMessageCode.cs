@@ -5,6 +5,15 @@
         LobbyCreated,
         AvailableLobbiesRetrieved,
         LobbyJoined,
+        LobbySubscribed,
+        LobbyUnsubscribed,
+        LobbySubscriptionFailed,
+        LobbyUnsubscriptionFailed,
+
+        AvailableLobbySubscribed,
+        AvailableLobbyUnsubscribed,
+        AvailableLobbySubscriptionFailed,
+        AvailableLobbyUnsubscriptionFailed,
 
         InvalidAccountId,
         InvalidMatchId,
@@ -22,6 +31,11 @@
 
         LobbyCreationFailed,
         LobbyJoinFailed,
+        CurrentLobbyRetrieved,
+        NoActiveLobby,
+        LobbyLeft,
+        LobbyLeaveFailed,
+        LobbyLeaveNotAllowed,
 
         DatabaseConnectionError,
         DatabaseTimeout,

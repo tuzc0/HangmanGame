@@ -11,5 +11,10 @@ namespace Hangman.Business.Interfaces
             GetAvailableLobbiesRequest request);
 
         Task<JoinLobbyResponse> JoinLobbyAsync(JoinLobbyRequest request);
+
+        Task<GetCurrentLobbyResponse> GetCurrentLobbyAsync(
+            GetCurrentLobbyRequest request);
+
+        Task<LeaveLobbyResponse> LeaveLobbyAsync(LeaveLobbyRequest request);
     }
 }

@@ -43,19 +43,25 @@ namespace Hangman.Business.Validators
                 return ValidationResult.Fail(ProfileMessageCode.InvalidAccountId);
             }
 
-            if (string.IsNullOrWhiteSpace(request.FullName))
+            ValidationResult fullNameValidation = ValidateFullName(request.FullName);
+
+            if (!fullNameValidation.IsValid)
             {
-                return ValidationResult.Fail(ProfileMessageCode.FullNameRequired);
+                return fullNameValidation;
             }
 
-            if (request.DateOfBirth == default(DateTime) || request.DateOfBirth >= DateTime.Today)
+            ValidationResult dateValidation = ValidateDateOfBirth(request.DateOfBirth);
+
+            if (!dateValidation.IsValid)
             {
-                return ValidationResult.Fail(ProfileMessageCode.InvalidDateOfBirth);
+                return dateValidation;
             }
 
-            if (string.IsNullOrWhiteSpace(request.Phone))
+            ValidationResult phoneValidation = ValidatePhone(request.Phone);
+
+            if (!phoneValidation.IsValid)
             {
-                return ValidationResult.Fail(ProfileMessageCode.PhoneRequired);
+                return phoneValidation;
             }
 
             if (!IsValidLanguageCode(request.PreferredLanguageCode))
@@ -76,6 +82,70 @@ namespace Hangman.Business.Validators
             if (request.AccountId <= 0)
             {
                 return ValidationResult.Fail(ProfileMessageCode.InvalidAccountId);
+            }
+
+            return ValidationResult.Success();
+        }
+
+        private static ValidationResult ValidateFullName(string fullName)
+        {
+            if (string.IsNullOrWhiteSpace(fullName))
+            {
+                return ValidationResult.Fail(ProfileMessageCode.FullNameRequired);
+            }
+
+            string normalizedFullName = fullName.Trim();
+
+            if (normalizedFullName.Length < ValidationLimits.FullNameMinimumLength)
+            {
+                return ValidationResult.Fail(ProfileMessageCode.FullNameTooShort);
+            }
+
+            if (normalizedFullName.Length > ValidationLimits.FullNameMaximumLength)
+            {
+                return ValidationResult.Fail(ProfileMessageCode.FullNameTooLong);
+            }
+
+            return ValidationResult.Success();
+        }
+
+        private static ValidationResult ValidateDateOfBirth(DateTime dateOfBirth)
+        {
+            DateTime today = DateTime.Today;
+            DateTime minimumAllowedDate = today.AddYears(-ValidationLimits.MaximumAgeInYears);
+
+            if (dateOfBirth == default(DateTime) ||
+                dateOfBirth.Date >= today ||
+                dateOfBirth.Date < minimumAllowedDate)
+            {
+                return ValidationResult.Fail(ProfileMessageCode.InvalidDateOfBirth);
+            }
+
+            return ValidationResult.Success();
+        }
+
+        private static ValidationResult ValidatePhone(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone))
+            {
+                return ValidationResult.Fail(ProfileMessageCode.PhoneRequired);
+            }
+
+            string normalizedPhone = phone.Trim();
+
+            if (normalizedPhone.Length < ValidationLimits.PhoneMinimumLength)
+            {
+                return ValidationResult.Fail(ProfileMessageCode.PhoneTooShort);
+            }
+
+            if (normalizedPhone.Length > ValidationLimits.PhoneMaximumLength)
+            {
+                return ValidationResult.Fail(ProfileMessageCode.PhoneTooLong);
+            }
+
+            if (!normalizedPhone.All(char.IsDigit))
+            {
+                return ValidationResult.Fail(ProfileMessageCode.InvalidPhone);
             }
 
             return ValidationResult.Success();

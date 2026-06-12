@@ -21,6 +21,13 @@
         PlayerProfileNotAvailable,
         LoginSuccessful,
 
+        FullNameTooShort,
+        FullNameTooLong,
+        PhoneTooShort,
+        PhoneTooLong,
+        InvalidPhone,
+        EmailTooLong,
+
         VerificationEmailResendProcessed,
         VerificationEmailResent,
         VerificationEmailResendFailed,
