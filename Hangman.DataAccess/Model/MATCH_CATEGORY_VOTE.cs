@@ -19,6 +19,7 @@ namespace Hangman.DataAccess.Model
         public int player_id { get; set; }
         public int category_id { get; set; }
         public System.DateTime created_at { get; set; }
+        public Nullable<System.DateTime> updated_at { get; set; }
     
         public virtual CATEGORY CATEGORY { get; set; }
         public virtual MATCH MATCH { get; set; }

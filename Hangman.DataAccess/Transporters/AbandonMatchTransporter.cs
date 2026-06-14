@@ -6,6 +6,8 @@
 
         public int PenalizedUserId { get; set; }
 
+        public int WinnerId { get; set; }
+
         public string MatchStatus { get; set; }
     }
 }

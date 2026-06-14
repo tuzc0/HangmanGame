@@ -51,10 +51,10 @@ namespace HangmanGame.Services.Services
             {
                 MatchMessageCode messageCode = ServiceExceptionMapper.MapMatch(exception);
 
-                Log.ErrorFormat(
-                    "Error executing CreateLobbyAsync. MessageCode: {0}. HostAccountId: {1}",
+                Log.Error(
+                    string.Format("Error executing CreateLobbyAsync. MessageCode: {0}. HostAccountId: {1}",
                     messageCode,
-                    request != null ? request.HostAccountId : 0,
+                    request != null ? request.HostAccountId : 0),
                     exception);
 
                 return new CreateLobbyResponse
@@ -77,10 +77,11 @@ namespace HangmanGame.Services.Services
             {
                 MatchMessageCode messageCode = ServiceExceptionMapper.MapMatch(exception);
 
-                Log.ErrorFormat(
+                Log.Error(
+                    string.Format(
                     "Error executing GetAvailableLobbiesAsync. MessageCode: {0}. AccountId: {1}",
                     messageCode,
-                    request != null ? request.AccountId : 0,
+                    request != null ? request.AccountId : 0),
                     exception);
 
                 return new GetAvailableLobbiesResponse
@@ -117,11 +118,11 @@ namespace HangmanGame.Services.Services
             {
                 MatchMessageCode messageCode = ServiceExceptionMapper.MapMatch(exception);
 
-                Log.ErrorFormat(
-                    "Error executing JoinLobbyAsync. MessageCode: {0}. MatchId: {1}. GuestAccountId: {2}",
+                Log.Error(
+                    string.Format("Error executing JoinLobbyAsync. MessageCode: {0}. MatchId: {1}. GuestAccountId: {2}",
                     messageCode,
                     request != null ? request.MatchId : 0,
-                    request != null ? request.GuestAccountId : 0,
+                    request != null ? request.GuestAccountId : 0),
                     exception);
 
                 return new JoinLobbyResponse
@@ -144,10 +145,10 @@ namespace HangmanGame.Services.Services
             {
                 MatchMessageCode messageCode = ServiceExceptionMapper.MapMatch(exception);
 
-                Log.ErrorFormat(
-                    "Error executing GetCurrentLobbyAsync. MessageCode: {0}. AccountId: {1}",
+                Log.Error(
+                    string.Format("Error executing GetCurrentLobbyAsync. MessageCode: {0}. AccountId: {1}",
                     messageCode,
-                    request != null ? request.AccountId : 0,
+                    request != null ? request.AccountId : 0),
                     exception);
 
                 return new GetCurrentLobbyResponse
@@ -182,11 +183,11 @@ namespace HangmanGame.Services.Services
             {
                 MatchMessageCode messageCode = ServiceExceptionMapper.MapMatch(exception);
 
-                Log.ErrorFormat(
-                    "Error executing LeaveLobbyAsync. MessageCode: {0}. MatchId: {1}. AccountId: {2}",
+                Log.Error(
+                    string.Format("Error executing LeaveLobbyAsync. MessageCode: {0}. MatchId: {1}. AccountId: {2}",
                     messageCode,
                     request != null ? request.MatchId : 0,
-                    request != null ? request.AccountId : 0,
+                    request != null ? request.AccountId : 0),
                     exception);
 
                 return new LeaveLobbyResponse

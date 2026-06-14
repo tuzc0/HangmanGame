@@ -353,27 +353,47 @@ namespace Hangman.Business.Services
                     return BuildLeaveLobbyResponse(false, MatchMessageCode.LobbyLeaveNotAllowed);
                 }
 
-                if (!CanLeaveLobbyWithoutPenalty(match))
+                if (!IsActiveMatch(match))
                 {
-                    return BuildLeaveLobbyResponse(false, MatchMessageCode.LobbyLeaveNotAllowed);
+                    return BuildLeaveLobbyResponse(false, MatchMessageCode.MatchAlreadyResolved);
                 }
 
-                bool finished = await unitOfWork.Matches.FinishAsync(
-                    new FinishMatchTransporter
-                    {
-                        MatchId = match.MatchId,
-                        WinnerId = null,
-                        MatchStatus = MatchStatusConstants.Finished
-                    });
+                if (CanLeaveWithoutPenalty(match))
+                {
+                    bool finished = await FinishMatchWithoutPenaltyAsync(unitOfWork, match.MatchId);
 
-                if (!finished)
+                    if (!finished)
+                    {
+                        return BuildLeaveLobbyResponse(false, MatchMessageCode.LobbyLeaveFailed);
+                    }
+
+                    await unitOfWork.CommitAsync();
+
+                    return BuildLeaveLobbyResponse(true, MatchMessageCode.LobbyLeft);
+                }
+
+                int penalizedPlayerId = playerAvailability.Player.PlayerId;
+                int winnerPlayerId = GetWinnerPlayerId(match, penalizedPlayerId);
+
+                if (winnerPlayerId <= 0)
+                {
+                    return BuildLeaveLobbyResponse(false, MatchMessageCode.LobbyLeaveFailed);
+                }
+
+                bool abandoned = await RegisterPenalizedAbandonAsync(
+                    unitOfWork,
+                    match.MatchId,
+                    penalizedPlayerId,
+                    winnerPlayerId);
+
+                if (!abandoned)
                 {
                     return BuildLeaveLobbyResponse(false, MatchMessageCode.LobbyLeaveFailed);
                 }
 
                 await unitOfWork.CommitAsync();
 
-                return BuildLeaveLobbyResponse(true, MatchMessageCode.LobbyLeft);
+                return BuildLeaveLobbyResponse(true, MatchMessageCode.LobbyAbandoned);
             }
         }
 
@@ -393,6 +413,17 @@ namespace Hangman.Business.Services
                 GuestId = match.GuestId,
                 GuestFullName = match.GuestFullName,
                 GuestLanguageCode = match.GuestLanguageCode,
+
+                SelectedCategoryId = match.SelectedCategoryId,
+                SelectedCategoryName = match.HostCategoryName,
+                SelectedWordId = match.SelectedWordId,
+                WordSelectionStartedAt = match.WordSelectionStartedAt,
+                WordSelectionEndsAt = match.WordSelectionEndsAt,
+                StartedAt = match.StartedAt,
+                FinishedAt = match.FinishedAt,
+                WinnerId = match.WinnerId,
+                PenalizedUserId = match.PenalizedUserId,
+
                 MatchStatus = match.MatchStatus,
                 CreatedAt = match.CreatedAt,
                 JoinedAt = match.JoinedAt,
@@ -456,8 +487,8 @@ namespace Hangman.Business.Services
         }
 
         private static async Task<MatchTransporter> GetCurrentActiveMatchAsync(
-    DataAccess.Interfaces.IUnitOfWork unitOfWork,
-    int playerId)
+            DataAccess.Interfaces.IUnitOfWork unitOfWork,
+            int playerId)
         {
             List<MatchTransporter> matches = await unitOfWork.Matches.GetByPlayerIdAsync(playerId);
 
@@ -480,7 +511,7 @@ namespace Hangman.Business.Services
                    match.MatchStatus == MatchStatusConstants.InProgress;
         }
 
-        private static bool CanLeaveLobbyWithoutPenalty(MatchTransporter match)
+        private static bool CanLeaveWithoutPenalty(MatchTransporter match)
         {
             if (match == null)
             {
@@ -494,11 +525,89 @@ namespace Hangman.Business.Services
 
             if (match.MatchStatus == MatchStatusConstants.VotingCategory)
             {
-                return !match.CategoryVotingEndsAt.HasValue ||
-                       DateTime.UtcNow <= match.CategoryVotingEndsAt.Value;
+                DateTime safeLeaveDeadline = GetSafeLeaveDeadline(match);
+
+                return DateTime.UtcNow <= safeLeaveDeadline;
             }
 
             return false;
+        }
+
+        private static DateTime GetSafeLeaveDeadline(MatchTransporter match)
+        {
+            DateTime baseDate = match.CategoryVotingStartedAt
+                ?? match.JoinedAt
+                ?? match.CreatedAt;
+
+            return baseDate.AddSeconds(MatchTimingConstants.SafeLeaveDurationSeconds);
+        }
+
+        private static int GetWinnerPlayerId(
+            MatchTransporter match,
+            int penalizedPlayerId)
+        {
+            if (match == null)
+            {
+                return 0;
+            }
+
+            if (match.HostId == penalizedPlayerId)
+            {
+                return match.GuestId.HasValue ? match.GuestId.Value : 0;
+            }
+
+            if (match.GuestId.HasValue &&
+                match.GuestId.Value == penalizedPlayerId)
+            {
+                return match.HostId;
+            }
+
+            return 0;
+        }
+
+        private static async Task<bool> FinishMatchWithoutPenaltyAsync(
+            DataAccess.Interfaces.IUnitOfWork unitOfWork,
+            int matchId)
+        {
+            return await unitOfWork.Matches.FinishAsync(
+                new FinishMatchTransporter
+                {
+                    MatchId = matchId,
+                    WinnerId = null,
+                    MatchStatus = MatchStatusConstants.Finished
+                });
+        }
+
+        private static async Task<bool> RegisterPenalizedAbandonAsync(
+            DataAccess.Interfaces.IUnitOfWork unitOfWork,
+            int matchId,
+            int penalizedPlayerId,
+            int winnerPlayerId)
+        {
+            bool abandoned = await unitOfWork.Matches.RegisterAbandonAsync(
+                new AbandonMatchTransporter
+                {
+                    MatchId = matchId,
+                    PenalizedUserId = penalizedPlayerId,
+                    WinnerId = winnerPlayerId,
+                    MatchStatus = MatchStatusConstants.Abandoned
+                });
+
+            if (!abandoned)
+            {
+                return false;
+            }
+
+            unitOfWork.ScoreMovements.Add(
+                new CreateScoreMovementTransporter
+                {
+                    PlayerId = penalizedPlayerId,
+                    MatchId = matchId,
+                    Points = ScorePointsConstants.AbandonPenalty,
+                    MovementType = ScoreMovementTypeConstants.AbandonPenalty
+                });
+
+            return true;
         }
 
         private static GetCurrentLobbyResponse BuildGetCurrentLobbyResponse(

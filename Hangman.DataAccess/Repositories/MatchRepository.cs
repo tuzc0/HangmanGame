@@ -263,6 +263,7 @@ namespace Hangman.DataAccess.Repositories
 
             DateTime currentDate = DateTime.UtcNow;
 
+            entity.winner_id = match.WinnerId;
             entity.penalized_user_id = match.PenalizedUserId;
             entity.match_status = match.MatchStatus;
             entity.finished_at = currentDate;

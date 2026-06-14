@@ -39,10 +39,10 @@ namespace HangmanGame.Services.Services
             {
                 ProfileMessageCode messageCode = ServiceExceptionMapper.MapProfile(exception);
 
-                Log.ErrorFormat(
-                    "Error executing GetProfileAsync. MessageCode: {0}. AccountId: {1}",
+                Log.Error(
+                    string.Format("Error executing GetProfileAsync. MessageCode: {0}. AccountId: {1}",
                     messageCode,
-                    request != null ? request.AccountId : 0,
+                    request != null ? request.AccountId : 0),
                     exception);
 
                 return new GetProfileResponse
@@ -64,10 +64,10 @@ namespace HangmanGame.Services.Services
             {
                 ProfileMessageCode messageCode = ServiceExceptionMapper.MapProfile(exception);
 
-                Log.ErrorFormat(
-                    "Error executing UpdateProfileAsync. MessageCode: {0}. AccountId: {1}",
+                Log.Error(
+                    string.Format("Error executing UpdateProfileAsync. MessageCode: {0}. AccountId: {1}",
                     messageCode,
-                    request != null ? request.AccountId : 0,
+                    request != null ? request.AccountId : 0),
                     exception);
 
                 return new UpdateProfileResponse
@@ -89,10 +89,10 @@ namespace HangmanGame.Services.Services
             {
                 ProfileMessageCode messageCode = ServiceExceptionMapper.MapProfile(exception);
 
-                Log.ErrorFormat(
-                    "Error executing DeleteProfileAsync. MessageCode: {0}. AccountId: {1}",
+                Log.Error(
+                    string.Format("Error executing DeleteProfileAsync. MessageCode: {0}. AccountId: {1}",
                     messageCode,
-                    request != null ? request.AccountId : 0,
+                    request != null ? request.AccountId : 0),
                     exception);
 
                 return new DeleteProfileResponse

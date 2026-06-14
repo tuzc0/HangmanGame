@@ -61,6 +61,7 @@
     <Compile Include="Helpers\EmailNormalizer.cs" />
     <Compile Include="Interfaces\IAuthBusiness.cs" />
     <Compile Include="Interfaces\IMatchBusiness.cs" />
+    <Compile Include="Interfaces\IMatchGameplayBusiness.cs" />
     <Compile Include="Interfaces\IProfileBusiness.cs" />
     <Compile Include="Interfaces\IWordBusiness.cs" />
     <Compile Include="Mappers\AuthResponseFactory.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="Security\VerificationCodeGenerator.cs" />
     <Compile Include="Services\AuthBusiness.cs" />
     <Compile Include="Services\MatchBusiness.cs" />
+    <Compile Include="Services\MatchGameplayBusiness.cs" />
     <Compile Include="Services\ProfileBusiness.cs" />
     <Compile Include="Services\WordBusiness.cs" />
     <Compile Include="UserCases\Auth\LoginUseCase.cs" />
@@ -84,6 +86,7 @@
     <Compile Include="UserCases\Auth\ResetPasswordUseCase.cs" />
     <Compile Include="UserCases\Auth\VerifyEmailUseCase.cs" />
     <Compile Include="Validators\AuthValidator.cs" />
+    <Compile Include="Validators\MatchGameplayValidator.cs" />
     <Compile Include="Validators\MatchValidator.cs" />
     <Compile Include="Validators\ProfileValidator.cs" />
     <Compile Include="Validators\ValidationLimits.cs" />

@@ -44,6 +44,11 @@ namespace Hangman.ConsoleHost.Hosting
                     settings.DuplexBaseAddress,
                     settings.MatchNotificationServicePath),
                 ServiceBindingKind.NetTcpDuplex);
+
+            yield return new ServiceHostDefinition(
+                typeof(MatchGameplayService),
+                typeof(IMatchGameplayService),
+                CombineAddress(settings.BaseAddress, settings.MatchGameplayServicePath));
         }
 
         private static string CombineAddress(string baseAddress, string servicePath)

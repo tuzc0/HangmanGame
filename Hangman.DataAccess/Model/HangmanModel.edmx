@@ -91,6 +91,7 @@
           <Property Name="player_id" Type="int" Nullable="false" />
           <Property Name="category_id" Type="int" Nullable="false" />
           <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+          <Property Name="updated_at" Type="datetime2" Precision="7" />
         </EntityType>
         <EntityType Name="MATCH_GUESS">
           <Key>
@@ -922,6 +923,7 @@
           <NavigationProperty Name="CATEGORY" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_CATEGORY" FromRole="MATCH_CATEGORY_VOTE" ToRole="CATEGORY" />
           <NavigationProperty Name="MATCH" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_MATCH" FromRole="MATCH_CATEGORY_VOTE" ToRole="MATCH" />
           <NavigationProperty Name="PLAYER" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_PLAYER" FromRole="MATCH_CATEGORY_VOTE" ToRole="PLAYER" />
+          <Property Name="updated_at" Type="DateTime" Precision="7" />
         </EntityType>
         <EntityType Name="WORD">
           <Key>
@@ -1308,6 +1310,7 @@
           <EntitySetMapping Name="MATCH_CATEGORY_VOTE">
             <EntityTypeMapping TypeName="HangmanDBModel.MATCH_CATEGORY_VOTE">
               <MappingFragment StoreEntitySet="MATCH_CATEGORY_VOTE">
+                <ScalarProperty Name="updated_at" ColumnName="updated_at" />
                 <ScalarProperty Name="created_at" ColumnName="created_at" />
                 <ScalarProperty Name="category_id" ColumnName="category_id" />
                 <ScalarProperty Name="player_id" ColumnName="player_id" />

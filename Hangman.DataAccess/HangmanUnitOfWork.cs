@@ -24,6 +24,8 @@ namespace Hangman.DataAccess
 
         private IMatchRepository matchRepository;
 
+        private IMatchCategoryVoteRepository matchCategoryVoteRepository;
+
         private bool disposed;
 
         public HangmanUnitOfWork(HangmanDBEntities context)
@@ -122,6 +124,19 @@ namespace Hangman.DataAccess
                 }
 
                 return matchRepository;
+            }
+        }
+
+        public IMatchCategoryVoteRepository MatchCategoryVotes
+        {
+            get
+            {
+                if (matchCategoryVoteRepository == null)
+                {
+                    matchCategoryVoteRepository = new MatchCategoryVoteRepository(context);
+                }
+
+                return matchCategoryVoteRepository;
             }
         }
 
