@@ -65,12 +65,16 @@
     <Compile Include="Interfaces\IProfileBusiness.cs" />
     <Compile Include="Interfaces\IWordBusiness.cs" />
     <Compile Include="Mappers\AuthResponseFactory.cs" />
+    <Compile Include="Mappers\ProfileMapper.cs" />
+    <Compile Include="Mappers\ProfileResponseFactory.cs" />
     <Compile Include="Messages\AuthMessageCode.cs" />
     <Compile Include="Messages\MatchMessageCode.cs" />
     <Compile Include="Messages\ProfileMessageCode.cs" />
     <Compile Include="Messages\WordMessageCode.cs" />
     <Compile Include="Policies\AccountAvailabilityPolicy.cs" />
+    <Compile Include="Policies\PlayerAvailabilityPolicy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Results\PlayerAvailabilityResult.cs" />
     <Compile Include="Results\ValidationResult.cs" />
     <Compile Include="Security\PasswordHasher.cs" />
     <Compile Include="Security\VerificationCodeGenerator.cs" />
@@ -85,6 +89,9 @@
     <Compile Include="UserCases\Auth\ResendVerificationEmailUseCase.cs" />
     <Compile Include="UserCases\Auth\ResetPasswordUseCase.cs" />
     <Compile Include="UserCases\Auth\VerifyEmailUseCase.cs" />
+    <Compile Include="UserCases\Profile\DeleteProfileUseCase.cs" />
+    <Compile Include="UserCases\Profile\GetProfileUseCase.cs" />
+    <Compile Include="UserCases\Profile\UpdateProfileUseCase.cs" />
     <Compile Include="Validators\AuthValidator.cs" />
     <Compile Include="Validators\MatchGameplayValidator.cs" />
     <Compile Include="Validators\MatchValidator.cs" />
@@ -102,6 +109,10 @@
       <Name>Hangman.DataAccess</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="UserCases\MatchGameplay\CategoryVoting\" />
+    <Folder Include="UserCases\MatchGameplay\WordSelection\" />
+    <Folder Include="UserCases\Match\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
