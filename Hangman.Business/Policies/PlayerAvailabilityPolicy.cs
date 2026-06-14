@@ -10,9 +10,39 @@ namespace Hangman.Business.Policies
 {
     internal static class PlayerAvailabilityPolicy
     {
-        public static async Task<PlayerAvailabilityResult> ValidateForProfileAsync(
+        public static Task<PlayerAvailabilityResult> ValidateForProfileAsync(
             IUnitOfWork unitOfWork,
             int accountId)
+        {
+            return ValidateAsync(
+                unitOfWork,
+                accountId,
+                ProfileMessageCode.AccountNotFound,
+                ProfileMessageCode.AccountNotAvailable,
+                ProfileMessageCode.EmailVerificationRequired,
+                ProfileMessageCode.PlayerProfileNotAvailable);
+        }
+
+        public static Task<PlayerAvailabilityResult> ValidateForMatchAsync(
+            IUnitOfWork unitOfWork,
+            int accountId)
+        {
+            return ValidateAsync(
+                unitOfWork,
+                accountId,
+                MatchMessageCode.AccountNotFound,
+                MatchMessageCode.AccountNotAvailable,
+                MatchMessageCode.EmailVerificationRequired,
+                MatchMessageCode.PlayerProfileNotAvailable);
+        }
+
+        private static async Task<PlayerAvailabilityResult> ValidateAsync(
+            IUnitOfWork unitOfWork,
+            int accountId,
+            Enum accountNotFoundCode,
+            Enum accountNotAvailableCode,
+            Enum emailVerificationRequiredCode,
+            Enum playerProfileNotAvailableCode)
         {
             if (unitOfWork == null)
             {
@@ -21,42 +51,33 @@ namespace Hangman.Business.Policies
 
             AccountTransporter account = await unitOfWork.Accounts.GetByIdAsync(accountId);
 
-            return await ValidateForProfileAsync(unitOfWork, account);
-        }
-
-        private static async Task<PlayerAvailabilityResult> ValidateForProfileAsync(
-            IUnitOfWork unitOfWork,
-            AccountTransporter account)
-        {
             if (account == null)
             {
-                return PlayerAvailabilityResult.Fail(ProfileMessageCode.AccountNotFound);
+                return PlayerAvailabilityResult.Fail(accountNotFoundCode);
             }
 
             if (account.AccountStatus == AccountStatusConstants.Blocked ||
                 account.AccountStatus == AccountStatusConstants.Deleted)
             {
-                return PlayerAvailabilityResult.Fail(ProfileMessageCode.AccountNotAvailable);
+                return PlayerAvailabilityResult.Fail(accountNotAvailableCode);
             }
 
             if (!account.IsEmailVerified ||
                 account.AccountStatus == AccountStatusConstants.PendingVerification)
             {
-                return PlayerAvailabilityResult.Fail(
-                    ProfileMessageCode.EmailVerificationRequired);
+                return PlayerAvailabilityResult.Fail(emailVerificationRequiredCode);
             }
 
             if (account.AccountStatus != AccountStatusConstants.Active)
             {
-                return PlayerAvailabilityResult.Fail(ProfileMessageCode.AccountNotAvailable);
+                return PlayerAvailabilityResult.Fail(accountNotAvailableCode);
             }
 
             PlayerTransporter player = await unitOfWork.Players.GetByIdAsync(account.PlayerId);
 
             if (player == null || !player.IsActive)
             {
-                return PlayerAvailabilityResult.Fail(
-                    ProfileMessageCode.PlayerProfileNotAvailable);
+                return PlayerAvailabilityResult.Fail(playerProfileNotAvailableCode);
             }
 
             return PlayerAvailabilityResult.Success(account, player);

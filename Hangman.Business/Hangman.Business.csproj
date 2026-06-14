@@ -59,12 +59,16 @@
     <Compile Include="Factories\IUnitOfWorkFactory.cs" />
     <Compile Include="Factories\UnitOfWorkFactory.cs" />
     <Compile Include="Helpers\EmailNormalizer.cs" />
+    <Compile Include="Helpers\MatchCompletionHelper.cs" />
+    <Compile Include="Helpers\MatchWinnerResolver.cs" />
     <Compile Include="Interfaces\IAuthBusiness.cs" />
     <Compile Include="Interfaces\IMatchBusiness.cs" />
     <Compile Include="Interfaces\IMatchGameplayBusiness.cs" />
     <Compile Include="Interfaces\IProfileBusiness.cs" />
     <Compile Include="Interfaces\IWordBusiness.cs" />
     <Compile Include="Mappers\AuthResponseFactory.cs" />
+    <Compile Include="Mappers\MatchMapper.cs" />
+    <Compile Include="Mappers\MatchResponseFactory.cs" />
     <Compile Include="Mappers\ProfileMapper.cs" />
     <Compile Include="Mappers\ProfileResponseFactory.cs" />
     <Compile Include="Messages\AuthMessageCode.cs" />
@@ -72,6 +76,8 @@
     <Compile Include="Messages\ProfileMessageCode.cs" />
     <Compile Include="Messages\WordMessageCode.cs" />
     <Compile Include="Policies\AccountAvailabilityPolicy.cs" />
+    <Compile Include="Policies\ActiveMatchPolicy.cs" />
+    <Compile Include="Policies\LobbyLeavePolicy.cs" />
     <Compile Include="Policies\PlayerAvailabilityPolicy.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Results\PlayerAvailabilityResult.cs" />
@@ -89,6 +95,11 @@
     <Compile Include="UserCases\Auth\ResendVerificationEmailUseCase.cs" />
     <Compile Include="UserCases\Auth\ResetPasswordUseCase.cs" />
     <Compile Include="UserCases\Auth\VerifyEmailUseCase.cs" />
+    <Compile Include="UserCases\Match\CreateLobbyUseCase.cs" />
+    <Compile Include="UserCases\Match\GetAvailableLobbiesUseCase.cs" />
+    <Compile Include="UserCases\Match\GetCurrentLobbyUseCase.cs" />
+    <Compile Include="UserCases\Match\JoinLobbyUseCase.cs" />
+    <Compile Include="UserCases\Match\LeaveLobbyUseCase.cs" />
     <Compile Include="UserCases\Profile\DeleteProfileUseCase.cs" />
     <Compile Include="UserCases\Profile\GetProfileUseCase.cs" />
     <Compile Include="UserCases\Profile\UpdateProfileUseCase.cs" />
@@ -112,7 +123,6 @@
   <ItemGroup>
     <Folder Include="UserCases\MatchGameplay\CategoryVoting\" />
     <Folder Include="UserCases\MatchGameplay\WordSelection\" />
-    <Folder Include="UserCases\Match\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
