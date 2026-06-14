@@ -8,9 +8,14 @@ namespace Hangman.Business.Validators
         public static MatchMessageCode? ValidateVoteCategory(
             VoteCategoryRequest request)
         {
+            if (request == null)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
             MatchMessageCode? basicValidation = ValidateMatchAndAccount(
-                request == null ? 0 : request.MatchId,
-                request == null ? 0 : request.AccountId);
+                request.MatchId,
+                request.AccountId);
 
             if (basicValidation.HasValue)
             {
@@ -28,33 +33,53 @@ namespace Hangman.Business.Validators
         public static MatchMessageCode? ValidateGetCategoryVotingState(
             GetCategoryVotingStateRequest request)
         {
+            if (request == null)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
             return ValidateMatchAndAccount(
-                request == null ? 0 : request.MatchId,
-                request == null ? 0 : request.AccountId);
+                request.MatchId,
+                request.AccountId);
         }
 
         public static MatchMessageCode? ValidateResolveCategoryVoting(
             ResolveCategoryVotingRequest request)
         {
+            if (request == null)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
             return ValidateMatchAndAccount(
-                request == null ? 0 : request.MatchId,
-                request == null ? 0 : request.AccountId);
+                request.MatchId,
+                request.AccountId);
         }
 
         public static MatchMessageCode? ValidateGetSelectableWords(
             GetSelectableWordsRequest request)
         {
+            if (request == null)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
             return ValidateMatchAndAccount(
-                request == null ? 0 : request.MatchId,
-                request == null ? 0 : request.AccountId);
+                request.MatchId,
+                request.AccountId);
         }
 
         public static MatchMessageCode? ValidateSelectWord(
             SelectWordRequest request)
         {
+            if (request == null)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
             MatchMessageCode? basicValidation = ValidateMatchAndAccount(
-                request == null ? 0 : request.MatchId,
-                request == null ? 0 : request.AccountId);
+                request.MatchId,
+                request.AccountId);
 
             if (basicValidation.HasValue)
             {
