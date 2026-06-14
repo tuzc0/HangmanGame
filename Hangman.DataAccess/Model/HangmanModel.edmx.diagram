@@ -21,7 +21,7 @@
         <EntityTypeShape EntityType="HangmanDBModel.CATEGORY" Width="1.5" PointX="3.75" PointY="0.75" />
         <EntityTypeShape EntityType="HangmanDBModel.CATEGORY_TRANSLATION" Width="1.5" PointX="6" PointY="5" />
         <EntityTypeShape EntityType="HangmanDBModel.MATCH" Width="1.5" PointX="10.25" PointY="10.5" />
-        <EntityTypeShape EntityType="HangmanDBModel.MATCH_CATEGORY_VOTE" Width="1.5" PointX="12.5" PointY="11.875" />
+        <EntityTypeShape EntityType="HangmanDBModel.MATCH_CATEGORY_VOTE" Width="2.125" PointX="12.5" PointY="11.875" />
         <EntityTypeShape EntityType="HangmanDBModel.WORD" Width="1.5" PointX="0.75" PointY="3.875" />
         <EntityTypeShape EntityType="HangmanDBModel.WORD_TRANSLATION" Width="1.5" PointX="3" PointY="4.625" />
         <AssociationConnector Association="HangmanDBModel.FK_CATEGORY_TRANSLATION_CATEGORY" />

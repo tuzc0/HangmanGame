@@ -41,10 +41,10 @@ namespace HangmanGame.Services.Services
             {
                 WordMessageCode messageCode = ServiceExceptionMapper.MapWord(exception);
 
-                Log.ErrorFormat(
-                    "Error executing GetCategoriesByLanguageAsync. MessageCode: {0}. LanguageCode: {1}",
+                Log.Error(
+                    string.Format("Error executing GetCategoriesByLanguageAsync. MessageCode: {0}. LanguageCode: {1}",
                     messageCode,
-                    request != null ? request.LanguageCode : string.Empty,
+                    request != null ? request.LanguageCode : string.Empty),
                     exception);
 
                 return new GetCategoriesByLanguageResponse

@@ -58,6 +58,7 @@
     <Compile Include="HangmanUnitOfWork.cs" />
     <Compile Include="Interfaces\IAccountRepository.cs" />
     <Compile Include="Interfaces\IEmailVerificationRepository.cs" />
+    <Compile Include="Interfaces\IMatchCategoryVoteRepository.cs" />
     <Compile Include="Interfaces\IMatchRepository.cs" />
     <Compile Include="Interfaces\IPlayerRepository.cs" />
     <Compile Include="Interfaces\IScoreMovementRepository.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Repositories\AccountRepository.cs" />
     <Compile Include="Repositories\EmailVerificationRepository.cs" />
     <Compile Include="Interfaces\IPasswordResetTokenRepository.cs" />
+    <Compile Include="Repositories\MatchCategoryVoteRepository.cs" />
     <Compile Include="Repositories\MatchRepository.cs" />
     <Compile Include="Repositories\PasswordResetTokenRepository.cs" />
     <Compile Include="Repositories\PlayerRepository.cs" />
@@ -143,10 +145,12 @@
     <Compile Include="Transporters\FinishMatchTransporter.cs" />
     <Compile Include="Transporters\JoinMatchTransporter.cs" />
     <Compile Include="Transporters\MarkEmailAsVerifiedTransporter.cs" />
+    <Compile Include="Transporters\MatchCategoryVoteTransporter.cs" />
     <Compile Include="Transporters\MatchTransporter.cs" />
     <Compile Include="Transporters\PasswordResetTokenTransporter.cs" />
     <Compile Include="Transporters\PlayerScoreSummaryTransporter.cs" />
     <Compile Include="Transporters\PlayerTransporter.cs" />
+    <Compile Include="Transporters\SaveMatchCategoryVoteTransporter.cs" />
     <Compile Include="Transporters\ScoreMovementTransporter.cs" />
     <Compile Include="Transporters\SelectMatchCategoryTransporter.cs" />
     <Compile Include="Transporters\SelectMatchWordTransporter.cs" />

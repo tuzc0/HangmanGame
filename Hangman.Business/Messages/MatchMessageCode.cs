@@ -35,7 +35,35 @@
         NoActiveLobby,
         LobbyLeft,
         LobbyLeaveFailed,
+        LobbyAbandoned,
         LobbyLeaveNotAllowed,
+
+        CategoryVoteRegistered,
+        CategoryVoteUpdated,
+        CategoryVotingStateRetrieved,
+        CategoryVotingNotActive,
+        CategoryVotingExpired,
+        CategoryVotingResolved,
+        CategoryVotingResolveFailed,
+
+        InvalidCategoryId,
+        CategoryNotAvailable,
+        NoCategoryVotesAvailable,
+
+        WordSelectionStarted,
+        WordSelectionStateRetrieved,
+        WordSelectionNotActive,
+        WordSelectionNotAllowed,
+        WordSelectionExpired,
+
+        InvalidWordId,
+        WordNotAvailable,
+        WordSelected,
+        WordSelectionFailed,
+
+        PlayerNotInMatch,
+        PlayerNotHost,
+        MatchAlreadyResolved,
 
         DatabaseConnectionError,
         DatabaseTimeout,

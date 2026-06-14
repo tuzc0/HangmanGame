@@ -102,10 +102,10 @@ namespace HangmanGame.Services.Notifications
                 }
                 catch (Exception exception)
                 {
-                    Log.ErrorFormat(
-                        "Error notifying lobby update. MatchId: {0}. AccountId: {1}",
+                    Log.Error(
+                        string.Format("Error notifying lobby update. MatchId: {0}. AccountId: {1}",
                         matchId,
-                        subscription.AccountId,
+                        subscription.AccountId),
                         exception);
 
                     Unsubscribe(matchId, subscription.AccountId);
@@ -123,10 +123,10 @@ namespace HangmanGame.Services.Notifications
                 }
                 catch (Exception exception)
                 {
-                    Log.ErrorFormat(
-                        "Error notifying lobby closed. MatchId: {0}. AccountId: {1}",
+                    Log.Error(
+                        string.Format("Error notifying lobby closed. MatchId: {0}. AccountId: {1}",
                         matchId,
-                        subscription.AccountId,
+                        subscription.AccountId),
                         exception);
                 }
             }
@@ -144,10 +144,10 @@ namespace HangmanGame.Services.Notifications
                 }
                 catch (Exception exception)
                 {
-                    Log.ErrorFormat(
-                        "Error notifying match status changed. MatchId: {0}. AccountId: {1}",
+                    Log.Error(
+                        string.Format("Error notifying match status changed. MatchId: {0}. AccountId: {1}",
                         matchId,
-                        subscription.AccountId,
+                        subscription.AccountId),
                         exception);
 
                     Unsubscribe(matchId, subscription.AccountId);
@@ -244,9 +244,10 @@ namespace HangmanGame.Services.Notifications
                 }
                 catch (Exception exception)
                 {
-                    Log.ErrorFormat(
+                    Log.Error(
+                        string.Format(
                         "Error notifying available lobbies changed. AccountId: {0}",
-                        subscription.AccountId,
+                        subscription.AccountId),
                         exception);
 
                     UnsubscribeAvailableLobbies(subscription.AccountId);

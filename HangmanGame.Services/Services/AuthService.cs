@@ -40,9 +40,10 @@ namespace HangmanGame.Services.Services
             {
                 AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
 
-                Log.ErrorFormat("Error executing RegisterAsync. MessageCode: {0}. Email: {1}",
+                Log.Error(
+                    string.Format("Error executing RegisterAsync. MessageCode: {0}. Email: {1}",
                     messageCode,
-                    request != null ? request.Email : "null",
+                    request != null ? request.Email : "null"),
                     exception);
 
                 return new RegisterResponse
@@ -67,9 +68,10 @@ namespace HangmanGame.Services.Services
             {
                 AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
 
-                Log.ErrorFormat("Error executing LoginAsync. MessageCode: {0}. Email: {1}",
+                Log.Error(
+                    string.Format("Error executing LoginAsync. MessageCode: {0}. Email: {1}",
                     messageCode,
-                    request != null ? request.Email : "null",
+                    request != null ? request.Email : "null"),
                     exception);
 
                 return new LoginResponse
@@ -91,9 +93,10 @@ namespace HangmanGame.Services.Services
             {
                 AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
 
-                Log.ErrorFormat("Error executing VerifyEmailAsync. MessageCode: {0}. Email: {1}",
+                Log.Error(
+                    string.Format("Error executing VerifyEmailAsync. MessageCode: {0}. Email: {1}",
                     messageCode,
-                    request != null ? request.Email : "null",
+                    request != null ? request.Email : "null"),
                     exception);
 
                 return new VerifyEmailResponse
@@ -117,9 +120,10 @@ namespace HangmanGame.Services.Services
             {
                 AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
 
-                Log.ErrorFormat("Error executing ResendVerificationEmailAsync. MessageCode: {0}. Email: {1}",
+                Log.Error(
+                    string.Format("Error executing ResendVerificationEmailAsync. MessageCode: {0}. Email: {1}",
                     messageCode,
-                    request != null ? request.Email : "null",
+                    request != null ? request.Email : "null"),
                     exception);
 
                 return new ResendVerificationEmailResponse
@@ -132,7 +136,7 @@ namespace HangmanGame.Services.Services
         }
 
         public async Task<RequestPasswordResetResponse> RequestPasswordResetAsync(
-    RequestPasswordResetRequest request)
+            RequestPasswordResetRequest request)
         {
             try
             {
@@ -142,9 +146,10 @@ namespace HangmanGame.Services.Services
             {
                 AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
 
-                Log.ErrorFormat("Error executing RequestPasswordResetAsync. MessageCode: {0}. Email: {1}",
+                Log.Error(
+                    string.Format("Error executing RequestPasswordResetAsync. MessageCode: {0}. Email: {1}",
                     messageCode,
-                    request != null ? request.Email : "null",
+                    request != null ? request.Email : "null"),
                     exception);
 
                 return new RequestPasswordResetResponse
@@ -165,9 +170,10 @@ namespace HangmanGame.Services.Services
             {
                 AuthMessageCode messageCode = ServiceExceptionMapper.Map(exception);
 
-                Log.ErrorFormat("Error executing ResetPasswordAsync. MessageCode: {0}. Email: {1}",
+                Log.Error(
+                    string.Format("Error executing ResetPasswordAsync. MessageCode: {0}. Email: {1}",
                     messageCode,
-                    request != null ? request.Email : "null",
+                    request != null ? request.Email : "null"),
                     exception);
 
                 return new ResetPasswordResponse

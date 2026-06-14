@@ -14,6 +14,8 @@
 
         public string MatchServicePath { get; set; }
 
+        public string MatchGameplayServicePath { get; set; }
+
         public string MatchNotificationServicePath { get; set; }
 
         public long MaxReceivedMessageSize { get; set; }
