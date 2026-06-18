@@ -42,6 +42,9 @@
         <AssociationConnector Association="HangmanDBModel.FK_SCORE_MOVEMENT_MATCH" />
         <AssociationConnector Association="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_PLAYER" />
         <AssociationConnector Association="HangmanDBModel.FK_WORD_TRANSLATION_WORD" />
+        <EntityTypeShape EntityType="HangmanDBModel.MATCH_WORD_GUESS" Width="2.25" PointX="12.5" PointY="8.25" />
+        <AssociationConnector Association="HangmanDBModel.FK_MATCH_WORD_GUESS_MATCH" />
+        <AssociationConnector Association="HangmanDBModel.FK_MATCH_WORD_GUESS_PLAYER" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

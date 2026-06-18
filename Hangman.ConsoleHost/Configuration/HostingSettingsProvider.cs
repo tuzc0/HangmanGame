@@ -7,7 +7,9 @@ namespace Hangman.ConsoleHost.Configuration
         private const string DefaultBaseAddress = "http://localhost:8085/Hangman/";
         private const string DefaultDuplexBaseAddress = "net.tcp://localhost:8090/Hangman/";
         private const string DefaultMatchNotificationServicePath = "MatchNotificationService";
+        private const string DefaultMatchChatServicePath = "MatchChatService";
         private const string DefaultMatchGameplayServicePath = "MatchGameplayService";
+        private const string DefaultMatchGuessServicePath = "MatchGuessService";
         private const string DefaultAuthServicePath = "AuthService/";
         private const long DefaultMaxReceivedMessageSize = 65536;
         private const int DefaultOpenTimeoutSeconds = 30;
@@ -24,7 +26,9 @@ namespace Hangman.ConsoleHost.Configuration
                 BaseAddress = GetString("Wcf.BaseAddress", DefaultBaseAddress),
                 DuplexBaseAddress = GetString("Wcf.DuplexBaseAddress", DefaultDuplexBaseAddress),
                 MatchNotificationServicePath = GetString("Wcf.MatchNotificationServicePath", DefaultMatchNotificationServicePath),
+                MatchChatServicePath = GetString("Wcf.MatchChatServicePath", DefaultMatchChatServicePath),
                 MatchGameplayServicePath = GetString("Wcf.MatchGameplayServicePath", DefaultMatchGameplayServicePath),
+                MatchGuessServicePath = GetString("Wcf.MatchGuessServicePath", DefaultMatchGuessServicePath),
                 AuthServicePath = GetString("Wcf.AuthServicePath", DefaultAuthServicePath),
                 ProfileServicePath = GetString("Wcf.ProfileServicePath", "ProfileService"),
                 WordServicePath = GetString("Wcf.WordServicePath", "WordService"),
@@ -53,9 +57,8 @@ namespace Hangman.ConsoleHost.Configuration
 
         private static int GetInt(string key, int defaultValue)
         {
-            int value;
 
-            if (int.TryParse(ConfigurationManager.AppSettings[key], out value) && value > 0)
+            if (int.TryParse(ConfigurationManager.AppSettings[key], out int value) && value > 0)
             {
                 return value;
             }

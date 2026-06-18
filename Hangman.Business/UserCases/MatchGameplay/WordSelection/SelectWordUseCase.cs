@@ -106,11 +106,17 @@ namespace Hangman.Business.UserCases.MatchGameplay.WordSelection
                         null);
                 }
 
+                DateTime currentDate = DateTime.UtcNow;
+
                 bool selected = await unitOfWork.Matches.UpdateSelectedWordAsync(
                     new SelectMatchWordTransporter
                     {
                         MatchId = match.MatchId,
                         SelectedWordId = request.WordId,
+                        StartedAt = currentDate,
+                        GuessTurnStartedAt = currentDate,
+                        GuessTurnEndsAt = currentDate.AddSeconds(
+                            GuessConstants.GuessTurnDurationSeconds),
                         MatchStatus = MatchStatusConstants.InProgress
                     });
 

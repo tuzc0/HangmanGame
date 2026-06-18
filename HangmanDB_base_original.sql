@@ -490,3 +490,38 @@ VALUES
 (@ComputerWordId, N'es', N'computadora', N'Dispositivo electrónico usado para procesar información.'),
 (@ComputerWordId, N'en', N'computer', N'Electronic device used to process information.');
 GO
+
+ALTER TABLE dbo.[MATCH]
+ADD
+    guess_turn_started_at DATETIME2 NULL,
+    guess_turn_ends_at DATETIME2 NULL;
+GO
+
+CREATE TABLE dbo.MATCH_WORD_GUESS
+(
+    word_guess_id INT IDENTITY(1,1) NOT NULL,
+    match_id INT NOT NULL,
+    guessed_by_id INT NOT NULL,
+    guessed_word NVARCHAR(120) NOT NULL,
+    is_correct BIT NOT NULL,
+    created_at DATETIME2 NOT NULL CONSTRAINT DF_MATCH_WORD_GUESS_created_at DEFAULT SYSUTCDATETIME(),
+
+    CONSTRAINT PK_MATCH_WORD_GUESS PRIMARY KEY (word_guess_id),
+
+    CONSTRAINT FK_MATCH_WORD_GUESS_MATCH
+        FOREIGN KEY (match_id)
+        REFERENCES dbo.[MATCH](match_id),
+
+    CONSTRAINT FK_MATCH_WORD_GUESS_PLAYER
+        FOREIGN KEY (guessed_by_id)
+        REFERENCES dbo.PLAYER(player_id)
+);
+GO
+
+CREATE INDEX IX_MATCH_WORD_GUESS_match_id
+ON dbo.MATCH_WORD_GUESS(match_id);
+GO
+
+CREATE INDEX IX_MATCH_WORD_GUESS_guessed_by_id
+ON dbo.MATCH_WORD_GUESS(guessed_by_id);
+GO

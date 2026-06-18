@@ -38,5 +38,6 @@ namespace Hangman.DataAccess.Model
         public virtual DbSet<MATCH_CATEGORY_VOTE> MATCH_CATEGORY_VOTE { get; set; }
         public virtual DbSet<WORD> WORDs { get; set; }
         public virtual DbSet<WORD_TRANSLATION> WORD_TRANSLATION { get; set; }
+        public virtual DbSet<MATCH_WORD_GUESS> MATCH_WORD_GUESS { get; set; }
     }
 }

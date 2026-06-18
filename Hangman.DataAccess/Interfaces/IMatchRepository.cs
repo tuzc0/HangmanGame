@@ -26,6 +26,8 @@ namespace Hangman.DataAccess.Interfaces
 
         Task<bool> UpdateSelectedWordAsync(SelectMatchWordTransporter match);
 
+        Task<bool> UpdateGuessTurnAsync(UpdateGuessTurnTransporter match);
+
         Task<bool> IncrementFailedAttemptsAsync(int matchId);
 
         Task<bool> UpdateStatusAsync(UpdateMatchStatusTransporter match);

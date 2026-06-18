@@ -1,4 +1,5 @@
 ﻿using Hangman.Contracts.Contracts;
+using Hangman.Contracts.Match;
 using log4net;
 using System;
 using System.Collections.Generic;
@@ -251,6 +252,33 @@ namespace HangmanGame.Services.Notifications
                         exception);
 
                     UnsubscribeAvailableLobbies(subscription.AccountId);
+                }
+            }
+        }
+
+        public static void NotifyChatMessageReceived(MatchChatMessageDto message)
+        {
+            if (message == null || message.MatchId <= 0)
+            {
+                return;
+            }
+
+            foreach (MatchClientSubscription subscription in GetSubscriptionsSnapshot(message.MatchId))
+            {
+                try
+                {
+                    subscription.Callback.OnMatchChatMessageReceived(message);
+                }
+                catch (Exception exception)
+                {
+                    Log.Error(
+                        string.Format(
+                            "Error notifying chat message. MatchId: {0}. AccountId: {1}",
+                            message.MatchId,
+                            subscription.AccountId),
+                        exception);
+
+                    Unsubscribe(message.MatchId, subscription.AccountId);
                 }
             }
         }

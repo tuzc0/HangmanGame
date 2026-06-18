@@ -21,6 +21,10 @@ namespace Hangman.DataAccess.Interfaces
 
         IMatchCategoryVoteRepository MatchCategoryVotes { get; }
 
+        IMatchGuessRepository MatchGuesses { get; }
+
+        IMatchWordGuessRepository MatchWordGuesses { get; }
+
         Task<int> CommitAsync();
     }
 }
