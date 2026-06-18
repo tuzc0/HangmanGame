@@ -56,6 +56,29 @@
         WordSelectionNotAllowed,
         WordSelectionExpired,
 
+        GameStateRetrieved,
+
+        InvalidLetter,
+        LetterAlreadyGuessed,
+        LetterGuessRegistered,
+        CorrectLetterGuess,
+        IncorrectLetterGuess,
+
+        InvalidWordGuess,
+        WordGuessCorrect,
+        WordGuessIncorrect,
+
+        GuessTimeoutResolved,
+        GuessTurnExpired,
+        GuessTurnStillActive,
+
+        GuesserWon,
+        HostWon,
+        MatchFinished,
+        GuessNotAllowed,
+        GameNotInProgress,
+        GuessTurnNotStarted,
+
         InvalidWordId,
         WordNotAvailable,
         WordSelected,

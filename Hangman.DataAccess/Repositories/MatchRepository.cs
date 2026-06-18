@@ -103,6 +103,8 @@ namespace Hangman.DataAccess.Repositories
                 category_voting_ends_at = null,
                 word_selection_started_at = null,
                 word_selection_ends_at = null,
+                guess_turn_started_at = null,
+                guess_turn_ends_at = null,
                 started_at = null,
                 finished_at = null,
                 match_status = match.MatchStatus,
@@ -180,9 +182,34 @@ namespace Hangman.DataAccess.Repositories
                 return false;
             }
 
+            DateTime currentDate = DateTime.UtcNow;
+
             entity.selected_word_id = match.SelectedWordId;
-            entity.started_at = DateTime.UtcNow;
+            entity.started_at = match.StartedAt ?? currentDate;
+            entity.guess_turn_started_at = match.GuessTurnStartedAt;
+            entity.guess_turn_ends_at = match.GuessTurnEndsAt;
             entity.match_status = match.MatchStatus;
+
+            return true;
+        }
+
+        public async Task<bool> UpdateGuessTurnAsync(UpdateGuessTurnTransporter match)
+        {
+            if (match == null)
+            {
+                throw new ArgumentNullException(nameof(match));
+            }
+
+            MATCH entity = await context.MATCHes
+                .FirstOrDefaultAsync(item => item.match_id == match.MatchId);
+
+            if (entity == null)
+            {
+                return false;
+            }
+
+            entity.guess_turn_started_at = match.GuessTurnStartedAt;
+            entity.guess_turn_ends_at = match.GuessTurnEndsAt;
 
             return true;
         }
@@ -242,6 +269,8 @@ namespace Hangman.DataAccess.Repositories
             entity.winner_id = match.WinnerId;
             entity.match_status = match.MatchStatus;
             entity.finished_at = currentDate;
+            entity.guess_turn_started_at = null;
+            entity.guess_turn_ends_at = null;
 
             return true;
         }
@@ -267,6 +296,8 @@ namespace Hangman.DataAccess.Repositories
             entity.penalized_user_id = match.PenalizedUserId;
             entity.match_status = match.MatchStatus;
             entity.finished_at = currentDate;
+            entity.guess_turn_started_at = null;
+            entity.guess_turn_ends_at = null;
 
             return true;
         }
@@ -375,6 +406,8 @@ namespace Hangman.DataAccess.Repositories
                     CategoryVotingEndsAt = match.category_voting_ends_at,
                     WordSelectionStartedAt = match.word_selection_started_at,
                     WordSelectionEndsAt = match.word_selection_ends_at,
+                    GuessTurnStartedAt = match.guess_turn_started_at,
+                    GuessTurnEndsAt = match.guess_turn_ends_at,
                     StartedAt = match.started_at,
                     FinishedAt = match.finished_at,
 

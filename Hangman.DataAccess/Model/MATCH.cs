@@ -20,6 +20,7 @@ namespace Hangman.DataAccess.Model
             this.MATCH_CATEGORY_VOTE = new HashSet<MATCH_CATEGORY_VOTE>();
             this.MATCH_GUESS = new HashSet<MATCH_GUESS>();
             this.SCORE_MOVEMENT = new HashSet<SCORE_MOVEMENT>();
+            this.MATCH_WORD_GUESS = new HashSet<MATCH_WORD_GUESS>();
         }
     
         public int match_id { get; set; }
@@ -42,6 +43,8 @@ namespace Hangman.DataAccess.Model
         public Nullable<int> penalized_user_id { get; set; }
         public int failed_attempts { get; set; }
         public int max_attempts { get; set; }
+        public Nullable<System.DateTime> guess_turn_started_at { get; set; }
+        public Nullable<System.DateTime> guess_turn_ends_at { get; set; }
     
         public virtual CATEGORY CATEGORY { get; set; }
         public virtual LANGUAGE LANGUAGE { get; set; }
@@ -57,5 +60,7 @@ namespace Hangman.DataAccess.Model
         public virtual PLAYER PLAYER3 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SCORE_MOVEMENT> SCORE_MOVEMENT { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MATCH_WORD_GUESS> MATCH_WORD_GUESS { get; set; }
     }
 }

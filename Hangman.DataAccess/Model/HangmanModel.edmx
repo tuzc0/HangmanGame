@@ -81,6 +81,8 @@
           <Property Name="penalized_user_id" Type="int" />
           <Property Name="failed_attempts" Type="int" Nullable="false" />
           <Property Name="max_attempts" Type="int" Nullable="false" />
+          <Property Name="guess_turn_started_at" Type="datetime2" Precision="7" />
+          <Property Name="guess_turn_ends_at" Type="datetime2" Precision="7" />
         </EntityType>
         <EntityType Name="MATCH_CATEGORY_VOTE">
           <Key>
@@ -101,6 +103,17 @@
           <Property Name="match_id" Type="int" Nullable="false" />
           <Property Name="guessed_by_id" Type="int" Nullable="false" />
           <Property Name="letter" Type="nvarchar" MaxLength="1" Nullable="false" />
+          <Property Name="is_correct" Type="bit" Nullable="false" />
+          <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
+        </EntityType>
+        <EntityType Name="MATCH_WORD_GUESS">
+          <Key>
+            <PropertyRef Name="word_guess_id" />
+          </Key>
+          <Property Name="word_guess_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="match_id" Type="int" Nullable="false" />
+          <Property Name="guessed_by_id" Type="int" Nullable="false" />
+          <Property Name="guessed_word" Type="nvarchar" MaxLength="120" Nullable="false" />
           <Property Name="is_correct" Type="bit" Nullable="false" />
           <Property Name="created_at" Type="datetime2" Precision="7" Nullable="false" />
         </EntityType>
@@ -365,6 +378,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_MATCH_WORD_GUESS_MATCH">
+          <End Role="MATCH" Type="Self.MATCH" Multiplicity="1" />
+          <End Role="MATCH_WORD_GUESS" Type="Self.MATCH_WORD_GUESS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="MATCH_WORD_GUESS">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_WORD_GUESS_PLAYER">
+          <End Role="PLAYER" Type="Self.PLAYER" Multiplicity="1" />
+          <End Role="MATCH_WORD_GUESS" Type="Self.MATCH_WORD_GUESS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH_WORD_GUESS">
+              <PropertyRef Name="guessed_by_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_PASSWORD_RESET_TOKEN_ACCOUNT">
           <End Role="ACCOUNT" Type="Self.ACCOUNT" Multiplicity="1" />
           <End Role="PASSWORD_RESET_TOKEN" Type="Self.PASSWORD_RESET_TOKEN" Multiplicity="*" />
@@ -458,6 +495,7 @@
           <EntitySet Name="MATCH" EntityType="Self.MATCH" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MATCH_CATEGORY_VOTE" EntityType="Self.MATCH_CATEGORY_VOTE" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="MATCH_GUESS" EntityType="Self.MATCH_GUESS" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="MATCH_WORD_GUESS" EntityType="Self.MATCH_WORD_GUESS" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PASSWORD_RESET_TOKEN" EntityType="Self.PASSWORD_RESET_TOKEN" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="PLAYER" EntityType="Self.PLAYER" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SCORE_MOVEMENT" EntityType="Self.SCORE_MOVEMENT" Schema="dbo" store:Type="Tables" />
@@ -530,6 +568,14 @@
           <AssociationSet Name="FK_MATCH_WINNER_PLAYER" Association="Self.FK_MATCH_WINNER_PLAYER">
             <End Role="PLAYER" EntitySet="PLAYER" />
             <End Role="MATCH" EntitySet="MATCH" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_WORD_GUESS_MATCH" Association="Self.FK_MATCH_WORD_GUESS_MATCH">
+            <End Role="MATCH" EntitySet="MATCH" />
+            <End Role="MATCH_WORD_GUESS" EntitySet="MATCH_WORD_GUESS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_WORD_GUESS_PLAYER" Association="Self.FK_MATCH_WORD_GUESS_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYER" />
+            <End Role="MATCH_WORD_GUESS" EntitySet="MATCH_WORD_GUESS" />
           </AssociationSet>
           <AssociationSet Name="FK_PASSWORD_RESET_TOKEN_ACCOUNT" Association="Self.FK_PASSWORD_RESET_TOKEN_ACCOUNT">
             <End Role="ACCOUNT" EntitySet="ACCOUNT" />
@@ -640,6 +686,7 @@
           <NavigationProperty Name="MATCHes2" Relationship="HangmanDBModel.FK_MATCH_PENALIZED_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
           <NavigationProperty Name="MATCHes3" Relationship="HangmanDBModel.FK_MATCH_WINNER_PLAYER" FromRole="PLAYER" ToRole="MATCH" />
           <NavigationProperty Name="MATCH_CATEGORY_VOTE" Relationship="HangmanDBModel.FK_MATCH_CATEGORY_VOTE_PLAYER" FromRole="PLAYER" ToRole="MATCH_CATEGORY_VOTE" />
+          <NavigationProperty Name="MATCH_WORD_GUESS" Relationship="HangmanDBModel.FK_MATCH_WORD_GUESS_PLAYER" FromRole="PLAYER" ToRole="MATCH_WORD_GUESS" />
         </EntityType>
         <EntityType Name="SCORE_MOVEMENT">
           <Key>
@@ -824,6 +871,15 @@
             <End Role="WORD" EntitySet="WORDs" />
             <End Role="WORD_TRANSLATION" EntitySet="WORD_TRANSLATION" />
           </AssociationSet>
+          <EntitySet Name="MATCH_WORD_GUESS" EntityType="HangmanDBModel.MATCH_WORD_GUESS" />
+          <AssociationSet Name="FK_MATCH_WORD_GUESS_MATCH" Association="HangmanDBModel.FK_MATCH_WORD_GUESS_MATCH">
+            <End Role="MATCH" EntitySet="MATCHes" />
+            <End Role="MATCH_WORD_GUESS" EntitySet="MATCH_WORD_GUESS" />
+          </AssociationSet>
+          <AssociationSet Name="FK_MATCH_WORD_GUESS_PLAYER" Association="HangmanDBModel.FK_MATCH_WORD_GUESS_PLAYER">
+            <End Role="PLAYER" EntitySet="PLAYERs" />
+            <End Role="MATCH_WORD_GUESS" EntitySet="MATCH_WORD_GUESS" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="PASSWORD_RESET_TOKEN">
           <Key>
@@ -910,6 +966,9 @@
           <NavigationProperty Name="WORD" Relationship="HangmanDBModel.FK_MATCH_SELECTED_WORD" FromRole="MATCH" ToRole="WORD" />
           <NavigationProperty Name="PLAYER3" Relationship="HangmanDBModel.FK_MATCH_WINNER_PLAYER" FromRole="MATCH" ToRole="PLAYER" />
           <NavigationProperty Name="SCORE_MOVEMENT" Relationship="HangmanDBModel.FK_SCORE_MOVEMENT_MATCH" FromRole="MATCH" ToRole="SCORE_MOVEMENT" />
+          <Property Name="guess_turn_started_at" Type="DateTime" Precision="7" />
+          <Property Name="guess_turn_ends_at" Type="DateTime" Precision="7" />
+          <NavigationProperty Name="MATCH_WORD_GUESS" Relationship="HangmanDBModel.FK_MATCH_WORD_GUESS_MATCH" FromRole="MATCH" ToRole="MATCH_WORD_GUESS" />
         </EntityType>
         <EntityType Name="MATCH_CATEGORY_VOTE">
           <Key>
@@ -1167,6 +1226,43 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="MATCH_WORD_GUESS">
+          <Key>
+            <PropertyRef Name="word_guess_id" />
+          </Key>
+          <Property Name="word_guess_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="match_id" Type="Int32" Nullable="false" />
+          <Property Name="guessed_by_id" Type="Int32" Nullable="false" />
+          <Property Name="guessed_word" Type="String" Nullable="false" MaxLength="120" FixedLength="false" Unicode="true" />
+          <Property Name="is_correct" Type="Boolean" Nullable="false" />
+          <Property Name="created_at" Type="DateTime" Nullable="false" Precision="7" />
+          <NavigationProperty Name="MATCH" Relationship="HangmanDBModel.FK_MATCH_WORD_GUESS_MATCH" FromRole="MATCH_WORD_GUESS" ToRole="MATCH" />
+          <NavigationProperty Name="PLAYER" Relationship="HangmanDBModel.FK_MATCH_WORD_GUESS_PLAYER" FromRole="MATCH_WORD_GUESS" ToRole="PLAYER" />
+        </EntityType>
+        <Association Name="FK_MATCH_WORD_GUESS_MATCH">
+          <End Type="HangmanDBModel.MATCH" Role="MATCH" Multiplicity="1" />
+          <End Type="HangmanDBModel.MATCH_WORD_GUESS" Role="MATCH_WORD_GUESS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="MATCH">
+              <PropertyRef Name="match_id" />
+            </Principal>
+            <Dependent Role="MATCH_WORD_GUESS">
+              <PropertyRef Name="match_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_MATCH_WORD_GUESS_PLAYER">
+          <End Type="HangmanDBModel.PLAYER" Role="PLAYER" Multiplicity="1" />
+          <End Type="HangmanDBModel.MATCH_WORD_GUESS" Role="MATCH_WORD_GUESS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="PLAYER">
+              <PropertyRef Name="player_id" />
+            </Principal>
+            <Dependent Role="MATCH_WORD_GUESS">
+              <PropertyRef Name="guessed_by_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1284,6 +1380,8 @@
           <EntitySetMapping Name="MATCHes">
             <EntityTypeMapping TypeName="HangmanDBModel.MATCH">
               <MappingFragment StoreEntitySet="MATCH">
+                <ScalarProperty Name="guess_turn_ends_at" ColumnName="guess_turn_ends_at" />
+                <ScalarProperty Name="guess_turn_started_at" ColumnName="guess_turn_started_at" />
                 <ScalarProperty Name="max_attempts" ColumnName="max_attempts" />
                 <ScalarProperty Name="failed_attempts" ColumnName="failed_attempts" />
                 <ScalarProperty Name="penalized_user_id" ColumnName="penalized_user_id" />
@@ -1339,6 +1437,18 @@
                 <ScalarProperty Name="language_code" ColumnName="language_code" />
                 <ScalarProperty Name="word_id" ColumnName="word_id" />
                 <ScalarProperty Name="word_translation_id" ColumnName="word_translation_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="MATCH_WORD_GUESS">
+            <EntityTypeMapping TypeName="HangmanDBModel.MATCH_WORD_GUESS">
+              <MappingFragment StoreEntitySet="MATCH_WORD_GUESS">
+                <ScalarProperty Name="created_at" ColumnName="created_at" />
+                <ScalarProperty Name="is_correct" ColumnName="is_correct" />
+                <ScalarProperty Name="guessed_word" ColumnName="guessed_word" />
+                <ScalarProperty Name="guessed_by_id" ColumnName="guessed_by_id" />
+                <ScalarProperty Name="match_id" ColumnName="match_id" />
+                <ScalarProperty Name="word_guess_id" ColumnName="word_guess_id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -59,7 +59,9 @@
     <Compile Include="Interfaces\IAccountRepository.cs" />
     <Compile Include="Interfaces\IEmailVerificationRepository.cs" />
     <Compile Include="Interfaces\IMatchCategoryVoteRepository.cs" />
+    <Compile Include="Interfaces\IMatchGuessRepository.cs" />
     <Compile Include="Interfaces\IMatchRepository.cs" />
+    <Compile Include="Interfaces\IMatchWordGuessRepository.cs" />
     <Compile Include="Interfaces\IPlayerRepository.cs" />
     <Compile Include="Interfaces\IScoreMovementRepository.cs" />
     <Compile Include="Interfaces\IUnitOfWork.cs" />
@@ -103,6 +105,9 @@
     <Compile Include="Model\MATCH_GUESS.cs">
       <DependentUpon>HangmanModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Model\MATCH_WORD_GUESS.cs">
+      <DependentUpon>HangmanModel.tt</DependentUpon>
+    </Compile>
     <Compile Include="Model\PASSWORD_RESET_TOKEN.cs">
       <DependentUpon>HangmanModel.tt</DependentUpon>
     </Compile>
@@ -123,7 +128,9 @@
     <Compile Include="Repositories\EmailVerificationRepository.cs" />
     <Compile Include="Interfaces\IPasswordResetTokenRepository.cs" />
     <Compile Include="Repositories\MatchCategoryVoteRepository.cs" />
+    <Compile Include="Repositories\MatchGuessRepository.cs" />
     <Compile Include="Repositories\MatchRepository.cs" />
+    <Compile Include="Repositories\MatchWordGuessRepository.cs" />
     <Compile Include="Repositories\PasswordResetTokenRepository.cs" />
     <Compile Include="Repositories\PlayerRepository.cs" />
     <Compile Include="Repositories\ScoreMovementRepository.cs" />
@@ -135,7 +142,9 @@
     <Compile Include="Transporters\CategoryTransporter.cs" />
     <Compile Include="Transporters\CreateAccountTransporter.cs" />
     <Compile Include="Transporters\CreateEmailVerificationTransporter.cs" />
+    <Compile Include="Transporters\CreateMatchGuessTransporter.cs" />
     <Compile Include="Transporters\CreateMatchTransporter.cs" />
+    <Compile Include="Transporters\CreateMatchWordGuessTransporter.cs" />
     <Compile Include="Transporters\CreatePasswordResetTokenTransporter.cs" />
     <Compile Include="Transporters\CreatePendingAccountTransporter.cs" />
     <Compile Include="Transporters\CreatePlayerTransporter.cs" />
@@ -146,7 +155,9 @@
     <Compile Include="Transporters\JoinMatchTransporter.cs" />
     <Compile Include="Transporters\MarkEmailAsVerifiedTransporter.cs" />
     <Compile Include="Transporters\MatchCategoryVoteTransporter.cs" />
+    <Compile Include="Transporters\MatchGuessTransporter.cs" />
     <Compile Include="Transporters\MatchTransporter.cs" />
+    <Compile Include="Transporters\MatchWordGuessTransporter.cs" />
     <Compile Include="Transporters\PasswordResetTokenTransporter.cs" />
     <Compile Include="Transporters\PlayerScoreSummaryTransporter.cs" />
     <Compile Include="Transporters\PlayerTransporter.cs" />
@@ -154,6 +165,7 @@
     <Compile Include="Transporters\ScoreMovementTransporter.cs" />
     <Compile Include="Transporters\SelectMatchCategoryTransporter.cs" />
     <Compile Include="Transporters\SelectMatchWordTransporter.cs" />
+    <Compile Include="Transporters\UpdateGuessTurnTransporter.cs" />
     <Compile Include="Transporters\UpdateMatchStatusTransporter.cs" />
     <Compile Include="Transporters\UpdatePlayerActiveStatusTransporter.cs" />
     <Compile Include="Transporters\UpdatePlayerProfileTransporter.cs" />

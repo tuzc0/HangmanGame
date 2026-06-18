@@ -25,6 +25,7 @@ namespace Hangman.DataAccess.Model
             this.MATCHes2 = new HashSet<MATCH>();
             this.MATCHes3 = new HashSet<MATCH>();
             this.MATCH_CATEGORY_VOTE = new HashSet<MATCH_CATEGORY_VOTE>();
+            this.MATCH_WORD_GUESS = new HashSet<MATCH_WORD_GUESS>();
         }
     
         public int player_id { get; set; }
@@ -52,5 +53,7 @@ namespace Hangman.DataAccess.Model
         public virtual ICollection<MATCH> MATCHes3 { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<MATCH_CATEGORY_VOTE> MATCH_CATEGORY_VOTE { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<MATCH_WORD_GUESS> MATCH_WORD_GUESS { get; set; }
     }
 }

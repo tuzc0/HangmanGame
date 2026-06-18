@@ -50,6 +50,10 @@ namespace Hangman.DataAccess.Transporters
 
         public DateTime? WordSelectionEndsAt { get; set; }
 
+        public DateTime? GuessTurnStartedAt { get; set; }
+
+        public DateTime? GuessTurnEndsAt { get; set; }
+
         public DateTime? StartedAt { get; set; }
 
         public DateTime? FinishedAt { get; set; }
