@@ -20,6 +20,8 @@
 
         public string MatchNotificationServicePath { get; set; }
 
+        public string MatchChatServicePath { get; set; }
+
         public long MaxReceivedMessageSize { get; set; }
 
         public int OpenTimeoutSeconds { get; set; }

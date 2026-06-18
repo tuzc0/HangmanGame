@@ -54,6 +54,11 @@ namespace Hangman.ConsoleHost.Hosting
                 typeof(MatchGuessService),
                 typeof(IMatchGuessService),
                 CombineAddress(settings.BaseAddress, settings.MatchGuessServicePath));
+
+            yield return new ServiceHostDefinition(
+                typeof(MatchChatService),
+                typeof(IMatchChatService),
+                CombineAddress(settings.BaseAddress, settings.MatchChatServicePath));
         }
 
         private static string CombineAddress(string baseAddress, string servicePath)

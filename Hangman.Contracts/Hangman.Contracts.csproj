@@ -57,6 +57,7 @@
     <Compile Include="Auth\VerifyEmailRequest.cs" />
     <Compile Include="Auth\VerifyEmailResponse.cs" />
     <Compile Include="Contracts\IAuthService.cs" />
+    <Compile Include="Contracts\IMatchChatService.cs" />
     <Compile Include="Contracts\IMatchGameplayService.cs" />
     <Compile Include="Contracts\IMatchGuessService.cs" />
     <Compile Include="Contracts\IMatchNotificationCallback.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Match\LeaveLobbyRequest.cs" />
     <Compile Include="Match\LeaveLobbyResponse.cs" />
     <Compile Include="Match\LetterSlotDto.cs" />
+    <Compile Include="Match\MatchChatMessageDto.cs" />
     <Compile Include="Match\MatchGameStateDto.cs" />
     <Compile Include="Match\MatchLobbyDto.cs" />
     <Compile Include="Match\ResolveCategoryVotingRequest.cs" />
@@ -99,6 +101,8 @@
     <Compile Include="Match\SelectableWordDto.cs" />
     <Compile Include="Match\SelectWordRequest.cs" />
     <Compile Include="Match\SelectWordResponse.cs" />
+    <Compile Include="Match\SendMatchChatMessageRequest.cs" />
+    <Compile Include="Match\SendMatchChatMessageResponse.cs" />
     <Compile Include="Match\SubscribeAvailableLobbiesRequest.cs" />
     <Compile Include="Match\SubscribeAvailableLobbiesResponse.cs" />
     <Compile Include="Match\SubscribeMatchRequest.cs" />

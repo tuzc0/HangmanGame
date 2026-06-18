@@ -1,4 +1,5 @@
-﻿using System.ServiceModel;
+﻿using Hangman.Contracts.Match;
+using System.ServiceModel;
 
 namespace Hangman.Contracts.Contracts
 {
@@ -15,5 +16,8 @@ namespace Hangman.Contracts.Contracts
 
         [OperationContract(IsOneWay = true)]
         void OnAvailableLobbiesChanged();
+
+        [OperationContract(IsOneWay = true)]
+        void OnMatchChatMessageReceived(MatchChatMessageDto message);
     }
 }
