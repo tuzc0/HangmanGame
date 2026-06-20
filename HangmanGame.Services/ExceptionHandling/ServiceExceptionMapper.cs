@@ -277,6 +277,75 @@ namespace HangmanGame.Services.ExceptionHandling
             return MatchMessageCode.UnexpectedError;
         }
 
+        public static ScoreMessageCode MapScore(Exception exception)
+        {
+            if (exception == null)
+            {
+                return ScoreMessageCode.UnexpectedError;
+            }
+
+            Exception baseException = exception.GetBaseException();
+
+            if (exception is TimeoutException || baseException is TimeoutException)
+            {
+                return ScoreMessageCode.DatabaseTimeout;
+            }
+
+            SqlException sqlException = exception as SqlException
+                ?? baseException as SqlException;
+
+            if (sqlException != null)
+            {
+                return MapScoreSqlException(sqlException);
+            }
+
+            if (exception is DbUpdateException ||
+                exception is EntityException ||
+                baseException is DbUpdateException ||
+                baseException is EntityException)
+            {
+                return ScoreMessageCode.DatabaseUnavailable;
+            }
+
+            if (exception is ConfigurationErrorsException ||
+                baseException is ConfigurationErrorsException)
+            {
+                return ScoreMessageCode.ConfigurationError;
+            }
+
+            if (exception is InvalidOperationException ||
+                exception is ArgumentException ||
+                baseException is InvalidOperationException ||
+                baseException is ArgumentException)
+            {
+                return ScoreMessageCode.RuntimeError;
+            }
+
+            return ScoreMessageCode.UnexpectedError;
+        }
+
+        private static ScoreMessageCode MapScoreSqlException(SqlException sqlException)
+        {
+            switch (sqlException.Number)
+            {
+                case -2:
+                    return ScoreMessageCode.DatabaseTimeout;
+
+                case 2:
+                case 26:
+                case 40:
+                case 53:
+                case 4060:
+                case 10060:
+                case 10061:
+                case 18456:
+                    return ScoreMessageCode.DatabaseConnectionError;
+
+                default:
+                    return ScoreMessageCode.DatabaseUnavailable;
+            }
+        }
+
         private static MatchMessageCode MapMatchSqlException(SqlException sqlException)
         {
             switch (sqlException.Number)

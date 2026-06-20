@@ -64,6 +64,7 @@
     <Compile Include="Contracts\IMatchNotificationService.cs" />
     <Compile Include="Contracts\IMatchService.cs" />
     <Compile Include="Contracts\IProfileService.cs" />
+    <Compile Include="Contracts\IScoreService.cs" />
     <Compile Include="Contracts\IWordService.cs" />
     <Compile Include="Match\AvailableLobbyDto.cs" />
     <Compile Include="Match\CategoryVoteDto.cs" />
@@ -78,6 +79,8 @@
     <Compile Include="Match\GetCurrentLobbyResponse.cs" />
     <Compile Include="Match\GetMatchGameStateRequest.cs" />
     <Compile Include="Match\GetMatchGameStateResponse.cs" />
+    <Compile Include="Match\GetPlayerScoreRequest.cs" />
+    <Compile Include="Match\GetPlayerScoreResponse.cs" />
     <Compile Include="Match\GetSelectableWordsRequest.cs" />
     <Compile Include="Match\GetSelectableWordsResponse.cs" />
     <Compile Include="Match\GuessHistoryDto.cs" />
@@ -98,6 +101,7 @@
     <Compile Include="Match\ResolveCategoryVotingResponse.cs" />
     <Compile Include="Match\ResolveGuessTimeoutRequest.cs" />
     <Compile Include="Match\ResolveGuessTimeoutResponse.cs" />
+    <Compile Include="Match\ScoreMovementDto.cs" />
     <Compile Include="Match\SelectableWordDto.cs" />
     <Compile Include="Match\SelectWordRequest.cs" />
     <Compile Include="Match\SelectWordResponse.cs" />

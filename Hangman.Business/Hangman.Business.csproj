@@ -74,6 +74,7 @@
     <Compile Include="Helpers\WordProgressBuilder.cs" />
     <Compile Include="Interfaces\IAuthBusiness.cs" />
     <Compile Include="Interfaces\IMatchBusiness.cs" />
+    <Compile Include="Interfaces\IScoreBusiness.cs" />
     <Compile Include="Interfaces\IMatchChatBusiness.cs" />
     <Compile Include="Interfaces\IMatchGameplayBusiness.cs" />
     <Compile Include="Interfaces\IMatchGuessBusiness.cs" />
@@ -88,10 +89,13 @@
     <Compile Include="Mappers\MatchResponseFactory.cs" />
     <Compile Include="Mappers\ProfileMapper.cs" />
     <Compile Include="Mappers\ProfileResponseFactory.cs" />
+    <Compile Include="Mappers\ScoreMapper.cs" />
+    <Compile Include="Mappers\ScoreResponseFactory.cs" />
     <Compile Include="Mappers\SelectableWordMapper.cs" />
     <Compile Include="Messages\AuthMessageCode.cs" />
     <Compile Include="Messages\MatchMessageCode.cs" />
     <Compile Include="Messages\ProfileMessageCode.cs" />
+    <Compile Include="Messages\ScoreMessageCode.cs" />
     <Compile Include="Messages\WordMessageCode.cs" />
     <Compile Include="Policies\AccountAvailabilityPolicy.cs" />
     <Compile Include="Policies\ActiveMatchPolicy.cs" />
@@ -113,6 +117,7 @@
     <Compile Include="Services\MatchGameplayBusiness.cs" />
     <Compile Include="Services\MatchGuessBusiness.cs" />
     <Compile Include="Services\ProfileBusiness.cs" />
+    <Compile Include="Services\ScoreBusiness.cs" />
     <Compile Include="Services\WordBusiness.cs" />
     <Compile Include="UserCases\Auth\LoginUseCase.cs" />
     <Compile Include="UserCases\Auth\RegisterUseCase.cs" />
@@ -129,6 +134,7 @@
     <Compile Include="UserCases\MatchGuess\GuessLetterUseCase.cs" />
     <Compile Include="UserCases\MatchGuess\GuessWordUseCase.cs" />
     <Compile Include="UserCases\MatchGuess\ResolveGuessTimeoutUseCase.cs" />
+    <Compile Include="UserCases\Score\GetPlayerScoreUseCase.cs" />
     <Compile Include="UserCases\Match\CreateLobbyUseCase.cs" />
     <Compile Include="UserCases\Match\GetAvailableLobbiesUseCase.cs" />
     <Compile Include="UserCases\Match\GetCurrentLobbyUseCase.cs" />
@@ -142,6 +148,7 @@
     <Compile Include="Validators\MatchGuessValidator.cs" />
     <Compile Include="Validators\MatchValidator.cs" />
     <Compile Include="Validators\ProfileValidator.cs" />
+    <Compile Include="Validators\ScoreValidator.cs" />
     <Compile Include="Validators\ValidationLimits.cs" />
     <Compile Include="Validators\WordValidator.cs" />
   </ItemGroup>

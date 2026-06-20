@@ -8,6 +8,7 @@ namespace Hangman.ConsoleHost.Configuration
         private const string DefaultDuplexBaseAddress = "net.tcp://localhost:8090/Hangman/";
         private const string DefaultMatchNotificationServicePath = "MatchNotificationService";
         private const string DefaultMatchChatServicePath = "MatchChatService";
+        private const string DefaultScoreServicePath = "ScoreService";
         private const string DefaultMatchGameplayServicePath = "MatchGameplayService";
         private const string DefaultMatchGuessServicePath = "MatchGuessService";
         private const string DefaultAuthServicePath = "AuthService/";
@@ -33,6 +34,7 @@ namespace Hangman.ConsoleHost.Configuration
                 ProfileServicePath = GetString("Wcf.ProfileServicePath", "ProfileService"),
                 WordServicePath = GetString("Wcf.WordServicePath", "WordService"),
                 MatchServicePath = GetString("Wcf.MatchServicePath", "MatchService"),
+                ScoreServicePath = GetString("Wcf.ScoreServicePath", DefaultScoreServicePath),
                 MaxReceivedMessageSize = GetLong("Wcf.MaxReceivedMessageSize", DefaultMaxReceivedMessageSize),
                 OpenTimeoutSeconds = GetInt("Wcf.OpenTimeoutSeconds", DefaultOpenTimeoutSeconds),
                 CloseTimeoutSeconds = GetInt("Wcf.CloseTimeoutSeconds", DefaultCloseTimeoutSeconds),

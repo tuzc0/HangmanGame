@@ -30,6 +30,11 @@ namespace Hangman.Business.Results
             return FailMessage(messageCode);
         }
 
+        public static ValidationResult Fail(ScoreMessageCode messageCode)
+        {
+            return FailMessage(messageCode);
+        }
+
         private static ValidationResult FailMessage(Enum messageCode)
         {
             if (messageCode == null)

@@ -22,6 +22,8 @@
 
         public string MatchChatServicePath { get; set; }
 
+        public string ScoreServicePath { get; set; }
+
         public long MaxReceivedMessageSize { get; set; }
 
         public int OpenTimeoutSeconds { get; set; }

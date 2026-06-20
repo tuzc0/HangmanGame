@@ -85,6 +85,7 @@
     <Compile Include="Services\MatchNotificationService.cs" />
     <Compile Include="Services\MatchService.cs" />
     <Compile Include="Services\ProfileService.cs" />
+    <Compile Include="Services\ScoreService.cs" />
     <Compile Include="Services\WordService.cs" />
   </ItemGroup>
   <ItemGroup>
