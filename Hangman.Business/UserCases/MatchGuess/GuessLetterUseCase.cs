@@ -30,11 +30,8 @@ namespace Hangman.Business.UserCases.MatchGuess
         {
             if (request == null)
             {
-                return MatchGuessResponseFactory.BuildGuessLetterResponse(
-                    false,
+                return BuildFailureResponse(
                     MatchMessageCode.InvalidMatchId,
-                    false,
-                    false,
                     null);
             }
 
@@ -43,11 +40,8 @@ namespace Hangman.Business.UserCases.MatchGuess
 
             if (validationResult.HasValue)
             {
-                return MatchGuessResponseFactory.BuildGuessLetterResponse(
-                    false,
+                return BuildFailureResponse(
                     validationResult.Value,
-                    false,
-                    false,
                     null);
             }
 
@@ -60,11 +54,8 @@ namespace Hangman.Business.UserCases.MatchGuess
 
                 if (!playerAvailability.IsAvailable)
                 {
-                    return MatchGuessResponseFactory.BuildGuessLetterResponse(
-                        false,
-                        playerAvailability.MessageCode,
-                        false,
-                        false,
+                    return BuildFailureResponse(
+                        ToMatchMessageCode(playerAvailability.MessageCode),
                         null);
                 }
 
@@ -78,11 +69,8 @@ namespace Hangman.Business.UserCases.MatchGuess
 
                 if (accessValidation.HasValue)
                 {
-                    return MatchGuessResponseFactory.BuildGuessLetterResponse(
-                        false,
+                    return BuildFailureResponse(
                         accessValidation.Value,
-                        false,
-                        false,
                         null);
                 }
 
@@ -94,45 +82,18 @@ namespace Hangman.Business.UserCases.MatchGuess
 
                 if (!GuessTurnPolicy.HasGuessTurnStarted(match))
                 {
-                    return MatchGuessResponseFactory.BuildGuessLetterResponse(
-                        false,
+                    return BuildFailureResponse(
                         MatchMessageCode.GuessTurnNotStarted,
-                        false,
-                        false,
                         currentState);
                 }
 
                 if (GuessTurnPolicy.HasGuessTurnExpired(match))
                 {
-                    bool timeoutResolved =
-                        await MatchGuessCompletionHelper.FinishWithHostWinAsync(
-                            unitOfWork,
-                            match);
-
-                    if (!timeoutResolved)
-                    {
-                        return MatchGuessResponseFactory.BuildGuessLetterResponse(
-                            false,
-                            MatchMessageCode.UnexpectedError,
-                            false,
-                            false,
-                            currentState);
-                    }
-
-                    await unitOfWork.CommitAsync();
-
-                    MatchGameStateDto expiredState =
-                        await MatchGameStateLoader.BuildByMatchIdAsync(
-                            unitOfWork,
-                            match.MatchId,
-                            playerId);
-
-                    return MatchGuessResponseFactory.BuildGuessLetterResponse(
-                        false,
-                        MatchMessageCode.GuessTurnExpired,
-                        false,
-                        true,
-                        expiredState);
+                    return await ResolveExpiredTurnAsync(
+                        unitOfWork,
+                        match,
+                        playerId,
+                        currentState);
                 }
 
                 string normalizedLetter =
@@ -145,162 +106,334 @@ namespace Hangman.Business.UserCases.MatchGuess
 
                 if (letterAlreadyGuessed)
                 {
-                    return MatchGuessResponseFactory.BuildGuessLetterResponse(
-                        false,
+                    return BuildFailureResponse(
                         MatchMessageCode.LetterAlreadyGuessed,
-                        false,
-                        false,
                         currentState);
                 }
 
-                string word = GuessEvaluator.GetWordForPlayer(match, playerId);
-                bool isCorrect = GuessEvaluator.ContainsLetter(
+                LetterGuessResult guessResult =
+                    await ProcessLetterGuessAsync(
+                        unitOfWork,
+                        match,
+                        playerId,
+                        normalizedLetter);
+
+                if (!guessResult.Success)
+                {
+                    return BuildFailureResponse(
+                        guessResult.MessageCode,
+                        currentState,
+                        guessResult.IsCorrect);
+                }
+
+                return await BuildCommittedGuessResponseAsync(
+                    unitOfWork,
+                    match.MatchId,
+                    playerId,
+                    guessResult);
+            }
+        }
+
+        private static MatchMessageCode ToMatchMessageCode(Enum messageCode)
+        {
+            if (messageCode is MatchMessageCode matchMessageCode)
+            {
+                return matchMessageCode;
+            }
+
+            return MatchMessageCode.UnexpectedError;
+        }
+
+        private static async Task<GuessLetterResponse> ResolveExpiredTurnAsync(
+            IUnitOfWork unitOfWork,
+            MatchTransporter match,
+            int playerId,
+            MatchGameStateDto currentState)
+        {
+            bool timeoutResolved =
+                await MatchGuessCompletionHelper.FinishWithHostWinAsync(
+                    unitOfWork,
+                    match);
+
+            if (!timeoutResolved)
+            {
+                return BuildFailureResponse(
+                    MatchMessageCode.UnexpectedError,
+                    currentState);
+            }
+
+            await unitOfWork.CommitAsync();
+
+            MatchGameStateDto expiredState =
+                await MatchGameStateLoader.BuildByMatchIdAsync(
+                    unitOfWork,
+                    match.MatchId,
+                    playerId);
+
+            return MatchGuessResponseFactory.BuildGuessLetterResponse(
+                false,
+                MatchMessageCode.GuessTurnExpired,
+                false,
+                true,
+                expiredState);
+        }
+
+        private static async Task<LetterGuessResult> ProcessLetterGuessAsync(
+            IUnitOfWork unitOfWork,
+            MatchTransporter match,
+            int playerId,
+            string normalizedLetter)
+        {
+            string word = GuessEvaluator.GetWordForPlayer(match, playerId);
+
+            bool isCorrect =
+                GuessEvaluator.ContainsLetter(word, normalizedLetter);
+
+            unitOfWork.MatchGuesses.Add(
+                CreateMatchGuess(
+                    match.MatchId,
+                    playerId,
+                    normalizedLetter,
+                    isCorrect));
+
+            if (isCorrect)
+            {
+                return await ProcessCorrectLetterAsync(
+                    unitOfWork,
+                    match,
                     word,
                     normalizedLetter);
+            }
 
-                unitOfWork.MatchGuesses.Add(
-                    new CreateMatchGuessTransporter
-                    {
-                        MatchId = match.MatchId,
-                        GuessedById = playerId,
-                        Letter = normalizedLetter,
-                        IsCorrect = isCorrect
-                    });
+            return await ProcessIncorrectLetterAsync(unitOfWork, match);
+        }
 
-                MatchMessageCode messageCode;
-                bool matchFinished = false;
+        private static CreateMatchGuessTransporter CreateMatchGuess(
+            int matchId,
+            int playerId,
+            string normalizedLetter,
+            bool isCorrect)
+        {
+            return new CreateMatchGuessTransporter
+            {
+                MatchId = matchId,
+                GuessedById = playerId,
+                Letter = normalizedLetter,
+                IsCorrect = isCorrect
+            };
+        }
 
-                if (isCorrect)
-                {
-                    List<MatchGuessTransporter> previousGuesses =
-                        await unitOfWork.MatchGuesses.GetByMatchIdAsync(
-                            match.MatchId);
+        private static async Task<LetterGuessResult> ProcessCorrectLetterAsync(
+            IUnitOfWork unitOfWork,
+            MatchTransporter match,
+            string word,
+            string normalizedLetter)
+        {
+            List<string> correctLetters =
+                await GetCorrectLettersIncludingCurrentAsync(
+                    unitOfWork,
+                    match.MatchId,
+                    normalizedLetter);
 
-                    List<string> correctLetters = previousGuesses
-                        .Where(guess => guess.IsCorrect)
-                        .Select(guess => guess.Letter)
-                        .ToList();
+            bool wordCompleted =
+                MatchGuessCompletionHelper.IsWordCompleted(
+                    word,
+                    correctLetters);
 
-                    correctLetters.Add(normalizedLetter);
+            if (wordCompleted)
+            {
+                return await FinishWithGuesserWinAsync(unitOfWork, match);
+            }
 
-                    bool wordCompleted =
-                        MatchGuessCompletionHelper.IsWordCompleted(
-                            word,
-                            correctLetters);
+            return await UpdateGuessTurnAsync(
+                unitOfWork,
+                match.MatchId,
+                MatchMessageCode.CorrectLetterGuess,
+                true);
+        }
 
-                    if (wordCompleted)
-                    {
-                        bool finished =
-                            await MatchGuessCompletionHelper
-                                .FinishWithGuesserWinAsync(unitOfWork, match);
+        private static async Task<List<string>> GetCorrectLettersIncludingCurrentAsync(
+            IUnitOfWork unitOfWork,
+            int matchId,
+            string normalizedLetter)
+        {
+            List<MatchGuessTransporter> previousGuesses =
+                await unitOfWork.MatchGuesses.GetByMatchIdAsync(matchId);
 
-                        if (!finished)
-                        {
-                            return MatchGuessResponseFactory
-                                .BuildGuessLetterResponse(
-                                    false,
-                                    MatchMessageCode.UnexpectedError,
-                                    isCorrect,
-                                    false,
-                                    currentState);
-                        }
+            List<string> correctLetters = previousGuesses
+                .Where(guess => guess.IsCorrect)
+                .Select(guess => guess.Letter)
+                .ToList();
 
-                        messageCode = MatchMessageCode.GuesserWon;
-                        matchFinished = true;
-                    }
-                    else
-                    {
-                        bool turnUpdated =
-                            await unitOfWork.Matches.UpdateGuessTurnAsync(
-                                GuessTurnClock.CreateNextTurn(match.MatchId));
+            correctLetters.Add(normalizedLetter);
 
-                        if (!turnUpdated)
-                        {
-                            return MatchGuessResponseFactory
-                                .BuildGuessLetterResponse(
-                                    false,
-                                    MatchMessageCode.UnexpectedError,
-                                    isCorrect,
-                                    false,
-                                    currentState);
-                        }
+            return correctLetters;
+        }
 
-                        messageCode = MatchMessageCode.CorrectLetterGuess;
-                    }
-                }
-                else
-                {
-                    bool failedAttemptUpdated =
-                        await unitOfWork.Matches.IncrementFailedAttemptsAsync(
-                            match.MatchId);
+        private static async Task<LetterGuessResult> ProcessIncorrectLetterAsync(
+            IUnitOfWork unitOfWork,
+            MatchTransporter match)
+        {
+            bool failedAttemptUpdated =
+                await unitOfWork.Matches.IncrementFailedAttemptsAsync(
+                    match.MatchId);
 
-                    if (!failedAttemptUpdated)
-                    {
-                        return MatchGuessResponseFactory.BuildGuessLetterResponse(
-                            false,
-                            MatchMessageCode.UnexpectedError,
-                            isCorrect,
-                            false,
-                            currentState);
-                    }
+            if (!failedAttemptUpdated)
+            {
+                return LetterGuessResult.Failure(false);
+            }
 
-                    int updatedFailedAttempts = match.FailedAttempts + 1;
+            int updatedFailedAttempts = match.FailedAttempts + 1;
 
-                    if (updatedFailedAttempts >= match.MaxAttempts)
-                    {
-                        bool finished =
-                            await MatchGuessCompletionHelper
-                                .FinishWithHostWinAsync(unitOfWork, match);
+            if (updatedFailedAttempts >= match.MaxAttempts)
+            {
+                return await FinishWithHostWinAsync(unitOfWork, match);
+            }
 
-                        if (!finished)
-                        {
-                            return MatchGuessResponseFactory
-                                .BuildGuessLetterResponse(
-                                    false,
-                                    MatchMessageCode.UnexpectedError,
-                                    isCorrect,
-                                    false,
-                                    currentState);
-                        }
+            return await UpdateGuessTurnAsync(
+                unitOfWork,
+                match.MatchId,
+                MatchMessageCode.IncorrectLetterGuess,
+                false);
+        }
 
-                        messageCode = MatchMessageCode.HostWon;
-                        matchFinished = true;
-                    }
-                    else
-                    {
-                        bool turnUpdated =
-                            await unitOfWork.Matches.UpdateGuessTurnAsync(
-                                GuessTurnClock.CreateNextTurn(match.MatchId));
+        private static async Task<LetterGuessResult> FinishWithGuesserWinAsync(
+            IUnitOfWork unitOfWork,
+            MatchTransporter match)
+        {
+            bool finished =
+                await MatchGuessCompletionHelper.FinishWithGuesserWinAsync(
+                    unitOfWork,
+                    match);
 
-                        if (!turnUpdated)
-                        {
-                            return MatchGuessResponseFactory
-                                .BuildGuessLetterResponse(
-                                    false,
-                                    MatchMessageCode.UnexpectedError,
-                                    isCorrect,
-                                    false,
-                                    currentState);
-                        }
+            if (!finished)
+            {
+                return LetterGuessResult.Failure(true);
+            }
 
-                        messageCode = MatchMessageCode.IncorrectLetterGuess;
-                    }
-                }
+            return LetterGuessResult.SuccessResult(
+                MatchMessageCode.GuesserWon,
+                true,
+                true);
+        }
 
-                await unitOfWork.CommitAsync();
+        private static async Task<LetterGuessResult> FinishWithHostWinAsync(
+            IUnitOfWork unitOfWork,
+            MatchTransporter match)
+        {
+            bool finished =
+                await MatchGuessCompletionHelper.FinishWithHostWinAsync(
+                    unitOfWork,
+                    match);
 
-                MatchGameStateDto updatedState =
-                    await MatchGameStateLoader.BuildByMatchIdAsync(
-                        unitOfWork,
-                        match.MatchId,
-                        playerId);
+            if (!finished)
+            {
+                return LetterGuessResult.Failure(false);
+            }
 
-                return MatchGuessResponseFactory.BuildGuessLetterResponse(
+            return LetterGuessResult.SuccessResult(
+                MatchMessageCode.HostWon,
+                false,
+                true);
+        }
+
+        private static async Task<LetterGuessResult> UpdateGuessTurnAsync(
+            IUnitOfWork unitOfWork,
+            int matchId,
+            MatchMessageCode messageCode,
+            bool isCorrect)
+        {
+            bool turnUpdated =
+                await unitOfWork.Matches.UpdateGuessTurnAsync(
+                    GuessTurnClock.CreateNextTurn(matchId));
+
+            if (!turnUpdated)
+            {
+                return LetterGuessResult.Failure(isCorrect);
+            }
+
+            return LetterGuessResult.SuccessResult(
+                messageCode,
+                isCorrect,
+                false);
+        }
+
+        private static async Task<GuessLetterResponse> BuildCommittedGuessResponseAsync(
+            IUnitOfWork unitOfWork,
+            int matchId,
+            int playerId,
+            LetterGuessResult guessResult)
+        {
+            await unitOfWork.CommitAsync();
+
+            MatchGameStateDto updatedState =
+                await MatchGameStateLoader.BuildByMatchIdAsync(
+                    unitOfWork,
+                    matchId,
+                    playerId);
+
+            return MatchGuessResponseFactory.BuildGuessLetterResponse(
+                true,
+                guessResult.MessageCode,
+                guessResult.IsCorrect,
+                guessResult.MatchFinished,
+                updatedState);
+        }
+
+        private static GuessLetterResponse BuildFailureResponse(
+            MatchMessageCode messageCode,
+            MatchGameStateDto gameState,
+            bool isCorrect = false)
+        {
+            return MatchGuessResponseFactory.BuildGuessLetterResponse(
+                false,
+                messageCode,
+                isCorrect,
+                false,
+                gameState);
+        }
+
+        private sealed class LetterGuessResult
+        {
+            private LetterGuessResult(
+                bool success,
+                MatchMessageCode messageCode,
+                bool isCorrect,
+                bool matchFinished)
+            {
+                Success = success;
+                MessageCode = messageCode;
+                IsCorrect = isCorrect;
+                MatchFinished = matchFinished;
+            }
+
+            public bool Success { get; private set; }
+
+            public MatchMessageCode MessageCode { get; private set; }
+
+            public bool IsCorrect { get; private set; }
+
+            public bool MatchFinished { get; private set; }
+
+            public static LetterGuessResult SuccessResult(
+                MatchMessageCode messageCode,
+                bool isCorrect,
+                bool matchFinished)
+            {
+                return new LetterGuessResult(
                     true,
                     messageCode,
                     isCorrect,
-                    matchFinished,
-                    updatedState);
+                    matchFinished);
+            }
+
+            public static LetterGuessResult Failure(bool isCorrect)
+            {
+                return new LetterGuessResult(
+                    false,
+                    MatchMessageCode.UnexpectedError,
+                    isCorrect,
+                    false);
             }
         }
     }

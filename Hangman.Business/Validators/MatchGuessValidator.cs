@@ -8,25 +8,37 @@ namespace Hangman.Business.Validators
         public static MatchMessageCode? ValidateGetGameState(
             GetMatchGameStateRequest request)
         {
+            if (request == null)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
             return ValidateMatchAndAccount(
-                request == null ? 0 : request.MatchId,
-                request == null ? 0 : request.AccountId);
+                request.MatchId,
+                request.AccountId);
         }
 
         public static MatchMessageCode? ValidateGuessLetter(
             GuessLetterRequest request)
         {
+            if (request == null)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
             MatchMessageCode? basicValidation = ValidateMatchAndAccount(
-                request == null ? 0 : request.MatchId,
-                request == null ? 0 : request.AccountId);
+                request.MatchId,
+                request.AccountId);
 
             if (basicValidation.HasValue)
             {
                 return basicValidation.Value;
             }
 
-            if (string.IsNullOrWhiteSpace(request.Letter) ||
-                request.Letter.Trim().Length != 1)
+            string letter = request.Letter?.Trim();
+
+            if (string.IsNullOrWhiteSpace(letter) ||
+                letter.Length != 1)
             {
                 return MatchMessageCode.InvalidLetter;
             }
@@ -37,16 +49,23 @@ namespace Hangman.Business.Validators
         public static MatchMessageCode? ValidateGuessWord(
             GuessWordRequest request)
         {
+            if (request == null)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
             MatchMessageCode? basicValidation = ValidateMatchAndAccount(
-                request == null ? 0 : request.MatchId,
-                request == null ? 0 : request.AccountId);
+                request.MatchId,
+                request.AccountId);
 
             if (basicValidation.HasValue)
             {
                 return basicValidation.Value;
             }
 
-            if (string.IsNullOrWhiteSpace(request.Word))
+            string word = request.Word?.Trim();
+
+            if (string.IsNullOrWhiteSpace(word))
             {
                 return MatchMessageCode.InvalidWordGuess;
             }
@@ -57,9 +76,14 @@ namespace Hangman.Business.Validators
         public static MatchMessageCode? ValidateResolveGuessTimeout(
             ResolveGuessTimeoutRequest request)
         {
+            if (request == null)
+            {
+                return MatchMessageCode.InvalidMatchId;
+            }
+
             return ValidateMatchAndAccount(
-                request == null ? 0 : request.MatchId,
-                request == null ? 0 : request.AccountId);
+                request.MatchId,
+                request.AccountId);
         }
 
         private static MatchMessageCode? ValidateMatchAndAccount(
